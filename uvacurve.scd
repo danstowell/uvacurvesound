@@ -155,13 +155,13 @@ s.waitForBoot{
 		~scenetypes["tonestack01" ++ adata[0]] = {|pendspos, onescenepos, width|
 			var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
 
-			basefreqs = [120, 240, 480];
+			basefreqs = [120, 240, 480].scramble;
 			harmstack = [1, 1.5, 2];
 			harmamps = [1.5, 0.5, 0.3];
 
 			freqs = basefreqs.collect{|bfreq| Array.series(~npendulums, bfreq, 0)};
 
-			fmdepth = MouseX.kr(0.000001, 0.5);
+			fmdepth = MouseX.kr(-0.5, 0.5).max(0);
 			fm = LFNoise0.ar(400).exprange(1 - fmdepth, 1 + fmdepth);
 
 			son = harmstack.mean{|val, index| adata[1].ar(freqs * val * (fm * index), mul: 0.05 * harmamps[index])};
@@ -183,18 +183,19 @@ s.waitForBoot{
 	~scenetypes["tonestack01sin02"] = {|pendspos, onescenepos, width|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
 
-		basefreqs = [120, 240, 480];
+		//basefreqs = [120, 180, 240, 360, 480].scramble;
+		basefreqs = [120, 130] * 3;
 		harmstack = [1, 1.5, 2];
 		harmamps = [1.5, 0.5, 0.3];
 
 		freqs = basefreqs.collect{|bfreq| Array.series(~npendulums, bfreq, 0)};
 
 		//fmdepth = MouseX.kr(0.000001, 0.5);
-		fm = MouseY.kr(0.5, 1, 1); // LFNoise0.ar(400).exprange(1 - fmdepth, 1 + fmdepth);
+		fm = Gate.kr(MouseY.kr(0.5, 1, 1), Impulse.kr(0) + MouseButton.kr);
 
 		son = harmstack.mean{|val, index| SinOsc.ar(freqs * val * (fm * index), mul: 0.05 * harmamps[index])};
 
-		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/60, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
 		freqsel.poll;
 		son = (son * freqsel).sum;
 
