@@ -7,6 +7,7 @@
 ~hw_subbus = 0;
 ~hardmul = if(~stereoonly){1}{0.75};
 ////////////////////////
+s.options.numWireBufs = 128;
 s.waitForBoot{
 	~npendulums = 12;
 	~nscenes    = 3;
