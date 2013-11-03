@@ -79,7 +79,7 @@ s.waitForBoot{
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
 	~scenetypes["testsine"] = {|pendspos, onescenepos, width, freqscale|
-		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660))};
+		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)};
 		var sub = {SinOsc.ar(rrand(20, 60))}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
@@ -89,7 +89,7 @@ s.waitForBoot{
 		phases = (0..~npendulums-1) * 0.5 / ~npendulums;
 		onewidth = 0.5 / ~npendulums;
 		amps = ~npendulums.collect{|index| width.linlin(index, index+1, 0, 1)};
-		freq = IRand(25, 35).midicps;
+		freq = IRand(25, 35).midicps * freqscale;
 		son = ~npendulums.collect{|which|
 			LFPulse.ar(freq, phases[which], onewidth, amps[which]);
 		};
@@ -217,7 +217,7 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
-	~scenetypes["tonestack01sin02superhigh"] = {|pendspos, onescenepos, width, freqscale|
+	~scenetypes["superhigh"] = {|pendspos, onescenepos, width, freqscale|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
 
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
@@ -299,6 +299,7 @@ s.waitForBoot{
 		);
 		bongs = bongs + WhiteNoise.ar(0.25);
 		bongs = bongs * EnvGen.ar(Env.perc(0.02, 0.05, curve: [2, 0]), imps);
+		bongs = bongs * 0.5;
 
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -318,12 +319,12 @@ s.waitForBoot{
 	~sceneenveloper.value(son, sub, onescenepos, width)
 	};
 	*/
-	~scenetypes["antiphase"] = {|pendspos, onescenepos, width|
-		var son, sub, phase, basefreq=180;
+	~scenetypes["antiphase"] = {|pendspos, onescenepos, width, freqscale|
+		var son, sub, phase, basefreq=IRand(40, 60).midicps;
 		son = ~npendulums.collect{|which|
 			phase = (which % 2) * pi;
 			//SinOsc.ar(basefreq * [1, 2, 4, 8], phase, [1, 0.9, 0.8, 0.7]).mean
-			SinOsc.ar(basefreq * [1], phase, [1, 0.9, 0.8, 0.7]).mean
+			SinOsc.ar(basefreq * freqscale * [1], phase, [1, 0.9, 0.8, 0.7]).mean
 		};
 		sub = ~nsubs.collect{|which|
 			phase = (which % 2) * pi;
@@ -331,14 +332,14 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width, false)
 	};
-	~scenetypes["linharm"] = {|pendspos, onescenepos, width|
-		var son, sub, basefreq = 110;
+	~scenetypes["linharm"] = {|pendspos, onescenepos, width, freqscale|
+		var son, sub, basefreq = IRand(40,50).midicps;
 		//var harms = [1,2,4,8,16]
 		var harms = [1,2,3,4,5,6,7];
 		var reamp = harms.sum{|val| 1/val.squared}.reciprocal;
 		son = ~npendulums.collect{|which|
 			harms.collect{|val|
-				SinOsc.ar(basefreq * val, 0, 1/val.squared)
+				SinOsc.ar(basefreq * freqscale * val, 0, 1/val.squared)
 			}.sum * reamp;
 		};
 		sub = ~nsubs.collect{|which|
