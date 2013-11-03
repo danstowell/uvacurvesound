@@ -5,7 +5,7 @@
 s.meter;
 */
 (
-var w, mainbox, obj, wrapperwidget, thiswidget;
+var w, mainbox, obj, wrapperwidget, thiswidget, subwidget;
 w = Window("gui_uvacurve_audio", Rect(800, 64, 400, 800));
 mainbox = VLayout();
 
@@ -73,7 +73,7 @@ mainbox.add(thiswidget);
 
 thiswidget = HLayout();
 thiswidget.add(StaticText().string_("Fake reverb"));
-obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
+obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(0).action_({|but|
 	~outputter.set(\reverbon, but.value);
 });
 thiswidget.add(obj);
@@ -96,7 +96,7 @@ mainbox.add(thiswidget);
 ~scenesboxes = ~nscenes.collect{|whichscene|
 	wrapperwidget = HLayout();
 	thiswidget = VLayout();
-	thiswidget.add(StaticText().string_(whichscene.asString));
+	thiswidget.add(StaticText().string_("Scene %".format(whichscene)));
 	obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
 		if(but.value==0){~sceneplayers[whichscene].pause}{~sceneplayers[whichscene].resume};
 	});
@@ -108,16 +108,34 @@ mainbox.add(thiswidget);
 	wrapperwidget.add(thiswidget);
 
 	thiswidget = VLayout();
-	obj = Slider().orientation_(\horizontal).value_(0.5).action_({|slider|
+	obj = Slider().orientation_(\horizontal).value_(0).action_({|slider|
 		~sceneplayers[whichscene].set(\width, slider.value)
 	});
 	thiswidget.add(obj);
+
+	subwidget = HLayout();
+	obj = StaticText().string_("Rapidity:");
+	subwidget.add(obj);
+	obj = NumberBox().value_(1).action_({|widg|
+		~scenepossynths[whichscene].set(\ratescale, widg.value)
+	});
+	subwidget.add(obj);
+	obj = StaticText().string_("Freq x");
+	subwidget.add(obj);
+	obj = NumberBox().value_(1).action_({|widg|
+		~sceneplayers[whichscene].set(\freqscale, widg.value)
+	});
+	subwidget.add(obj);
+	thiswidget.add(subwidget);
+
+
 	obj = ListView(bounds: Rect(0,0,100,100)).items_(~scenenames).selectionMode_(\single);
 	obj.value_(~scenenames.indexOfEqual(~defaultscenes[whichscene]));
 	obj.action_({|list|
 		~pushascene.value(list.items[list.value], whichscene)
 	});
 	thiswidget.add(obj);
+
 	wrapperwidget.add(thiswidget);
 
 	mainbox.add(wrapperwidget);
