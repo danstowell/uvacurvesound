@@ -161,6 +161,26 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
+	~scenetypes["speakerTEST"] = {|pendspos, onescenepos, width|
+		var imps, bongs, sub;
+
+		imps = Impulse.ar(2 / ~npendulums,
+			(1..~npendulums)/(~npendulums+1)) // These fire on individual channels
+		+
+		Impulse.ar(2/~npendulums)  // This one fires on all channels
+		;
+
+		bongs = SinOsc.ar(
+			{(10.rand + 50).midicps}.dup(~npendulums).postln + LFNoise2.kr(10, 40)
+		);
+		bongs = bongs + WhiteNoise.ar(0.25);
+		bongs = bongs * EnvGen.ar(Env.perc(0.02, 0.05, curve: [2, 0]), imps);
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		[bongs, sub]
+	};
 	/*
 	~scenetypes["fizzlein"] = {|pendspos, onescenepos, width|
 	var son, sub, freq;
