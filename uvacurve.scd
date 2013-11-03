@@ -112,13 +112,42 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1) // no width
 	};
+	~scenetypes["tracer02"] = {|pendspos, onescenepos, width|
+		var son, sub;
+		var pos, trig, rawson, scaler, panenv;
+		scaler = MouseX.kr(0.5, 5, 1).poll(1, "mousex");
+		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
+		//		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, 20000), phase: 0.5pi);
+		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(1, "mousey topfreq")), phase: 0.5pi);
+		rawson = rawson * EnvGen.ar(Env.perc(0, 0.1), trig, timeScale: scaler);
+		rawson = HPF.ar(rawson, 5000) * 4;
+		// Now we delay-and-splay it so as to zap across speakers
+		son = ~npendulums.collect{|which|
+			var del = which * 0.06;
+			DelayC.ar(rawson, del, del);
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0); // TODO crossover filter
+		};
+		~sceneenveloper.value(son, sub, onescenepos, 1) // no width
+	};
 	~scenetypes["hinoise"] = {|pendspos, onescenepos, width|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			HPF.ar(PinkNoise.ar, MouseX.kr(5000, 20000, 1)); // 10000 default
+			HPF.ar(PinkNoise.ar, MouseX.kr(5000, 20000, 1)) * MouseX.kr(1, 5, 1); // 10000 default
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	};
+	~scenetypes["lonoise"] = {|pendspos, onescenepos, width|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			LPF.ar(BrownNoise.ar, MouseX.kr(5000, 20000, 1)) * 0.5;
+		};
+		sub = ~nsubs.collect{|which|
+			LPF.ar(BrownNoise.ar, 100);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
@@ -151,6 +180,33 @@ s.waitForBoot{
 			~sceneenveloper.value(son, sub, onescenepos, width)
 		};
 	}; // end adata iter
+	~scenetypes["tonestack01sin02"] = {|pendspos, onescenepos, width|
+		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
+
+		basefreqs = [120, 240, 480];
+		harmstack = [1, 1.5, 2];
+		harmamps = [1.5, 0.5, 0.3];
+
+		freqs = basefreqs.collect{|bfreq| Array.series(~npendulums, bfreq, 0)};
+
+		//fmdepth = MouseX.kr(0.000001, 0.5);
+		fm = MouseY.kr(0.5, 1, 1); // LFNoise0.ar(400).exprange(1 - fmdepth, 1 + fmdepth);
+
+		son = harmstack.mean{|val, index| SinOsc.ar(freqs * val * (fm * index), mul: 0.05 * harmamps[index])};
+
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/60, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		freqsel.poll;
+		son = (son * freqsel).sum;
+
+		amps = ~npendulums.collect{|val| SinOsc.ar(0.125, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+
+		son = son * amps * 15;
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	};
 	~scenetypes["silent"] = {|pendspos, onescenepos, width|
 		var son, sub;
 		son = ~npendulums.collect{|which|
