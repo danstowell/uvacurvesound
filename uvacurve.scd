@@ -4,14 +4,15 @@
 ~defaultscenes = ["tonestack01sin", "silent", "silent"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
-~hw_subbus = 0;
+~hw_subbus = 4;
 ~hardmul = if(~stereoonly){1}{0.75};
 ////////////////////////
 s.options.numWireBufs = 128;
 s.waitForBoot{
 	~npendulums = 12;
+	~npendulums_true = 4; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
 	~nscenes    = 3;
-	~nsubs      = 2;
+	~nsubs      = 1;
 	// busses
 	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
 	~sceneposbus = Bus.control(s, ~nscenes);
@@ -26,15 +27,18 @@ s.waitForBoot{
 	// - SYNTH: pulsespos - a single synth that implements some kind of chaotic attractor or something, that ensures the scenes are dynamically moving around and mostly stay spatially separate from each other.
 	~scenepossynths = ~nscenes.collect{|whichscene|
 		{ |ratescale=1|
-			var pos = {LFPar.kr(ratescale * LFPar.kr(exprand(0.1, 10)).exprange(exprand(0.05, 0.1), exprand(0.1, 0.4))).range(0,1)};
+			//var pos = {LFPar.kr(ratescale * LFPar.kr(exprand(0.1, 10)).exprange(exprand(0.05, 0.1), exprand(0.1, 0.4))).range(0,1)};
+			var pos = LFSaw.kr(0.05 * rrand(0.9, 1.1), 2.0.rand).range(0, 1);
+			//Slope.kr(pos).poll(label: "theslope");
 			Out.kr(~sceneposbus.index + whichscene, pos);
 		}.play(~ksettersgroup);
 	};
 	// ~sceneposbus.scope
 
-	// - SYNTH: fakependulums - let's send SinOsc.kr(exprand(0.08, 0.13), 2pi.rand) to the busses for test.
+	// - SYNTH: fakependulums - let's send SinOsc.kr(exprand(), 2pi.rand) to the busses for test.
 	~fakependulums = {
-		var pendpos = {SinOsc.kr(exprand(0.08, 0.13), 2pi.rand)}.dup(~npendulums * 2);
+		// NB 3.4 is the standard period of the pendulums
+		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) / 3.4, 2pi.rand)}.dup(~npendulums * 2);
 		Out.kr(~pendbus, pendpos);
 	}.play(~ksettersgroup);
 
@@ -48,16 +52,19 @@ s.waitForBoot{
 	*/
 	// standard enveloper reused by each scene type
 	~sceneenveloper = {|audio, sub, position, width=0, movewith=true|
-		var distances = ((0..~npendulums-1) - (position * ~npendulums)).abs;
-		var subdistances = ((0..~nsubs-1) - (position * ~nsubs)).abs;
+		var distances = ((0..~npendulums-1) - (position * ~npendulums));
+		var subdistances = ((0..~nsubs-1) - (position * ~nsubs));
+		distances = distances.collect{|val|  min(val.abs, ~npendulums - val.abs) };
+		subdistances = subdistances.collect{|val|  min(val.abs, ~nsubs - val.abs) };
 		// when width is 0, we are only on the nearest one (i.e. distances <= 0.5) - NEVER not on one!
 		//   this means that any dist <=0.5 has to be treated the same.
 		// when width is 1, we are equally over all of them, irrespective of dist.
 		//distances.poll(1);
+		//position.poll(1);
 		audio = distances.collect{|adist, which|
 			var distmul = ((adist-0.5).max(0)/~npendulums).linexp(0, 1, 1, width.min(0.999).max(0.001));
 			//distmul.poll(1);
-			audio[which] * distmul;
+			audio[which] * distmul.squared;  /////// TEST IF HARDER ISOLATION IS GOOD
 		};
 		if(movewith){
 			audio = audio.sum{|anaudio, index| PanAz.ar(~npendulums, anaudio, (position + (index / ~npendulums)) * 2) };
@@ -79,9 +86,14 @@ s.waitForBoot{
 		var sub = {256 * LPF.ar(Dust2.ar(1), 100)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
+	~scenetypes["testimpulsepure"] = {|pendspos, onescenepos, width, freqscale|
+		var son = {Impulse.ar(1)}.dup(~npendulums);
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		[son, sub];
+	};
 	~scenetypes["testsine"] = {|pendspos, onescenepos, width, freqscale|
-		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)};
-		var sub = {SinOsc.ar(rrand(20, 60))}.dup(~nsubs);
+		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)} * 0.1;
+		var sub = {SinOsc.ar(rrand(20, 60))}.dup(~nsubs) * 0.4;
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
 	~scenetypes["frag_pwm"] = {|pendspos, onescenepos, width, freqscale|
@@ -93,7 +105,22 @@ s.waitForBoot{
 		freq = IRand(25, 35).midicps * freqscale;
 		son = ~npendulums.collect{|which|
 			LFPulse.ar(freq, phases[which], onewidth, amps[which]);
+		} * 0.1;
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
 		};
+		~sceneenveloper.value(son, sub, onescenepos, 1)
+	};
+	~scenetypes["frag_pwm2"] = {|pendspos, onescenepos, width, freqscale|
+		var phases, son, onewidth, amps, sub, freq;
+		width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
+		phases = (0..~npendulums-1) * 0.5 / ~npendulums;
+		onewidth = 0.5; //0.5 / ~npendulums;
+		amps = ~npendulums.collect{|index| width.linlin(index, index+1, 0, 1)};
+		freq = 0.5 * IRand(25, 35).midicps * freqscale;
+		son = ~npendulums.collect{|which|
+			LFPulse.ar(freq, phases[which], onewidth, amps[which]).lag(0.007) * 1.3;
+		} * 0.1;
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
@@ -102,7 +129,7 @@ s.waitForBoot{
 	~scenetypes["tracer"] = {|pendspos, onescenepos, width, freqscale|
 		var son, sub;
 		var pos, trig, rawson, scaler, panenv;
-		scaler = MouseX.kr(0.5, 5, 1).poll(1, "mousex");
+		scaler = MouseX.kr(0.5, 5, 1); //.poll(1, "mousex");
 		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
 		//		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, 20000), phase: 0.5pi);
 		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(1, "mousey topfreq")), phase: 0.5pi);
@@ -121,7 +148,7 @@ s.waitForBoot{
 	~scenetypes["tracer02"] = {|pendspos, onescenepos, width, freqscale|
 		var son, sub;
 		var pos, trig, rawson, scaler, panenv;
-		scaler = MouseX.kr(0.5, 5, 1).poll(1, "mousex");
+		scaler = MouseX.kr(0.5, 5, 1); //.poll(1, "mousex");
 		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
 		//		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, 20000), phase: 0.5pi);
 		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(1, "mousey topfreq")), phase: 0.5pi);
@@ -137,6 +164,23 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
 	};
+	~scenetypes["crickle"] = {|pendspos, onescenepos, width, freqscale|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			var sig;
+			// TODO MORE LIKE A FIRE OR VINYL
+			//HPF.ar(PinkNoise.ar, MouseX.kr(5000, 20000, 1)) * MouseX.kr(1, 5, 1); // 10000 default
+			sig = Dust2.ar(200);
+			sig = HPF.ar(sig, 15000 /* MouseX.kr(5000, 20000, 1) */, 0.7)
+			+ BPF.ar(sig, 800, 1, 2)
+			+ LPF.ar(sig, 433 /*MouseY.kr(100, 1000, 1).poll*/, 2);
+			//sig = BPF.ar(sig, MouseX.kr(1000, 5000, 1)) + BPF.ar(sig, MouseY.kr(100, 1000, 1).poll);
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	};
 	~scenetypes["hinoise"] = {|pendspos, onescenepos, width, freqscale|
 		var son, sub;
 		son = ~npendulums.collect{|which|
@@ -151,7 +195,7 @@ s.waitForBoot{
 		var son, sub;
 		son = ~npendulums.collect{|which|
 			LPF.ar(BrownNoise.ar, MouseX.kr(5000, 20000, 1)) * 0.5;
-		};
+		} * 0.3;
 		sub = ~nsubs.collect{|which|
 			LPF.ar(BrownNoise.ar, 100);
 		};
@@ -162,6 +206,7 @@ s.waitForBoot{
 			var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
 
 			basefreqs = [60, 90, 120, 240, 480].scramble * 0.5 * freqscale;
+			//basefreqs = [120, 130] * 0.5 * freqscale; /////TEST
 			harmstack = [1, 1.5, 2];
 			harmamps = [1.5, 0.4, 0.1];
 
@@ -172,7 +217,7 @@ s.waitForBoot{
 
 			son = harmstack.mean{|val, index| adata[1].ar(freqs * val * (fm * index), mul: 0.05 * harmamps[index])};
 
-			freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/60, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+			freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/30, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
 			//freqsel.poll;
 			son = (son * freqsel).sum;
 
@@ -183,7 +228,7 @@ s.waitForBoot{
 			//freqscale.poll;
 
 			sub = ~nsubs.collect{|which|
-				DC.ar(0);
+				SinOsc.ar((basefreqs * 0.25 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.1;
 			};
 			~sceneenveloper.value(son, sub, onescenepos, width)
 		};
@@ -248,7 +293,7 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
-	~scenetypes["tonestack01saw02"] = {|pendspos, onescenepos, width, freqscale|
+	~scenetypes["tonestack01tri02"] = {|pendspos, onescenepos, width, freqscale|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
 
 		basefreqs = [120, 180, 240, 360, 480].scramble * freqscale;
@@ -272,7 +317,7 @@ s.waitForBoot{
 		son = son * amps * 15;
 
 		sub = ~nsubs.collect{|which|
-			DC.ar(0);
+				SinOsc.ar((basefreqs * 0.125 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.2;
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
@@ -321,15 +366,17 @@ s.waitForBoot{
 	};
 	*/
 	~scenetypes["antiphase"] = {|pendspos, onescenepos, width, freqscale|
-		var son, sub, phase, basefreq=IRand(40, 60).midicps;
+		var son, sub, phase, basefreq=IRand(40, 50).midicps;
 		son = ~npendulums.collect{|which|
 			phase = (which % 2) * pi;
 			//SinOsc.ar(basefreq * [1, 2, 4, 8], phase, [1, 0.9, 0.8, 0.7]).mean
 			SinOsc.ar(basefreq * freqscale * [1], phase, [1, 0.9, 0.8, 0.7]).mean
-		};
+		} * 0.15;
 		sub = ~nsubs.collect{|which|
+			var sigs;
 			phase = (which % 2) * pi;
-			SinOsc.ar(basefreq * 0.5, phase)
+			sigs = SinOsc.ar((basefreq * freqscale * [0.5, 0.25]), 0, 0.5);
+			XFade2.ar(sigs[0], sigs[1], LFPar.kr(0.05));
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width, false)
 	};
@@ -342,9 +389,10 @@ s.waitForBoot{
 			harms.collect{|val|
 				SinOsc.ar(basefreq * freqscale * val, 0, 1/val.squared)
 			}.sum * reamp;
-		};
+		} * 0.15;
 		sub = ~nsubs.collect{|which|
-			SinOsc.ar(basefreq * 0.25, 0, 0.5)
+			var sigs = SinOsc.ar((basefreq * freqscale * [0.5, 0.25]), 0, 0.5);
+			XFade2.ar(sigs[0], sigs[1], LFPar.kr(0.05));
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
@@ -397,14 +445,21 @@ s.waitForBoot{
 		var audios = In.ar(~finalaudiobus, ~npendulums);
 		audios = audios.collect{|anaudio, whichaudio|
 			var delay = swingposses[whichaudio].lag(0.05).linlin(-1,1, 0, ~maxdoppler) * active;
+			var reverbmix = swingposses[whichaudio].lag(0.05).abs.linexp(0,1, 0.001, 0.9) * active;
+			var son;
 			//delay.poll(1);
-			DelayC.ar(anaudio, ~maxdoppler, delay);
+			//reverbmix.poll(1);
+			son = DelayC.ar(anaudio, ~maxdoppler, delay);
+			son = XFade2.ar(son, LPF.ar(son, 440), reverbmix * 2 - 1);
+			son = FreeVerb.ar(son, reverbmix, 0.7, 0.99);
 		};
 		ReplaceOut.ar(~finalaudiobus, audios);
 	}.play(~postfxgroup, addAction: \addToTail);
+	/*
+	~dopplerfaker.free
+	*/
 
-
-	~outputter = {|out=0, amp=0.7, midamp=0.7, subamp=0.7, midon=1, subon=0, reverbon=0|
+	~outputter = {|out=0, amp=0.7, midamp=0.7, subamp=0.7, midon=1, subon=1, reverbon=0|
 		if(~stereoonly){
 			// - SYNTH: stereo mixdown - takes gallery listening position from the mouse, adds distance-based attenuation and reverb, pans using the pendulumpos data. takes mainamp and subamp as simple controls.
 			var listenpos = MouseX.kr(0, ~npendulums-1);
@@ -428,7 +483,7 @@ s.waitForBoot{
 			Out.ar(out, son);
 		}{
 			// - SYNTH: multichannel outputter. takes mainamp and subamp as simple controls.
-			var rawsound = In.ar(~finalaudiobus, ~npendulums);
+			var rawsound = In.ar(~finalaudiobus, ~npendulums_true);
 			var rawsub   = In.ar(~subbus, ~nsubs);
 			rawsound = FreeVerb.ar(rawsound, mix:0.3 * reverbon, room:0.5, damp:0.5, mul:1);
 			Out.ar(~hw_midbus, rawsound * amp * midamp * midon * ~hardmul);

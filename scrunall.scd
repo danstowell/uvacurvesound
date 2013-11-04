@@ -6,10 +6,14 @@ Task{
 	2.wait;
 	s.sync;
 	"gui_uvacurve.scd".loadRelative;
-	~scope = s.scope(~npendulums);
+	~scope = ~finalaudiobus.scope;
 	~scope.yZoom_(100);
 	~scope.window.bounds_(Rect(10, 10, 200, 700));
 }.play(AppClock);
 
 )
 // ServerShmInterface
+
+/*
+s.scope(5)
+*/

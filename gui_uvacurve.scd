@@ -41,7 +41,7 @@ wrapperwidget.add(thiswidget);
 //
 thiswidget = VLayout();
 thiswidget.add(StaticText().string_("Subs"));
-obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(0).action_({|but|
+obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
 	~outputter.set(\subon, but.value);
 });
 thiswidget.add(obj);
@@ -55,6 +55,7 @@ mainbox.add(wrapperwidget);
 
 ////////
 
+/*
 thiswidget = HLayout();
 thiswidget.add(StaticText().string_("Scene pos motion"));
 obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
@@ -62,9 +63,9 @@ obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Col
 });
 thiswidget.add(obj);
 mainbox.add(thiswidget);
-
+*/
 thiswidget = HLayout();
-thiswidget.add(StaticText().string_("Fake doppler"));
+thiswidget.add(StaticText().string_("Fake doppler & indirectness"));
 obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
 	~dopplerfaker.set(\active, but.value);
 });
@@ -120,14 +121,29 @@ mainbox.add(thiswidget);
 		~scenepossynths[whichscene].set(\ratescale, widg.value)
 	});
 	subwidget.add(obj);
-	obj = StaticText().string_("Freq x");
-	subwidget.add(obj);
-	obj = NumberBox().value_(1).action_({|widg|
-		~sceneplayers[whichscene].set(\freqscale, widg.value)
-	});
-	subwidget.add(obj);
 	thiswidget.add(subwidget);
 
+	subwidget = HLayout();
+	obj = StaticText().string_("Freq x");
+	subwidget.add(obj);
+	{
+		var obj1, obj2;
+		obj1 = NumberBox().value_(1);
+		obj2 = Slider().orientation_(\horizontal).value_(0.5);
+		obj1.action_({|widg|
+			obj2.value_(widg.value.max(0.0001).explin(0.666666, 1.5, 0, 1));
+			~sceneplayers[whichscene].set(\freqscale, widg.value)
+		});
+		obj2.action_({|widg|
+			obj1.valueAction_(widg.value.linexp(0,1, 0.666666, 1.5));
+			//~sceneplayers[whichscene].set(\freqscale, widg.value.linexp(0,1, 0.666666, 1.5))
+		});
+
+		subwidget.add(obj1);
+		subwidget.add(StaticText().string_("     "));
+		subwidget.add(obj2);
+		thiswidget.add(subwidget);
+	}.value();
 
 	obj = ListView(bounds: Rect(0,0,100,100)).items_(~scenenames).selectionMode_(\single);
 	obj.value_(~scenenames.indexOfEqual(~defaultscenes[whichscene]));
