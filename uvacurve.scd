@@ -175,6 +175,7 @@ s.waitForBoot{
 			+ BPF.ar(sig, 800, 1, 2)
 			+ LPF.ar(sig, 433 /*MouseY.kr(100, 1000, 1).poll*/, 2);
 			//sig = BPF.ar(sig, MouseX.kr(1000, 5000, 1)) + BPF.ar(sig, MouseY.kr(100, 1000, 1).poll);
+			sig = FreeVerb.ar(sig) * BrownNoise.ar(2);
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);

@@ -8,3 +8,8 @@
 
 s.scope(4)
 s.scope(12)
+
+
+FreqScope()
+
+
