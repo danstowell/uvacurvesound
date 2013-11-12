@@ -6,7 +6,7 @@ s.meter;
 */
 (
 var w, mainbox, obj, wrapperwidget, thiswidget, subwidget;
-w = Window("gui_uvacurve_audio", Rect(800, 64, 500, 800));
+w = Window("gui_uvacurve_audio", Rect(800, 64, 600, 800));
 mainbox = VLayout();
 
 ///////////////////////////////////////////////////
@@ -151,7 +151,7 @@ mainbox.add(thiswidget);
 	subwidget.add(obj2);
 	thiswidget.add(subwidget);
 	}.value();
-	*/
+	// */
 
 	obj = ListView(bounds: Rect(0,0,100,100)).items_(~scenenames).selectionMode_(\single);
 	obj.value_(~scenenames.indexOfEqual(~defaultscenes[whichscene]));
