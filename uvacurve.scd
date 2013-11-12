@@ -11,7 +11,7 @@ s.options.numWireBufs = 128;
 s.waitForBoot{
 	~npendulums = 12;
 	~npendulums_true = 4; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
-	~nscenes    = 3;
+	~nscenes    = 2;
 	~nsubs      = 1;
 	// busses
 	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
@@ -176,6 +176,28 @@ s.waitForBoot{
 			+ LPF.ar(sig, 433 /*MouseY.kr(100, 1000, 1).poll*/, 2);
 			//sig = BPF.ar(sig, MouseX.kr(1000, 5000, 1)) + BPF.ar(sig, MouseY.kr(100, 1000, 1).poll);
 			sig = FreeVerb.ar(sig) * BrownNoise.ar(2);
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	};
+	~scenetypes["puresine01"] = {|pendspos, onescenepos, width, freqscale|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			(SinOsc.ar(880 * freqscale + [2.5, -2.5]).mean) * 0.1;
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	};
+	~scenetypes["puresine03"] = {|pendspos, onescenepos, width, freqscale|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			(SinOsc.ar([50] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(1).range(0.5, 1)
+			+
+			(SinOsc.ar([200] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(4).range(0.5, 1)
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -427,6 +449,7 @@ s.waitForBoot{
 			var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
 			var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
 			var allson = ~scenetypes[scenename].value(pendspos, onescenepos, width, freqscale) * amp;
+			(0..2).do{|outeri| pendspos[outeri].collect{|apend, apendi| apend.poll(0.25, "pendspos[%][%]".format(outeri, apendi))}};
 			Out.ar(~finalaudiobus, allson[0]);
 			Out.ar(~subbus, allson[1]);
 		}
@@ -454,13 +477,14 @@ s.waitForBoot{
 			son = XFade2.ar(son, LPF.ar(son, 440), reverbmix * 2 - 1);
 			son = FreeVerb.ar(son, reverbmix, 0.7, 0.99);
 		};
+		audios = audios.min(1).max(-1);
 		ReplaceOut.ar(~finalaudiobus, audios);
 	}.play(~postfxgroup, addAction: \addToTail);
 	/*
 	~dopplerfaker.free
 	*/
 
-	~outputter = {|out=0, amp=0.7, midamp=0.7, subamp=0.7, midon=1, subon=1, reverbon=0|
+	~outputter = {|out=0, amp=0.7, midamp=0.7, subamp=0.7, midon=1, subon=0, reverbon=0|
 		if(~stereoonly){
 			// - SYNTH: stereo mixdown - takes gallery listening position from the mouse, adds distance-based attenuation and reverb, pans using the pendulumpos data. takes mainamp and subamp as simple controls.
 			var listenpos = MouseX.kr(0, ~npendulums-1);

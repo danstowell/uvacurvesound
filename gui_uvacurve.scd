@@ -41,7 +41,7 @@ wrapperwidget.add(thiswidget);
 //
 thiswidget = VLayout();
 thiswidget.add(StaticText().string_("Subs"));
-obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
+obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(0).action_({|but|
 	~outputter.set(\subon, but.value);
 });
 thiswidget.add(obj);
