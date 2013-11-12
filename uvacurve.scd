@@ -5,7 +5,8 @@
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 4;
-~hardmul = if(~stereoonly){1}{0.75};
+~athome = true;
+~hardmul = if(~athome){10}{0.75};
 ////////////////////////
 s.options.numWireBufs = 128;
 s.waitForBoot{
