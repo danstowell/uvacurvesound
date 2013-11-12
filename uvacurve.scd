@@ -204,15 +204,21 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	}, []];
-	~scenetypes["puresine03_frompend"] = [{|pendspos, onescenepos, width, freqscale|
+	~scenetypes["puresine03_frompend"] = [{|pendspos, onescenepos, width, freqscale, val0a, val0b, val0c, val1a, val1b, val1c|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			var amp     = pendspos[which][1].abs.linexp(0, 0.5, 0.00001, 1);
-			var modrate = pendspos[which][0].abs.linexp(0, 1, 0.5, 2);
+			var amp, modrate;
+
+			amp     = pendspos[which][1];
+			amp     = amp.abs.linexp(0, 0.5, val1b, val1a );
+			//amp     = amp.abs.linexp(0, 0.5, val1b, if(amp>0){ val1c }{ val1a });
+			modrate = pendspos[which][0];
+			modrate = modrate.abs.linexp(0, 1, val0b, val0a);
+			//modrate = modrate.abs.linexp(0, 1, val0b, if(modrate>0){val0c}{val0a});
 			(
-			(SinOsc.ar([50] * freqscale)) * 0.1 * SinOsc.ar(1 * modrate).range(0.5, 1)
+			(SinOsc.ar([50] * freqscale)) * 0.1 * SinOsc.ar(0.25 * modrate).range(0.5, 1)
 			+
-			(SinOsc.ar([200] * freqscale)) * 0.1 * SinOsc.ar(4 * modrate).range(0.5, 1)
+			(SinOsc.ar([200] * freqscale)) * 0.1 * SinOsc.ar(1 * modrate).range(0.5, 1)
 			) * amp
 		};
 		sub = ~nsubs.collect{|which|
@@ -220,7 +226,7 @@ s.waitForBoot{
 		};
 		//~sceneenveloper.value(son, sub, onescenepos, width)
 		[son, sub]
-	}, []];
+	}, [["amp", 1], ["modrate", 4]]];
 	~scenetypes["hitthefloor_frompend"] = [{|pendspos, onescenepos, width, freqscale|
 		var son, sub;
 		son = ~npendulums.collect{|which|
@@ -474,10 +480,10 @@ s.waitForBoot{
 	};
 
 	~pushascene = {|scenename, whichnp|
-		~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1|
+		~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1, val0a=1, val0b=1, val0c=1, val1a=1, val1b=1, val1c=1|
 			var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
 			var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
-			var allson = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale) * amp;
+			var allson = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, val0a, val0b, val0c, val1a, val1b, val1c) * amp;
 			(0..2).do{|outeri| pendspos[outeri].collect{|apend, apendi| apend.poll(0.25, "pendspos[%][%]".format(outeri, apendi))}};
 			Out.ar(~finalaudiobus, allson[0]);
 			Out.ar(~subbus, allson[1]);

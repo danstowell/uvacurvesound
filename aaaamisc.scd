@@ -16,7 +16,7 @@ FreqScope()
 ~buspoll = {  In.kr(~pendbus.index, 2).poll; DC.ar(0)  }.play(addAction: \addToTail);
 ~buspoll.free
 
-~pendbus.set((0..11));
+~pendbus.setn((0..11));
 
 
 OSCFunc
