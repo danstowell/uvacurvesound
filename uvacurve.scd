@@ -204,6 +204,23 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	};
+	~scenetypes["puresine03_frompend"] = {|pendspos, onescenepos, width, freqscale|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			var amp     = pendspos[which][1].abs.linexp(0, 0.5, 0.00001, 1);
+			var modrate = pendspos[which][0].abs.linexp(0, 1, 0.5, 2);
+			(
+			(SinOsc.ar([50] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(1 * modrate).range(0.5, 1)
+			+
+			(SinOsc.ar([200] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(4 * modrate).range(0.5, 1)
+			) * amp
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		//~sceneenveloper.value(son, sub, onescenepos, width)
+		[son, sub]
+	};
 	~scenetypes["hinoise"] = {|pendspos, onescenepos, width, freqscale|
 		var son, sub;
 		son = ~npendulums.collect{|which|
