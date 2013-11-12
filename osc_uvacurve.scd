@@ -36,7 +36,7 @@ OSCFunc.trace(false)
 			pendinfo = pendinfo[..11];
 			//pendinfo.postln;
 			if(~pendbus.notNil){
-				~pendbus.setn(pendinfo.collect{|aninfo| aninfo[0][[0,2]]}.flat.postln)
+				~pendbus.setn(pendinfo.collect{|aninfo| aninfo[0][[0,2]]}.flat)
 			};
 		},
 		{"it's other: %".format(msg).postln;}
