@@ -31,7 +31,7 @@ s.waitForBoot{
 	~scenepossynths = ~nscenes.collect{|whichscene|
 		{ |ratescale=1|
 			//var pos = {LFPar.kr(ratescale * LFPar.kr(exprand(0.1, 10)).exprange(exprand(0.05, 0.1), exprand(0.1, 0.4))).range(0,1)};
-			var pos = LFSaw.kr(0.05 * rrand(0.9, 1.1), 2.0.rand).range(0, 1);
+			var pos = LFSaw.kr(0.07 * rrand(0.9, 1.1), 2.0.rand).range(0, 1);
 			//Slope.kr(pos).poll(label: "theslope");
 			Out.kr(~sceneposbus.index + whichscene, pos);
 		}.play(~ksettersgroup);
@@ -115,7 +115,7 @@ s.waitForBoot{
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		[son, sub];
 	}, []];
-	~scenetypes["testsine"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+	~scenetypes["driftysines"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)} * 0.1;
 		var sub = {SinOsc.ar(rrand(20, 60))}.dup(~nsubs) * 0.4;
 		~sceneenveloper.value(son, sub, onescenepos, width)
@@ -128,13 +128,17 @@ s.waitForBoot{
 		amps = ~npendulums.collect{|index| width.linlin(index, index+1, 0, 1)};
 		freq = IRand(25, 35).midicps * freqscale;
 		son = ~npendulums.collect{|which|
-			LFPulse.ar(freq, phases[which], onewidth, amps[which]);
+			var misalign = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			var histuff  = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			LFPulse.ar(freq, phases[which] + misalign, onewidth, amps[which])
+			* XFade2.ar(DC.ar(1), LFTri.ar(freq * 16), histuff * 2 - 1)
 		} * 0.1;
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1)
-	}, []];
+	}, [["misalign (0--1)", 0], ["histuff (0--1)", [1,0,1]]]];
+	/*
 	~scenetypes["frag_pwm2"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var phases, son, onewidth, amps, sub, freq;
 		width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
@@ -150,6 +154,7 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1)
 	}, []];
+	*/
 	~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		var pos, trig, rawson, scaler, panenv;
@@ -190,31 +195,35 @@ s.waitForBoot{
 	~scenetypes["crickle"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			var sig;
-			// TODO MORE LIKE A FIRE OR VINYL
+			var sig, density, lowconv;
+			density = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			lowconv = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
 			//HPF.ar(PinkNoise.ar, MouseX.kr(5000, 20000, 1)) * MouseX.kr(1, 5, 1); // 10000 default
-			sig = Dust2.ar(200);
+			sig = Dust2.ar(density);
 			sig = HPF.ar(sig, 15000 /* MouseX.kr(5000, 20000, 1) */, 0.7)
 			+ BPF.ar(sig, 800, 1, 2)
 			+ LPF.ar(sig, 433 /*MouseY.kr(100, 1000, 1).poll*/, 2);
 			//sig = BPF.ar(sig, MouseX.kr(1000, 5000, 1)) + BPF.ar(sig, MouseY.kr(100, 1000, 1).poll);
-			sig = FreeVerb.ar(sig) * BrownNoise.ar(2);
+			sig = XFade2.ar(sig, FreeVerb.ar(sig) * BrownNoise.ar(2), lowconv * 2 - 1);
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
-	}, []];
+	}, [["density", [100, 200, 100]], ["lowconv (0--1)", 1]]];
 	~scenetypes["puresine01"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			(SinOsc.ar(880 * freqscale + [2.5, -2.5]).mean) * 0.1;
+			var freq   = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			var detune = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			(SinOsc.ar(freq + ([detune, 0-detune])).mean) * 0.1;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
-	}, []];
+	}, [["freq", 880], ["detune", 2.5]]];
+	/*
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
@@ -227,7 +236,8 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	}, []];
-	~scenetypes["puresine03_frompend"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+	*/
+	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		//"threevals is: %".format(threevals).postln;
 		son = ~npendulums.collect{|which|
@@ -261,23 +271,27 @@ s.waitForBoot{
 	~scenetypes["hinoise"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			HPF.ar(PinkNoise.ar, MouseX.kr(5000, 20000, 1)) * MouseX.kr(1, 5, 1); // 10000 default
+			var locut   = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			var decimate= ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+
+			HPF.ar(PinkNoise.ar, locut) * locut.linlin(3000, 15000, 0.1, 0.5); // 10000 default
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
-	}, []];
+	}, [["locut", [15000, 3000, 15000]], ["[unused]", 0]]];
 	~scenetypes["lonoise"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			LPF.ar(BrownNoise.ar, MouseX.kr(5000, 20000, 1)) * 0.5;
+			var hicut   = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			LPF.ar(BrownNoise.ar, hicut) * 0.5;
 		} * 0.3;
 		sub = ~nsubs.collect{|which|
 			LPF.ar(BrownNoise.ar, 100);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
-	}, []];
+	}, [["locut", [5000, 20000, 5000]]]];
 	[["sin", SinOsc], ["saw", LFSaw]].do{|adata|
 		~scenetypes["tonestack01" ++ adata[0]] = [{|pendspos, onescenepos, width, freqscale, threevals|
 			var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
@@ -344,7 +358,7 @@ s.waitForBoot{
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
 
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
-		basefreqs = [120, 130] * 3 * freqscale * 20;
+		basefreqs = [120, 130] * 60 * freqscale;
 		harmstack = [1, 1.5, 2];
 		harmamps = [1.5, 0.4, 0.1];
 
@@ -361,15 +375,18 @@ s.waitForBoot{
 
 		son = son * 0.5; // Deliberately making it MORE subtle than the main bed
 
-		amps = ~npendulums.collect{|val| SinOsc.ar(0.125, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
-
-		son = son * amps * 12;
+		son = ~npendulums.collect{|which|
+			var distort = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			var amp     = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			(son[which] * distort.linexp(0,1, 1, 10)).clip2 * amp * SinOsc.ar(0.125, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
+		}; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+		son = son * 12;
 
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
-	}, []];
+	}, [["distort", 0], ["amp", 1]]];
 	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps;
 
@@ -443,11 +460,12 @@ s.waitForBoot{
 	};
 	*/
 	~scenetypes["antiphase"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var son, sub, phase, basefreq=IRand(40, 50).midicps;
+		var son, sub, phase, basefreq=IRand(40, 50).midicps, amp, detune;
 		son = ~npendulums.collect{|which|
+			amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			detune  = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
 			phase = (which % 2) * pi;
-			//SinOsc.ar(basefreq * [1, 2, 4, 8], phase, [1, 0.9, 0.8, 0.7]).mean
-			SinOsc.ar(basefreq * freqscale * [1], phase, [1, 0.9, 0.8, 0.7]).mean
+			SinOsc.ar(basefreq * freqscale * [1, detune.linexp(0,1, 1, 1.1)], phase, [1, 0.5]).mean * amp
 		} * 0.15;
 		sub = ~nsubs.collect{|which|
 			var sigs;
@@ -456,23 +474,25 @@ s.waitForBoot{
 			XFade2.ar(sigs[0], sigs[1], LFPar.kr(0.05));
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width, false)
-	}, []];
+	}, [["amp", [1,0.5,1]], ["detune", [0,0,0]]]];
 	~scenetypes["linharm"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var son, sub, basefreq = IRand(40,50).midicps;
+		var son, sub;
 		//var harms = [1,2,4,8,16]
 		var harms = [1,2,3,4,5,6,7];
 		var reamp = harms.sum{|val| 1/val.squared}.reciprocal;
 		son = ~npendulums.collect{|which|
+			var basefreq = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			harms.collect{|val|
 				SinOsc.ar(basefreq * freqscale * val, 0, 1/val.squared)
 			}.sum * reamp;
 		} * 0.15;
 		sub = ~nsubs.collect{|which|
+			var basefreq = 110; // tweak?
 			var sigs = SinOsc.ar((basefreq * freqscale * [0.5, 0.25]), 0, 0.5);
 			XFade2.ar(sigs[0], sigs[1], LFPar.kr(0.05));
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
-	}, []];
+	}, [["basefreq", 110]]];
 	/*
 	~scenetypes[""] = {|pendspos, onescenepos, width|
 	var son, sub;
@@ -499,20 +519,22 @@ s.waitForBoot{
 	};
 
 	~pushascene = {|scenename, whichnp|
-		// This pushes the default tweaky vals to the appropriate bus
-		~scenevalpointsbus[whichnp].setn(2.collect{|whichone| 3.collect{|whichsubboxer|
-			(~scenetypes[scenename][1][whichone] ? [\nil, 1])[1].asArray.wrapAt(whichsubboxer)
-		}}.flat);
-		// And this actually pushes the patch
-		~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1|
-			var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
-			var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
-			var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
-			var allson = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals) * amp;
-			(0..2).do{|outeri| pendspos[outeri].collect{|apend, apendi| apend.poll(0.25, "pendspos[%][%]".format(outeri, apendi))}};
-			threevals.do{|a1val, which1val| a1val.do{|a3val, which3val| a3val.poll(0.25, "threevals[%][%]".format(which1val, which3val))}};
-			Out.ar(~finalaudiobus, allson[0]);
-			Out.ar(~subbus, allson[1]);
+		s.bind{
+			// This pushes the default tweaky vals to the appropriate bus
+			~scenevalpointsbus[whichnp].setn(2.collect{|whichone| 3.collect{|whichsubboxer|
+				(~scenetypes[scenename][1][whichone] ? [\nil, 1])[1].asArray.wrapAt(whichsubboxer)
+			}}.flat);
+			// And this actually pushes the patch
+			~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1|
+				var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
+				var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
+				var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
+				var allson = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals) * amp;
+				(0..2).do{|outeri| pendspos[outeri].collect{|apend, apendi| apend.poll(0.25, "pendspos[%][%]".format(outeri, apendi))}};
+				threevals.do{|a1val, which1val| a1val.do{|a3val, which3val| a3val.poll(0.25, "threevals[%][%]".format(which1val, which3val))}};
+				Out.ar(~finalaudiobus, allson[0]);
+				Out.ar(~subbus, allson[1]);
+			}
 		}
 	};
 
