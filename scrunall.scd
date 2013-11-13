@@ -11,7 +11,7 @@ Task{
 	~scope.window.bounds_(Rect(10, 10, 200, 700));
 	1.wait;
 	s.sync;
-	//"osc_uvacurve.scd".loadRelative;
+	"osc_uvacurve.scd".loadRelative;
 }.play(AppClock);
 
 )
