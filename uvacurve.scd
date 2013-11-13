@@ -499,7 +499,7 @@ s.waitForBoot{
 	// - SYNTH: replaceout-based dopplerfaker. takes in the pendulumpos and uses a smoothed version of that.
 	~radiusm = 1.5;
 	~maxdoppler = 2 * ~radiusm / 330;
-	~dopplerfaker = { |active=1|
+	~dopplerfaker = { |active=0|
 		// For each pendulum, take in its y position, lag it, translate it into delay, take in its audio, replaceout
 		var swingposses = In.kr(~pendbus, ~npendulums * 2)[1,3..];
 		var audios = In.ar(~finalaudiobus, ~npendulums);
