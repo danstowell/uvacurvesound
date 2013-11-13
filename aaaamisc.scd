@@ -10,6 +10,9 @@ s.scope(4)
 s.scope(12)
 
 
+s.dumpOSC(1);
+s.dumpOSC(0);
+
 FreqScope()
 
 
@@ -18,6 +21,9 @@ FreqScope()
 
 ~pendbus.setn((0..11));
 
+~scenevalpointsbus[0].setAt(2, 1.111111111111)
+~scenevalpointsbus[0].subBus(3).set(2.2222222222222)
+~scenevalpointsbus[0].get{|data| data.postln}
 
 OSCFunc
 

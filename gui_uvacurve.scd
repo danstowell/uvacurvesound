@@ -174,9 +174,10 @@ mainbox.add(thiswidget);
 			~myhackbox["lbl%".format(hackindex)] = StaticText().string_("val%".format(hackindex));
 			container.add(~myhackbox["lbl%".format(hackindex)]);
 			subc = HLayout();
-			"abc".do{|subboxer|
+			"abc".do{|subboxer, whichsubboxer|
 				~myhackbox["val%%".format(hackindex, subboxer)] = TextField().value_(1).action_({|widg|
-					~sceneplayers[whichscene].set("val%%".format(hackindex, subboxer).asSymbol, widg.value);
+					~scenevalpointsbus[whichscene].setAt(hackindex * 3 + whichsubboxer, widg.value.asFloat);
+					//"~scenevalpointsbus[%].setAt(%, %)".format(whichscene, hackindex * 3 + whichsubboxer, widg.value).postln;
 				});
 				subc.add(~myhackbox["val%%".format(hackindex, subboxer)]);
 			};
@@ -199,8 +200,8 @@ mainbox.add(thiswidget);
 	(0..1).do{|hackindex|
 		if(hackdata[hackindex].notNil){
 			hackbox["lbl%".format(hackindex)].string_(hackdata[hackindex][0]);
-			"abc".do{|subboxer|
-				hackbox["val%%".format(hackindex, subboxer)].value_(hackdata[hackindex][1]);
+			"abc".do{|subboxer, whichsubboxer|
+				hackbox["val%%".format(hackindex, subboxer)].value_(hackdata[hackindex][1].asArray.wrapAt(whichsubboxer));
 			};
 		}{
 			hackbox["lbl%".format(hackindex)].string_("[unused]");
