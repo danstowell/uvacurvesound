@@ -66,7 +66,7 @@ mainbox.add(thiswidget);
 */
 thiswidget = HLayout();
 thiswidget.add(StaticText().string_("Fake doppler & indirectness"));
-obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
+obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(0).action_({|but|
 	~dopplerfaker.set(\active, but.value);
 });
 thiswidget.add(obj);
