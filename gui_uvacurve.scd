@@ -209,6 +209,8 @@ mainbox.add(thiswidget);
 	};
 };
 
+~nscenes.do{|i| ~updatehackbox.value(~defaultscenes[i], i) };
+
 w.layout = mainbox;
 w.front;
 )

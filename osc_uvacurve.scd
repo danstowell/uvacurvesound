@@ -3,7 +3,7 @@
 //~recvaddr = NetAddr.new("127.0.0.1", ~fromport);    // create the NetAddr
 ~recvaddr = NetAddr.new(nil, ~fromport);    // create the NetAddr
 thisProcess.openUDPPort(~fromport); // attempt to open 1121
-)
+);
 
 /*
 OSCFunc.trace(true)
