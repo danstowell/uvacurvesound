@@ -118,7 +118,7 @@ mainbox.add(thiswidget);
 	});
 	thiswidget.add(obj);
 
-	/*
+	/*  */
 	subwidget = HLayout();
 	obj = StaticText().string_("Rapidity:");
 	subwidget.add(obj);
@@ -127,7 +127,7 @@ mainbox.add(thiswidget);
 	});
 	subwidget.add(obj);
 	thiswidget.add(subwidget);
-	*/
+	/*  */
 
 	/*
 	subwidget = HLayout();
