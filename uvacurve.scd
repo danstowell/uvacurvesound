@@ -31,7 +31,7 @@ s.waitForBoot{
 	~scenepossynths = ~nscenes.collect{|whichscene|
 		{ |ratescale=1|
 			//var pos = {LFPar.kr(ratescale * LFPar.kr(exprand(0.1, 10)).exprange(exprand(0.05, 0.1), exprand(0.1, 0.4))).range(0,1)};
-			var pos = LFSaw.kr(0.07 * rrand(0.9, 1.1), 2.0.rand).range(0, 1);
+			var pos = LFSaw.kr(0.07 * rrand(0.9, 1.1) * ratescale, 2.0.rand).range(0, 1);
 			//Slope.kr(pos).poll(label: "theslope");
 			Out.kr(~sceneposbus.index + whichscene, pos);
 		}.play(~ksettersgroup);
@@ -176,12 +176,12 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
 	}, [["zappiness", 0], ["thruspeed", 1]]];
-	~scenetypes["tracerbleep"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+	~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		var pos, trig, rawson, scaler, panenv;
 		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
 
-		rawson = (SinOsc.ar(1300 * [1,2,4,8]).mean * MouseY.kr(2,4)).clip2;
+		rawson = (SinOsc.ar(1300 * [1,3,5,7]).mean * MouseY.kr(2,4)).clip2;
 		rawson = rawson * 0.1 * EnvGen.ar(Env.adsr(0.01, 0.01, 0.5, 0.01), Trig1.kr(trig, dur: 0.3));
 
 		// Now we delay-and-splay it so as to zap across speakers
@@ -189,13 +189,33 @@ s.waitForBoot{
 			var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
 			var del = which * 0.06;
-			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).clip2, del, del) * amp;
+			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan, del, del) * amp;
 		}.reverse;
 		sub = ~nsubs.collect{|which|
 			DC.ar(0); // TODO crossover filter
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
-	}, [["amp", 1], ["distort 0--1", 0]]];
+	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
+	~scenetypes["tracerburr"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var son, sub;
+		var pos, trig, rawson, scaler, panenv;
+		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
+
+		rawson = (SinOsc.ar(1300 * [1,15,27,33]).mean * MouseY.kr(2,4)).clip2;
+		rawson = rawson * 0.1 * EnvGen.ar(Env.adsr(0.01, 0.01, 0.5, 0.01), Trig1.kr(trig, dur: 0.3));
+
+		// Now we delay-and-splay it so as to zap across speakers
+		son = ~npendulums.collect{|which|
+			var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			var del = which * 0.06;
+			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan, del, del) * amp;
+		}.reverse;
+		sub = ~nsubs.collect{|which|
+			DC.ar(0); // TODO crossover filter
+		};
+		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
+	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
 	~scenetypes["crickle"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
