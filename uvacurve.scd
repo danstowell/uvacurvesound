@@ -140,19 +140,19 @@ s.waitForBoot{
 	}, [["misalign (0--1)", 0], ["histuff (0--1)", [1,0,1]]]];
 	/*
 	~scenetypes["frag_pwm2"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var phases, son, onewidth, amps, sub, freq;
-		width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
-		phases = (0..~npendulums-1) * 0.5 / ~npendulums;
-		onewidth = 0.5; //0.5 / ~npendulums;
-		amps = ~npendulums.collect{|index| width.linlin(index, index+1, 0, 1)};
-		freq = 0.5 * IRand(25, 35).midicps * freqscale;
-		son = ~npendulums.collect{|which|
-			LFPulse.ar(freq, phases[which], onewidth, amps[which]).lag(0.007) * 1.3;
-		} * 0.1;
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		~sceneenveloper.value(son, sub, onescenepos, 1)
+	var phases, son, onewidth, amps, sub, freq;
+	width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
+	phases = (0..~npendulums-1) * 0.5 / ~npendulums;
+	onewidth = 0.5; //0.5 / ~npendulums;
+	amps = ~npendulums.collect{|index| width.linlin(index, index+1, 0, 1)};
+	freq = 0.5 * IRand(25, 35).midicps * freqscale;
+	son = ~npendulums.collect{|which|
+	LFPulse.ar(freq, phases[which], onewidth, amps[which]).lag(0.007) * 1.3;
+	} * 0.1;
+	sub = ~nsubs.collect{|which|
+	DC.ar(0);
+	};
+	~sceneenveloper.value(son, sub, onescenepos, 1)
 	}, []];
 	*/
 	~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals|
@@ -229,16 +229,16 @@ s.waitForBoot{
 	}, [["freq", 880], ["detune", 2.5]]];
 	/*
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var son, sub;
-		son = ~npendulums.collect{|which|
-			(SinOsc.ar([50] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(1).range(0.5, 1)
-			+
-			(SinOsc.ar([200] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(4).range(0.5, 1)
-		};
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		~sceneenveloper.value(son, sub, onescenepos, width)
+	var son, sub;
+	son = ~npendulums.collect{|which|
+	(SinOsc.ar([50] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(1).range(0.5, 1)
+	+
+	(SinOsc.ar([200] * freqscale + [0, 0]).mean) * 0.1 * SinOsc.ar(4).range(0.5, 1)
+	};
+	sub = ~nsubs.collect{|which|
+	DC.ar(0);
+	};
+	~sceneenveloper.value(son, sub, onescenepos, width)
 	}, []];
 	*/
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals|
@@ -335,6 +335,88 @@ s.waitForBoot{
 			~sceneenveloper.value(son, sub, onescenepos, width)
 		}, [["fmdepth 0--1", 0], ["freqscale", 1]]];
 	}; // end adata iter
+
+	/*
+	~scenetypes["numharm01"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, numharm, fm, freqsel, amps, fmlfo;
+
+		basefreqs = [60, 90, 120, 240, 480].scramble * 0.5 * freqscale;
+		harmstack = [1, 1.5, 2];
+		harmamps = [1.5, 0.4, 0.1];
+
+		freqs = basefreqs.collect{|bfreq| Array.series(~npendulums, bfreq, 0)};
+
+		fmlfo = LFNoise0.ar(400);
+
+		son = harmstack.mean{|val, harmindex|
+			freqs.collect{|afreq, which|
+				var numharm = ~pendvalto3val_lin.value(pendspos[which][1], threevals[0]);
+				var freqscale2 = ~pendvalto3val_lin.value(pendspos[which][0], threevals[1]);
+				Blip.ar(afreq * val * freqscale2 * harmindex, numharm, mul: 0.05 * harmamps[harmindex])
+			};
+		};
+		son = LeakDC.ar(son);
+
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/30, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		//freqsel.poll;
+		son = (son * freqsel).sum;
+
+		son = ~npendulums.collect{|which|
+			son[which] * SinOsc.ar(0.125, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
+		}; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+
+		son = son * 15;
+
+		//freqscale.poll;
+
+		sub = ~nsubs.collect{|which|
+			SinOsc.ar((basefreqs * 0.25 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.1;
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	}, [["#harmonics 1-100", [10, 1, 10]], ["freqscale", 1]]];
+	*/
+
+	~scenetypes["numharm02"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, numharm, fm, freqsel, amps, fmlfo;
+
+		basefreqs = [60, 90, 120, 240, 480].scramble * 0.5 * freqscale;
+		harmstack = [1, 1.5, 2];
+		harmamps = [1.5, 0.4, 0.1];
+
+		freqs = basefreqs.collect{|bfreq| Array.series(~npendulums, bfreq, 0)};
+
+		fmlfo = LFNoise0.ar(400);
+
+		son = harmstack.mean{|val, harmindex|
+			freqs.collect{|afreq, which|
+				var numharm = ~pendvalto3val_lin.value(pendspos[which][1], threevals[0]);
+				var freqscale2 = ~pendvalto3val_lin.value(pendspos[which][0], threevals[1]);
+				var myfreq = afreq * val * freqscale2 * harmindex;
+				LPF.ar(LFSaw.ar(myfreq), (myfreq * numharm).clip(100, 22000))
+				  * (0.05 * harmamps[harmindex]);
+			};
+		};
+
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/30, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		//freqsel.poll;
+		son = (son * freqsel).sum;
+
+		son = ~npendulums.collect{|which|
+			son[which] * SinOsc.ar(0.125, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
+		}; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+
+		son = son * 15;
+
+		//freqscale.poll;
+
+		sub = ~nsubs.collect{|which|
+			SinOsc.ar((basefreqs * 0.25 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.1;
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	}, [["#harmonics 1-200", [10, 1, 10]], ["freqscale", 1]]];
+
+
+
 	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
 
