@@ -95,7 +95,7 @@ mainbox.add(thiswidget);
 
 
 ~sceneshackboxes = [];
-~scenesampsliders = [];
+~scenesamps = {0.7}.dup(~nscenes);
 
 
 ~scenenames = ~scenetypes.keys.asArray.sort;
@@ -108,9 +108,10 @@ mainbox.add(thiswidget);
 	});
 	thiswidget.add(obj);
 	obj = Slider().value_(0.7).action_({|slider|
+		~scenesamps = slider.value;
 		~sceneplayers[whichscene].set(\amp, slider.value)
 	});
-	~scenesampsliders.add(obj);
+	//~scenesampsliders.add(obj);
 	thiswidget.add(obj);
 	wrapperwidget.add(thiswidget);
 
@@ -166,7 +167,7 @@ mainbox.add(thiswidget);
 			~updatehackbox.value(list.items[list.value], whichscene);
 			0.05.wait;
 			s.sync;
-			~sceneplayers[whichscene].set(\amp, ~scenesampsliders[whichscene].value);
+			~sceneplayers[whichscene].set(\amp, ~scenesamps[whichscene]);
 		}.play(AppClock);
 	});
 	subwidget = HLayout();
