@@ -6,7 +6,7 @@ s.meter;
 */
 (
 var w, mainbox, obj, wrapperwidget, thiswidget, subwidget;
-w = Window("gui_uvacurve_audio", Rect(800, 64, 600, 800));
+w = Window("gui_uvacurve_audio", Rect(800, 400, 600, 800));
 mainbox = VLayout();
 
 ///////////////////////////////////////////////////
