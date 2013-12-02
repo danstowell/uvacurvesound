@@ -108,7 +108,7 @@ mainbox.add(thiswidget);
 	});
 	thiswidget.add(obj);
 	obj = Slider().value_(0.7).action_({|slider|
-		~scenesamps = slider.value;
+		~scenesamps[whichscene] = slider.value;
 		~sceneplayers[whichscene].set(\amp, slider.value)
 	});
 	//~scenesampsliders.add(obj);
