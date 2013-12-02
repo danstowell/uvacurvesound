@@ -125,7 +125,7 @@ mainbox.add(thiswidget);
 	subwidget = HLayout();
 	obj = StaticText().string_("Rapidity:");
 	subwidget.add(obj);
-	obj = NumberBox().value_(1).action_({|widg|
+	obj = NumberBox().value_(5).action_({|widg|
 		~scenepossynths[whichscene].set(\ratescale, widg.value)
 	});
 	subwidget.add(obj);
