@@ -21,6 +21,8 @@ s.waitForBoot{
 	~subbus = Bus.audio(s, ~nsubs);
 	~scenevalpointsbus = ~nscenes.collect{Bus.control(s,  2 * 3)}; // the bus for the 3val breakpoints setting the modulation ranges
 	~scenevalpointsbus.do{|abus| abus.setAll(1)};
+	~basefreqbus = Bus.control(s);
+	{~basefreqbus.set(120)}.defer(0.1);  // TODO ********  use   In.kr(~basefreqbus)
 	// groups
 	~ksettersgroup = Group.head(s.defaultGroup); // group for things that set control busses
 	~scenesgroup = Group.after(~ksettersgroup);
@@ -114,6 +116,12 @@ s.waitForBoot{
 		var son = {Impulse.ar(1)}.dup(~npendulums);
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		[son, sub];
+	}, []];
+	~scenetypes["one_harmonic_per_speaker"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = 120;
+		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * (which+1)) * BrownNoise.ar.range(0.9, 1) } * 0.4;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, width)
 	}, []];
 	~scenetypes["driftysines"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)} * 0.1;
