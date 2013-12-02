@@ -119,18 +119,51 @@ s.waitForBoot{
 		[son, sub];
 	}, []];
 	*/
-	~scenetypes["one_harmonic_per_speaker"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+	~scenetypes["one_harmonic_per"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * (which+1) * BrownNoise.ar.range(0.95, 1.05))} * 0.075;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
 	}, []];
-	~scenetypes["one_harmonic_per_speaker_chord"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+	~scenetypes["one_harmonic_per+chord"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * [1, 1.25, 1.5] * (which+1) * BrownNoise.ar.range(0.95, 1.05)).mean} * 0.075;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
 	}, []];
+	~scenetypes["one_harmonic_per+waveactiv"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+
+
+
+		var trig = Dust.kr(LFPar.kr(0.1).range(0.1, 0.8).squared * 2);
+
+		var triggedamp = TExpRand.kr(0.01, 0.9, trig).poll(trig);
+
+		var son = ~npendulums.collect{|which|
+			var chordiness = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			[1, 1.25, 1.5].collect{|overtone, whichovertone|
+				SinOsc.ar(basefreq * overtone * (which+1) * BrownNoise.ar.range(0.95, 1.05),
+					mul:  if(whichovertone==0){3 - (2*chordiness)}{chordiness})
+			}.mean
+		} * 0.075;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+
+		var sonforenv;
+		var	rawson = SinOsc.ar(1300 * [1,12,13,14], 0.5pi).mean.clip2;
+		var trigdur = LFPulse.kr(0.03).range(0.01, 0.1);
+		rawson = rawson * 0.4 * EnvGen.ar(Env.adsr(0, 0.01, 0.25, 0.01), Trig1.kr(trig, dur: trigdur));
+
+		// Now we delay-and-splay it so as to zap across speakers
+		son = ~npendulums.collect{|which|
+			var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			var del = which * 0.06;
+			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan * amp + (son[which] * triggedamp * 8), del, del)
+		} * 0.1;
+
+		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
+	}, [["chordiness (0--1)", [0.5, 1, 0.5]]]];
 	~scenetypes["oneper_to_orch"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
@@ -184,22 +217,6 @@ s.waitForBoot{
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
 			5.collect{
-				BPF.ar(
-					Saw.ar(basefreq * IRand(1, 4) * BrownNoise.ar.range(0.95, 1.05)),
-					basefreq * IRand(1, 12),
-					MouseX.kr(1, 10, 1)
-				)
-			}.mean;
-		} * 0.2;
-		var sub = {DC.ar(0)}.dup(~nsubs);
-		~sceneenveloper.value(son, sub, onescenepos, width, false)
-	}, []];
-	~scenetypes["orch_saw1_rhythmic"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var basefreq = In.kr(~basefreqbus) * 0.5;
-		var son = ~npendulums.collect{|which|
-			5.collect{|subwhich|
-				var myval = (which + subwhich + 1) * 0.15;
-				LFCub.ar(myval, myval).exprange(1e-8, 1) *
 				BPF.ar(
 					Saw.ar(basefreq * IRand(1, 4) * BrownNoise.ar.range(0.95, 1.05)),
 					basefreq * IRand(1, 12),
@@ -430,7 +447,7 @@ s.waitForBoot{
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	}, [["locut", [5000, 20000, 5000]]]];
 	*/
-	[["sin", SinOsc], ["saw", LFSaw]].do{|adata|
+	[["sin", SinOsc] /* , ["saw", LFSaw] */ ].do{|adata|
 		~scenetypes["tonestack01" ++ adata[0]] = [{|pendspos, onescenepos, width, freqscale, threevals|
 			var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
 
