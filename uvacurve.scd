@@ -123,6 +123,20 @@ s.waitForBoot{
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width, false)
 	}, []];
+	~scenetypes["orch_saw"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which|
+			5.collect{
+				BPF.ar(
+					Saw.ar(basefreq * IRand(1, 4) * BrownNoise.ar.range(0.95, 1.05)),
+					basefreq * IRand(1, 12),
+					MouseX.kr(0.1, 10, 1)
+				)
+			}.mean;
+		} * 0.2;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, width, false)
+	}, []];
 	~scenetypes["driftysines"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)} * 0.1;
 		var sub = {SinOsc.ar(rrand(20, 60))}.dup(~nsubs) * 0.4;
