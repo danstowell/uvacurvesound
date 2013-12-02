@@ -118,10 +118,10 @@ s.waitForBoot{
 		[son, sub];
 	}, []];
 	~scenetypes["one_harmonic_per_speaker"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var basefreq = 120;
-		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * (which+1)) * BrownNoise.ar.range(0.9, 1) } * 0.4;
+		var basefreq = 60;
+		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * (which+1) * BrownNoise.ar.range(0.95, 1.05))} * 0.05;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		~sceneenveloper.value(son, sub, onescenepos, width)
+		~sceneenveloper.value(son, sub, onescenepos, width, false)
 	}, []];
 	~scenetypes["driftysines"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)} * 0.1;
