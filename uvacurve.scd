@@ -217,8 +217,9 @@ s.waitForBoot{
 		var pos, trig, rawson, scaler, panenv;
 		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
 
-		rawson = (SinOsc.ar(1300 * [1,3,5,7]).mean * MouseY.kr(2,4)).clip2;
-		rawson = rawson * 0.1 * EnvGen.ar(Env.adsr(0.01, 0.01, 0.5, 0.01), Trig1.kr(trig, dur: 0.3));
+		//rawson = (SinOsc.ar(1300 * [1,3,5,7]).mean * MouseY.kr(2,4)).clip2;
+		rawson = SinOsc.ar(1300 * [1,12,13,14], 0.5pi).mean.clip2;
+		rawson = rawson * 0.2 * EnvGen.ar(Env.adsr(0, 0.01, 0.25, 0.01), Trig1.kr(trig, dur: 0.1));
 
 		// Now we delay-and-splay it so as to zap across speakers
 		son = ~npendulums.collect{|which|
