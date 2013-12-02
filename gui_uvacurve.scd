@@ -95,6 +95,7 @@ mainbox.add(thiswidget);
 
 
 ~sceneshackboxes = [];
+~scenesampsliders = [];
 
 
 ~scenenames = ~scenetypes.keys.asArray.sort;
@@ -109,6 +110,7 @@ mainbox.add(thiswidget);
 	obj = Slider().value_(0.7).action_({|slider|
 		~sceneplayers[whichscene].set(\amp, slider.value)
 	});
+	~scenesampsliders.add(obj);
 	thiswidget.add(obj);
 	wrapperwidget.add(thiswidget);
 
@@ -156,12 +158,20 @@ mainbox.add(thiswidget);
 	obj = ListView(bounds: Rect(0,0,100,100)).items_(~scenenames).selectionMode_(\single);
 	obj.value_(~scenenames.indexOfEqual(~defaultscenes[whichscene]));
 	obj.action_({|list|
-		~pushascene.value(list.items[list.value], whichscene);
-		~updatehackbox.value(list.items[list.value], whichscene);
+		Task{
+			~sceneplayers[whichscene].set(\amp, 0);
+			0.05.wait;
+			s.sync;
+			~pushascene.value(list.items[list.value], whichscene);
+			~updatehackbox.value(list.items[list.value], whichscene);
+			0.05.wait;
+			s.sync;
+			~sceneplayers[whichscene].set(\amp, ~scenesampsliders[whichscene].value);
+		}.play(AppClock);
 	});
 	subwidget = HLayout();
 	subwidget.add(obj);
-	// TODO now add a thing for hacking the vals
+	// now add a thing for hacking the vals
 	{
 		var container = VLayout();
 		var subc;
