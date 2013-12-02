@@ -832,8 +832,8 @@ s.waitForBoot{
 		if(~stereoonly){
 			// - SYNTH: stereo mixdown - takes gallery listening position from the mouse, adds distance-based attenuation and reverb, pans using the pendulumpos data. takes mainamp and subamp as simple controls.
 			var listenpos = MouseX.kr(0, ~npendulums-1);
-			var rawsound = In.ar(~finalaudiobus, ~npendulums);
-			var rawsub   = In.ar(~subbus, ~nsubs);
+			var rawsound = In.ar(~finalaudiobus, ~npendulums).asArray;
+			var rawsub   = In.ar(~subbus, ~nsubs).asArray;
 			var distances = ((0..~npendulums-1) - listenpos).abs;
 			var distances_sub = ((0..~nsubs-1) - (listenpos * (~nsubs/~npendulums))).abs;
 			var swingposses = In.kr(~pendbus, ~npendulums * 2)[0,2..];
