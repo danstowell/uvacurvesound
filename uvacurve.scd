@@ -107,6 +107,7 @@ s.waitForBoot{
 	//////////////////////////////////////////////////////////////////////////////////////
 	// First we define the available scene types. each takes pendpos and a scenepos as input and returns [audio * 16, sub * 4] or whatever
 	~scenetypes = Dictionary(); // Each entry is a list of [func, tweakableparams] where the latter is [[\name, defaultval]...]
+	/*
 	~scenetypes["testimpulse"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son = {CombN.ar(Dust2.ar(3), 0.025, 0.025, 0.5)}.dup(~npendulums);
 		var sub = {256 * LPF.ar(Dust2.ar(1), 100)}.dup(~nsubs);
@@ -117,9 +118,51 @@ s.waitForBoot{
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		[son, sub];
 	}, []];
+	*/
 	~scenetypes["one_harmonic_per_speaker"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * (which+1) * BrownNoise.ar.range(0.95, 1.05))} * 0.075;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
+	}, []];
+	~scenetypes["one_harmonic_per_speaker_chord"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * [1, 1.25, 1.5] * (which+1) * BrownNoise.ar.range(0.95, 1.05)).mean} * 0.075;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, 1, false) // no width
+	}, []];
+	~scenetypes["oneper_to_orch"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which|
+			var mybasefreq = basefreq * (which+1);
+			LPF.ar(
+			5.collect{
+				BPF.ar(
+					Saw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.95, 1.05)),
+					(basefreq * IRand(1, 32)).min(15000),
+					MouseX.kr(1, 10, 1)
+				)
+			}.mean
+				, (MouseY.kr(1, 100, 1) * mybasefreq).min(18000));
+		} * 0.2;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, width, false)
+	}, []];
+	~scenetypes["oneper_to_orch_g"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which|
+			var mybasefreq = basefreq * (which+1);
+			LPF.ar(
+			5.collect{
+				BPF.ar(
+						Gendy1.ar(minfreq: mybasefreq, maxfreq: mybasefreq),
+//					Saw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.95, 1.05)),
+					(basefreq * IRand(1, 32)).min(15000),
+					MouseX.kr(1, 10, 1)
+				)
+			}.mean
+				, (MouseY.kr(1, 100, 1) * mybasefreq).min(18000));
+		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width, false)
 	}, []];
@@ -288,6 +331,22 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	}, [["density", [100, 200, 100]], ["lowconv (0--1)", 1]]];
+	~scenetypes["crickle_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			var sig, density, lowconv;
+			density = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+			lowconv = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			sig = Dust2.ar(density);
+			sig = HPF.ar(sig, 15000 /* MouseX.kr(5000, 20000, 1) */, 0.7);
+			//sig = BPF.ar(sig, MouseX.kr(1000, 5000, 1)) + BPF.ar(sig, MouseY.kr(100, 1000, 1).poll);
+			sig = XFade2.ar(sig, FreeVerb.ar(sig) * BrownNoise.ar(2), lowconv * 2 - 1);
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		~sceneenveloper.value(son, sub, onescenepos, width)
+	}, [["density", [2, 400, 2]], ["lowconv (0--1)", 1]]];
 	~scenetypes["puresine01"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
@@ -358,6 +417,7 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	}, [["locut", [15000, 3000, 15000]], ["[unused]", 0]]];
+	/*
 	~scenetypes["lonoise"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		son = ~npendulums.collect{|which|
@@ -369,6 +429,7 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width)
 	}, [["locut", [5000, 20000, 5000]]]];
+	*/
 	[["sin", SinOsc], ["saw", LFSaw]].do{|adata|
 		~scenetypes["tonestack01" ++ adata[0]] = [{|pendspos, onescenepos, width, freqscale, threevals|
 			var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
@@ -618,22 +679,6 @@ s.waitForBoot{
 		};
 		[bongs, sub]
 	}, []];
-	~scenetypes["antiphase"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var son, sub, phase, basefreq=In.kr(~basefreqbus), amp, detune;
-		son = ~npendulums.collect{|which|
-			amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
-			detune  = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-			phase = (which % 2) * pi;
-			SinOsc.ar(basefreq * freqscale * [1, detune.linexp(0,1, 1, 1.1)], phase, [1, 0.5]).mean * amp
-		} * 0.15;
-		sub = ~nsubs.collect{|which|
-			var sigs;
-			phase = (which % 2) * pi;
-			sigs = SinOsc.ar((basefreq * freqscale * [0.5, 0.25]), 0, 0.5);
-			XFade2.ar(sigs[0], sigs[1], LFPar.kr(0.05));
-		};
-		~sceneenveloper.value(son, sub, onescenepos, width, false)
-	}, [["amp", [1,0.5,1]], ["detune", [0,0,0]]]];
 	~scenetypes["linharm"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var son, sub;
 		//var harms = [1,2,4,8,16]
