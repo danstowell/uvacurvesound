@@ -6,7 +6,7 @@ s.meter;
 */
 (
 var w, mainbox, obj, wrapperwidget, thiswidget, subwidget;
-w = Window("gui_uvacurve_audio", Rect(800, 64, 600, 800));
+w = Window("gui_uvacurve_audio", Rect(800, 400, 600, 800));
 mainbox = VLayout();
 
 ///////////////////////////////////////////////////
@@ -95,6 +95,7 @@ mainbox.add(thiswidget);
 
 
 ~sceneshackboxes = [];
+~scenesamps = {0.7}.dup(~nscenes);
 
 
 ~scenenames = ~scenetypes.keys.asArray.sort;
@@ -107,8 +108,10 @@ mainbox.add(thiswidget);
 	});
 	thiswidget.add(obj);
 	obj = Slider().value_(0.7).action_({|slider|
+		~scenesamps[whichscene] = slider.value;
 		~sceneplayers[whichscene].set(\amp, slider.value)
 	});
+	//~scenesampsliders.add(obj);
 	thiswidget.add(obj);
 	wrapperwidget.add(thiswidget);
 
@@ -156,12 +159,20 @@ mainbox.add(thiswidget);
 	obj = ListView(bounds: Rect(0,0,100,100)).items_(~scenenames).selectionMode_(\single);
 	obj.value_(~scenenames.indexOfEqual(~defaultscenes[whichscene]));
 	obj.action_({|list|
-		~pushascene.value(list.items[list.value], whichscene);
-		~updatehackbox.value(list.items[list.value], whichscene);
+		Task{
+			~sceneplayers[whichscene].set(\amp, 0);
+			0.05.wait;
+			s.sync;
+			~pushascene.value(list.items[list.value], whichscene);
+			~updatehackbox.value(list.items[list.value], whichscene);
+			0.05.wait;
+			s.sync;
+			~sceneplayers[whichscene].set(\amp, ~scenesamps[whichscene]);
+		}.play(AppClock);
 	});
 	subwidget = HLayout();
 	subwidget.add(obj);
-	// TODO now add a thing for hacking the vals
+	// now add a thing for hacking the vals
 	{
 		var container = VLayout();
 		var subc;
