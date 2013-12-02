@@ -5,7 +5,7 @@
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 4;
-~athome = true;
+~athome = false;
 ~hardmul = if(~athome){10}{0.75};
 ////////////////////////
 s.options.numWireBufs = 128;
@@ -118,8 +118,8 @@ s.waitForBoot{
 		[son, sub];
 	}, []];
 	~scenetypes["one_harmonic_per_speaker"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-		var basefreq = 60;
-		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * (which+1) * BrownNoise.ar.range(0.95, 1.05))} * 0.05;
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which| SinOsc.ar(basefreq * (which+1) * BrownNoise.ar.range(0.95, 1.05))} * 0.075;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width, false)
 	}, []];
