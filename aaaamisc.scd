@@ -54,3 +54,8 @@ OSC Message Received:
 	recvPort: 7400
 	msg: [ /d3/sound/v, 1 ]
 
+	~sceneplayers[0].set(\circlesize, 4)
+	~sceneplayers[0].set(\circlesize, 1)
+
+
+	
