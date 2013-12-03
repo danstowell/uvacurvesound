@@ -211,6 +211,52 @@ s.waitForBoot{
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width, false)
 	}, []];
+	~scenetypes["oneper_to_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which|
+			var mybasefreq = basefreq * (which+1);
+			LPF.ar(
+			5.collect{
+				BPF.ar(
+					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
+					(basefreq * IRand(1, 32)).min(15000),
+					5 /* MouseX.kr(1, 10, 1) */
+					)
+			}.mean
+				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
+		} * 0.2;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, width, false)
+	}, []];
+	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which|
+			var mybasefreq;
+			//which = (which * 2).fold(0, ~npendulums - 0.5); // folds the ramp down again
+			which = which.fold(0, ~npendulums/2); // folds the ramp down again
+			mybasefreq = basefreq * (which+1);
+			LPF.ar(
+				XFade2.ar(
+					5.collect{
+						BPF.ar(
+							Saw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03)),
+							(basefreq * IRand(1, 32)).min(15000),
+							5 /* MouseX.kr(1, 10, 1) */
+						) * LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared
+					}.mean,
+					5.collect{
+						BPF.ar(
+							VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
+							(basefreq * IRand(1, 32)).min(15000),
+							5 /* MouseX.kr(1, 10, 1) */
+						)
+					}.mean,
+					LFDNoise1.kr(0.24).range(-1,1)) // end xfade2
+				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
+		} * 0.2;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, width, false)
+	}, []];
 	~scenetypes["oneper_to_orch_g"] = [{|pendspos, onescenepos, width, freqscale, threevals|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
