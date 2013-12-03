@@ -31,9 +31,9 @@ s.waitForBoot{
 
 	// - SYNTH: pulsespos - a single synth that implements some kind of chaotic attractor or something, that ensures the scenes are dynamically moving around and mostly stay spatially separate from each other.
 	~scenepossynths = ~nscenes.collect{|whichscene|
-		{ |ratescale=5|
+		{ |ratescale=5, circlesize=1|
 			var pos;
-			pos = LFSaw.kr(0.07 * rrand(0.9, 1.1) * ratescale, 2.0.rand).range(0, 1);
+			pos = LFSaw.kr(0.07 * rrand(0.9, 1.1) * (ratescale/circlesize.max(1)), 2.0.rand).range(0, 1);
 			Out.kr(~sceneposbus.index + whichscene, pos);
 		}.play(~ksettersgroup);
 	};

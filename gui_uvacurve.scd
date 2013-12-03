@@ -129,6 +129,13 @@ mainbox.add(thiswidget);
 		~scenepossynths[whichscene].set(\ratescale, widg.value)
 	});
 	subwidget.add(obj);
+	obj = StaticText().string_("Circlesize:");
+	subwidget.add(obj);
+	obj = NumberBox().value_(1).action_({|widg|
+		~scenepossynths[whichscene].set(\circlesize, widg.value);
+		~sceneplayers[whichscene].set(\circlesize, widg.value)
+	});
+	subwidget.add(obj);
 	thiswidget.add(subwidget);
 	/*  */
 
