@@ -58,18 +58,19 @@ s.waitForBoot{
 	~sceneenveloper = {|audio, sub, position, width=0, movewith=true, circlesize=1|
 		var distances, subdistances;
 		circlesize = max(1, circlesize); // circlesize is like adding virtual silent speakers to the end of the list
-		distances    = ((position * ~npendulums * circlesize) - (0..~npendulums-1));   // so, +1 is 1 speaker away
-		subdistances = ((position * ~nsubs      * circlesize) - (0..~nsubs-1));
+		distances    = ((position * ~npendulums * circlesize) - (0..~npendulums-1)).abs;   // so, +1 is 1 speaker away
+		subdistances = ((position * ~nsubs      * circlesize) - (0..~nsubs-1)).abs;
+		//position.poll(10, "...position is");
+		//distances[11].poll(10, "...distance[11] is");
 		distances = distances.collect{|val|  min(val, ~npendulums * circlesize - val).abs };
+		//distances[11].poll(10, "...distance[11] is");
 		subdistances = subdistances.collect{|val|  min(val, ~nsubs * circlesize - val).abs };
 		// when width is 0, we are only on the nearest one (i.e. distances <= 0.5) - NEVER not on one!
 		//   this means that any dist <=0.5 has to be treated the same.
 		// when width is 1, we are equally over all of them, irrespective of dist.
 		//distances.poll(1);
 		//position.poll(1);
-		//position.poll(10, "...position is");
-		//distances[2].poll(10, "...distance[2] is");
-		//((distances[2]-0.5).max(0)/~npendulums).linexp(0, 1, 1, width.min(0.999).max(0.001)).poll(10, "...distmul[2] is");
+		//((distances[11]-0.5).max(0)/~npendulums).linexp(0, 1, 1, width.min(0.999).max(0.001)).poll(10, "...distmul[11] is");
 		if(movewith){
 			audio = audio.sum{|anaudio, index| PanAz.ar(~npendulums, anaudio, (position + (index / ~npendulums)) * 2) };
 		};
