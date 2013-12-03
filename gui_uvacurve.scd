@@ -126,7 +126,7 @@ mainbox.add(thiswidget);
 	obj = StaticText().string_("Rapidity:");
 	subwidget.add(obj);
 	obj = NumberBox().value_(5).action_({|widg|
-		~scenepossynths[whichscene].set(\ratescale, widg.value)
+		~scenepossynths[whichscene].set(\rapidity, widg.value)
 	});
 	subwidget.add(obj);
 	obj = StaticText().string_("Circlesize:");
