@@ -156,7 +156,7 @@ s.waitForBoot{
 
 		var trig = Dust.kr(LFPar.kr(0.1).range(0.1, 0.8).squared * 2) + Impulse.kr(0);
 
-		var triggedamp = TExpRand.kr(0.01, 1.5, trig).poll(trig);
+		var triggedamp = TExpRand.kr(0.01, 1.5, trig); //.poll(trig);
 
 		var son = ~npendulums.collect{|which|
 			var chordiness = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);

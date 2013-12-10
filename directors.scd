@@ -7,7 +7,7 @@
 	amps.do{|anamp, index|
 		~sceneplayers[index].set(\amp, anamp);
 		// We also set the running/notrunning
-		if(anamp==0){{~sceneplayers[index].pause}.defer(0.4)}{~sceneplayers[index].resume};
+		//DEACTIVATED FOR SIMPLICITY   if(anamp==0){{~sceneplayers[index].pause}.defer(0.4)}{~sceneplayers[index].resume};
 	};
 };
 /*
@@ -24,35 +24,35 @@
 };
 
 ////////////////////////////////////////////////////////////////
-// Crossfades current parameters slowly to a new set
+// Crossfades current parameters slowly to a new set -- to crossfade any given param, pass a [from, to] array rather than a single val
 ~crossfadeparams = {|index, xfadetime=4, amp=0.7, width=0.5, freqscale=1, circlesize=1, rapidity=5|
 
-	var origs = (xfadetime:4, amp:0.7, width:0.5, freqscale:1, circlesize:1, rapidity:5), interp = Dictionary[];
-	var delta = 0.05, xfade0, xfade1;
-	[\amp, \width, \freqscale, \circlesize, \rapidity].do{|key|
-		origs[key] = ~sceneplayers[0].get(key) ?? {
-			~sceneplayers[0].set(key, origs[key]);
-			origs[key]
-		};
+	var params = (amp:amp, width:width, freqscale:freqscale, circlesize:circlesize, rapidity:rapidity);
+	var frm = Dictionary[];
+	var too = Dictionary[];
+	var delta = 0.05, xfade0, xfade1, interp = Dictionary[];
+	var ourkeys = [\amp, \width, \freqscale, \circlesize, \rapidity];
+	ourkeys.do{|key|
+		frm[key] = params[key].asArray.wrapAt(0);
+		too[key] = params[key].asArray.wrapAt(1);
 	};
+	"Crossfading these params: %".format(ourkeys.select{|key| params[key].asArray.size==2}).postln;
 
 	Task{
 		(0, delta .. xfadetime).do{|pos|
 			xfade0 = pos.asFloat / xfadetime;
 			xfade1 = 1 - xfade0;
-			interp[\amp]        = (xfade0 * amp)        + (xfade1 * origs[\amp]);
-			interp[\width]      = (xfade0 * width)      + (xfade1 * origs[\width]);
-			interp[\freqscale]  = (xfade0 * freqscale)  + (xfade1 * origs[\freqscale]);
-			interp[\circlesize] = (xfade0 * circlesize) + (xfade1 * origs[\circlesize]);
-			interp[\rapidity]   = (xfade0 * rapidity)   + (xfade1 * origs[\rapidity]);
+			ourkeys.do{|key|
+				interp[key] = (xfade0 * too[key]) + (xfade1 * frm[key]);
+			};
 			~setparams.value(index, amp:interp[\amp], width:interp[\width], freqscale:interp[\freqscale], circlesize:interp[\circlesize], rapidity:interp[\rapidity]);
 			delta.wait;
 		};
 	}.play;
 };
 /*
-~crossfadeparams.value(0, 0.5, freqscale: 0.5, amp: 0.3)
-~crossfadeparams.value(0, 4, freqscale: 1, amp: 0.7)
+~crossfadeparams.value(0, 0.5, freqscale: [1, 0.5], amp: [0.7, 0.3])
+~crossfadeparams.value(0,   4, freqscale: [0.5, 1], amp: [0.3, 0.7])
 */
 
 ////////////////////////////////////////////////////////////////
