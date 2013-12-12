@@ -141,7 +141,7 @@
 		~crossfadeparams.(1, 2, amp: [0.7, 0.0]); // fadeout wavactiv
 		30.wait;
 	};
-}).play(AppClock);
+}).play(TempoClock);
 /*
 ~playertask.stop;
 */
