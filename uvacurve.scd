@@ -24,12 +24,18 @@ s.waitForBoot{
 	~scenevalpointsbus = ~nscenes.collect{Bus.control(s,  2 * 3)}; // the bus for the 3val breakpoints setting the modulation ranges
 	~scenevalpointsbus.do{|abus| abus.setAll(1)};
 	~basefreqbus = Bus.control(s);
-	{~basefreqbus.set(120)}.defer(0.1);  // TODO ********  use   In.kr(~basefreqbus)
+	{~basefreqbus.set(120)}.defer(0.1);
 	// groups
 	~ksettersgroup = Group.head(s.defaultGroup); // group for things that set control busses
 	~scenesgroup = Group.after(~ksettersgroup);
 	~postfxgroup = Group.after(~scenesgroup);
 	~outputtersgroup = Group.after(~postfxgroup);
+
+	// global tempo
+	~tempo = 1/3.4;
+	~tempobus = Bus.control(s);
+	{~tempobus.set(~tempo)}.defer(0.1);
+	~settempo = {|val| ~tempobus.set(val); ~tempo = val; };
 
 	// - SYNTH: pulsespos - a single synth that implements some kind of chaotic attractor or something, that ensures the scenes are dynamically moving around and mostly stay spatially separate from each other.
 	~scenepossynths = ~nscenes.collect{|whichscene|
