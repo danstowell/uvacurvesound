@@ -100,8 +100,10 @@
 	loop{
 		~setparams.value(1, amp:0.0); // ensure set at least once
 		0.2.wait;
-		~bringin.("oneper_to_orch_thrum_varsaw", 1, 20);
+		//~bringin.("oneper_to_orch_thrum_varsaw", 1, 20);
 		//~bringin.("oneper_to_orch_thrum", 1, 20);
+		~bringin.("oneper_to_orch_thrum_varsaw_fizzin", 1, );
+		30.wait;
 		~crossfadeparams.(0, 5, amp: [0.7, 0.1]); // de-emphasise bed
 		5.wait;
 		~oneper_orch_modulations.();
