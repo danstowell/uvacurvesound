@@ -184,7 +184,7 @@ s.waitForBoot{
 		son = ~npendulums.collect{|which|
 			var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-			var del = which * 0.06;
+			var del = (~npendulums - which) * 0.06;
 			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan * amp + (son[which] * triggedamp * 8), del, del)
 		} * 0.1;
 
@@ -431,7 +431,7 @@ s.waitForBoot{
 			var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
 			var del = which * 0.06;
 			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan, del, del) * amp;
-		}.reverse;
+		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0); // TODO crossover filter
 		};
