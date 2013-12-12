@@ -32,20 +32,21 @@ s.waitForBoot{
 	~outputtersgroup = Group.after(~postfxgroup);
 
 	// global tempo
-	~tempo = 1/3.4;
+	~normalperiod = 3.4;
+	~tempo = 1/~normalperiod;
 	~tempobus = Bus.control(s);
 	{~tempobus.set(~tempo)}.defer(0.1);
 	~settempo = {|val|
 		~tempobus.set(val);
 		~tempo = val;
-		TempoClock.default.tempo_(max(1e-22, val * 3.4)); // This may seem weird. We're using the default TempoClock for scene sequencing, where we want to think in seconds which get warped if we're slower than the standard period
+		TempoClock.default.tempo_(max(1e-22, val * ~normalperiod)); // This multiplying may seem weird. We're using the default TempoClock for scene sequencing, where we want to think in seconds which get warped if we're slower than the standard period
 	};
 
 	// - SYNTH: pulsespos - a single synth that implements some kind of chaotic attractor or something, that ensures the scenes are dynamically moving around and mostly stay spatially separate from each other.
 	~scenepossynths = ~nscenes.collect{|whichscene|
 		{ |rapidity=5, circlesize=1|
 			var pos;
-			var movespeed = (rapidity/circlesize.max(1)) * (3.4 * In.kr(~tempobus));
+			var movespeed = (rapidity/circlesize.max(1)) * (~normalperiod * In.kr(~tempobus));
 			pos = LFSaw.kr(0.07 * rrand(0.9, 1.1) * movespeed, 2.0.rand).range(0, 1);
 			Out.kr(~sceneposbus.index + whichscene, pos);
 		}.play(~ksettersgroup);
@@ -54,8 +55,8 @@ s.waitForBoot{
 
 	// - SYNTH: fakependulums - let's send SinOsc.kr(exprand(), 2pi.rand) to the busses for test.
 	~fakependulums = {
-		// NB 3.4 is the standard period of the pendulums
-		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) / 3.4, 2pi.rand)}.dup(~npendulums * 2);
+		// NB ~normalperiod is the standard period of the pendulums
+		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) / ~normalperiod, 2pi.rand)}.dup(~npendulums * 2);
 		Out.kr(~pendbus, pendpos);
 	}.play(~ksettersgroup);
 
@@ -167,7 +168,7 @@ s.waitForBoot{
 
 
 
-		var trig = Dust.kr(LFPar.kr(0.1).range(0.1, 0.8).squared * 2) + Impulse.kr(0);
+		var trig = Dust.kr(LFPar.kr(0.1).range(0.1, 0.8).squared * 2 * (~normalperiod * In.kr(~tempobus))) + Impulse.kr(0);
 
 		var triggedamp = TExpRand.kr(0.01, 1.5, trig); //.poll(trig);
 
@@ -406,7 +407,7 @@ s.waitForBoot{
 		//scaler = MouseX.kr(0.5, 5, 1); //.poll(1, "mousex");
 		scaler    = ~pendvalto3val_exp.value(pendspos[0][1], threevals[0]).linexp(0,1, 0.5, 5); // NOTE READING FROM ZEROTH PEND ONLY
 		thruspeed = ~pendvalto3val_exp.value(pendspos[0][0], threevals[1]); // NOTE READING FROM ZEROTH PEND ONLY
-		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
+		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * (~normalperiod * In.kr(~tempobus)));
 		//		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, 20000), phase: 0.5pi);
 		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(1, "mousey topfreq")), phase: 0.5pi);
 		rawson = rawson * EnvGen.ar(Env.perc(0, 0.1), trig, timeScale: scaler);
@@ -424,7 +425,7 @@ s.waitForBoot{
 	~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub;
 		var pos, trig, rawson, scaler, panenv;
-		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
+		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * (~normalperiod * In.kr(~tempobus)));
 
 		//rawson = (SinOsc.ar(1300 * [1,3,5,7]).mean * MouseY.kr(2,4)).clip2;
 		rawson = SinOsc.ar(1300 * [1,12,13,14], 0.5pi).mean.clip2;
@@ -442,35 +443,13 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
-	/*
-	~scenetypes["tracerburr"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var son, sub;
-		var pos, trig, rawson, scaler, panenv;
-		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2);
-
-		rawson = (SinOsc.ar(1300 * [1,15,27,33]).mean * MouseY.kr(2,4)).clip2;
-		rawson = rawson * 0.1 * EnvGen.ar(Env.adsr(0.01, 0.01, 0.5, 0.01), Trig1.kr(trig, dur: 0.3));
-
-		// Now we delay-and-splay it so as to zap across speakers
-		son = ~npendulums.collect{|which|
-			var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
-			var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-			var del = which * 0.06;
-			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan, del, del) * amp;
-		}.reverse;
-		sub = ~nsubs.collect{|which|
-			DC.ar(0); // TODO crossover filter
-		};
-		~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize) // no width
-	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
-	*/
 	~scenetypes["crickle_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
 			var sig, density, lowconv;
 			density = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			lowconv = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-			sig = Dust2.ar(density);
+			sig = Dust2.ar(density * (~normalperiod * In.kr(~tempobus)));
 			sig = HPF.ar(sig, 15000 /* MouseX.kr(5000, 20000, 1) */, 0.7);
 			//sig = BPF.ar(sig, MouseX.kr(1000, 5000, 1)) + BPF.ar(sig, MouseY.kr(100, 1000, 1).poll);
 			sig = XFade2.ar(sig, FreeVerb.ar(sig) * BrownNoise.ar(2), lowconv * 2 - 1);
