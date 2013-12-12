@@ -25,50 +25,24 @@ OSCFunc.trace(false)
 
 ~d3func = { arg msg, time, addr, recvPort; if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
 	//msg.postln;
-	msg[0].asString[10..].switch(
-		"pendulum", {
-			"Received OSC /d3/sound/pendulum with % args".format(msg.size - 1).postln;
-			var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset;
+	"Received OSC /d3/sound with % args".format(msg.size - 1).postln;
+	var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset;
 
-			volume        = msg[1].asFloat;
-			timeIncrement = msg[2].asFloat;
-			gravityMag    = msg[3].asFloat;
-			gravityDir    = msg[4..6].asFloat;
-			numPendulums  = msg[7].asInt;
+	volume        = msg[1].asFloat;
+	timeIncrement = msg[2].asFloat;
+	gravityMag    = msg[3].asFloat;
+	gravityDir    = msg[4..6].asFloat;
+	numPendulums  = msg[7].asInt;
 
-			penddata = numPendulums.collect{|whichpend|
-				offset = 8 + (~perPendulumKeys.size * whichpend);
-				~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
-			};
+	penddata = numPendulums.collect{|whichpend|
+		offset = 8 + (~perPendulumKeys.size * whichpend);
+		~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
+	};
 
-			// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
-			// ~settempo.(newtempo)
+	// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
+	// ~settempo.(newtempo)
 
-			// TODO DO STUFF WITH THIS DATA ***********************
-
-
-
-		},
-		"v", {
-			//"it's v".postln;     // <----------- no longer needed, old api
-		},
-		"p", {
-			//"it's p".postln;     // <----------- no longer needed, old api
-			var npend = msg[1];
-			var offset;
-			var pendinfo = npend.collect{|n|
-				offset = 4 + (n * 8);
-				[msg[offset+2..offset+4], msg[offset+5..offset+7]]
-			};
-			//msg.postln;
-			pendinfo = pendinfo[..11];
-			//pendinfo.postln;
-			if(~pendbus.notNil){
-				~pendbus.setn(pendinfo.collect{|aninfo| aninfo[0][[0,2]]}.flat)
-			};
-		},
-		{"it's other: %".format(msg[0]).postln;}
-	);
+	// TODO DO STUFF WITH THIS DATA ***********************
 };};
 thisProcess.addOSCRecvFunc(~d3func);
 
