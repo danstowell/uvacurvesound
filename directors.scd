@@ -24,10 +24,11 @@
 };
 
 ////////////////////////////////////////////////////////////////
-// Crossfades current parameters slowly to a new set -- to crossfade any given param, pass a [from, to] array rather than a single val
+// Crossfades current parameters slowly to a new set -- to crossfade any given param, pass a [from, to] array rather than a single val.
+// Note that amp is treated logarithmically
 ~crossfadeparams = {|index, xfadetime=4, amp=0.7, width=0.5, freqscale=1, circlesize=1, rapidity=5|
 
-	var params = (amp:amp, width:width, freqscale:freqscale, circlesize:circlesize, rapidity:rapidity);
+	var params = (amp:log(max(amp, 1e-30)), width:width, freqscale:freqscale, circlesize:circlesize, rapidity:rapidity);
 	var frm = Dictionary[];
 	var too = Dictionary[];
 	var delta = 0.05, xfade0, xfade1, interp = Dictionary[];
@@ -45,7 +46,7 @@
 			ourkeys.do{|key|
 				interp[key] = (xfade0 * too[key]) + (xfade1 * frm[key]);
 			};
-			~setparams.value(index, amp:interp[\amp], width:interp[\width], freqscale:interp[\freqscale], circlesize:interp[\circlesize], rapidity:interp[\rapidity]);
+			~setparams.value(index, amp:exp(interp[\amp]), width:interp[\width], freqscale:interp[\freqscale], circlesize:interp[\circlesize], rapidity:interp[\rapidity]);
 			delta.wait;
 		};
 	}.play;
