@@ -31,6 +31,14 @@ s.waitForBoot{
 	~postfxgroup = Group.after(~scenesgroup);
 	~outputtersgroup = Group.after(~postfxgroup);
 
+	~ledbus = Bus.control(s, 2 * ~npendulums); // LED brightnesses to be sent over to d3 [pixel0, ring0, pixel1, ring1, ...]
+	{
+		~ledbusreader = {
+			SendReply.kr(Impulse.kr(30), "/d3/lights/set",  In.kr(~ledbus, 2 * ~npendulums));
+			DC.ar(0);
+		}.play(~outputtersgroup);
+	}.defer(1);
+
 	// global tempo
 	~normalperiod = 3.4;
 	~tempo = 1/~normalperiod;
