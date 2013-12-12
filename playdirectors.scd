@@ -42,10 +42,10 @@
 	~crossfadeparams.value(1, 20, amp:0.7, width:[1, 0.1], rapidity:5);
 	20.wait;
 	"~oneper_orch_modulations; b".postln;
-	~crossfadeparams.value(1, 5, amp:0.7, width:0.1, rapidity:[5, 30]);
+	~crossfadeparams.value(1, 4, amp:0.7, width:0.1, rapidity:[5, 30]);
 	5.wait;
 	"~oneper_orch_modulations; c".postln;
-	~crossfadeparams.value(1, 10, amp:0.7, width:[0.1, 0.0], rapidity:[30, 50]);
+	~crossfadeparams.value(1, 2, amp:0.7, width:[0.1, 0.0], rapidity:[30, 50]);
 	~crossfadeparams.(0, 5, amp: [0.1, 0.0]); // de-emphasise bed entirely
 	20.wait;
 	"~oneper_orch_modulations; d".postln;
