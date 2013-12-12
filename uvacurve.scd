@@ -314,6 +314,23 @@ s.waitForBoot{
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize)
 	}, []];
+	~scenetypes["low_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var son = ~npendulums.collect{|which|
+			var mybasefreq = basefreq; // * (which+1);
+			LPF.ar(
+			5.collect{
+				BPF.ar(
+					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
+					(basefreq * IRand(1, 32)).min(15000),
+					5 /* MouseX.kr(1, 10, 1) */
+					)
+			}.mean
+				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
+		} * 0.2;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize)
+	}, []];
 	~scenetypes["oneper_to_orch_g2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
@@ -414,7 +431,7 @@ s.waitForBoot{
 		rawson = HPF.ar(rawson, 5000) * 0.25;
 		// Now we delay-and-splay it so as to zap across speakers
 		son = ~npendulums.collect{|which|
-			var del = which * 0.06;
+			var del = (~npendulums - which) * 0.06;
 			DelayC.ar(rawson, del * 4, del * thruspeed.reciprocal);
 		};
 		sub = ~nsubs.collect{|which|

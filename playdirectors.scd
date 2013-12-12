@@ -1,14 +1,4 @@
 // This is an example of some sequencing. (It assumes that other files have already been loaded.)
-/*
-// Directly sets the amps of all scenes (also ensures running/paused correctly). Use this for when you've silently prepared a scene and want to jump to it
-~jumpcutamps = {|amps|
-// Just pushes parameter settings to a single scene, whether it's playing or not
-~setparams = {|index, amp=0.7, width=0.5, freqscale=1, circlesize=1, rapidity=5|
-// Crossfades current parameters slowly to a new set
-~crossfadeparams = {|index, xfadetime=4, amp=[0.7,], width=0.5, freqscale=1, circlesize=1, rapidity=5|
-// Loads a new scene into a player. Intended for use with players that are already muted, hence amp=0.
-~preparesilent = {|index, scenename, amp=0.0, width=0.5, freqscale=1, circlesize=1, rapidity=5|
-*/
 (
 //s.dumpOSC(1);
 //s.dumpOSC(0);
