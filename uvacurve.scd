@@ -223,6 +223,7 @@ s.waitForBoot{
 	}, []];
 	~scenetypes["oneper_to_orch_thrum"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var thrummul = 0.8; //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1);
 			LPF.ar(
@@ -231,7 +232,7 @@ s.waitForBoot{
 					Saw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03)),
 					(basefreq * IRand(1, 32)).min(15000),
 					5 /* MouseX.kr(1, 10, 1) */
-					) * LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared
+					) * LFSaw.ar(thrummul * ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared
 			}.mean
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
@@ -240,12 +241,13 @@ s.waitForBoot{
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var thrummul = 0.8; //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1);
 			LPF.ar(
 			5.collect{
 				BPF.ar(
-					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
+					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(thrummul * ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
 					(basefreq * IRand(1, 32)).min(15000),
 					5 /* MouseX.kr(1, 10, 1) */
 					)
@@ -259,12 +261,13 @@ s.waitForBoot{
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var inxfade = XLine.kr(1e-12, 1, 30);
 		var indensity = XLine.kr(0.1, 1000, 30);
+		var thrummul = 0.8; //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1);
 			var asig = LPF.ar(
 			5.collect{
 				BPF.ar(
-					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
+					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(thrummul * ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
 					(basefreq * IRand(1, 32)).min(15000),
 					5 /* MouseX.kr(1, 10, 1) */
 					)
@@ -277,6 +280,7 @@ s.waitForBoot{
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var thrummul = 0.5; //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
 			var mybasefreq;
 			//which = (which * 2).fold(0, ~npendulums - 0.5); // folds the ramp down again
@@ -289,7 +293,7 @@ s.waitForBoot{
 							Saw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03)),
 							(basefreq * IRand(1, 32)).min(15000),
 							5 /* MouseX.kr(1, 10, 1) */
-						) * LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared
+						) * LFSaw.ar(thrummul * ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared
 					}.mean,
 					5.collect{
 						BPF.ar(
@@ -324,12 +328,13 @@ s.waitForBoot{
 	}, []];
 	~scenetypes["low_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var thrummul = 0.8; // MouseY.kr(0.5, 2, 1).poll;
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq; // * (which+1);
 			LPF.ar(
 			5.collect{
 				BPF.ar(
-					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
+					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(thrummul * ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
 					(basefreq * IRand(1, 32)).min(15000),
 					5 /* MouseX.kr(1, 10, 1) */
 					)
