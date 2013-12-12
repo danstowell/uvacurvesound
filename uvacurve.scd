@@ -8,10 +8,12 @@
 ~athome = false;
 ~hardmul = if(~athome){10}{0.75};
 ////////////////////////
+s.options.numOutputBusChannels_(12);
 s.options.numWireBufs = 128;
+s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
-	~npendulums_true = 4; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
+	~npendulums_true = 8; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
 	~nscenes    = 2;
 	~nsubs      = 1;
 	// busses
