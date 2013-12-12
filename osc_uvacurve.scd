@@ -3,6 +3,8 @@
 //~recvaddr = NetAddr.new("127.0.0.1", ~fromport);    // create the NetAddr
 ~recvaddr = NetAddr.new(nil, ~fromport);    // create the NetAddr
 thisProcess.openUDPPort(~fromport); // attempt to open
+
+~ledsendaddr = NetAddr("10.0.0.123", 1234); // TODO ------------------------- get proper settings from Tiemen
 );
 
 /*
@@ -18,26 +20,40 @@ OSCFunc.trace(false)
 //o.free;    // remove the OSCFunc when you are done.
 
 (
+// this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
+~perPendulumKeys = #[\normPosx, \normPosy, \normPosz, \normVelx, \normVely, \normVelz, \approxPeriod];
+
 ~d3func = { arg msg, time, addr, recvPort; if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
-
-	// *** TODO *** CHANGE ALL THIS -- TIEMEN IS GOING TO SEND GLOBAL PARAMS _AND_ PENDULUM STATS IN /d3/sound/pendulum
-
 	//msg.postln;
 	msg[0].asString[10..].switch(
 		"pendulum", {
-			// *** TODO *** TIEMEN IS GOING TO SEND GLOBAL PARAMS _AND_ PENDULUM STATS IN /d3/sound/pendulum
 			"Received OSC /d3/sound/pendulum with % args".format(msg.size - 1).postln;
+			var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset;
 
+			volume        = msg[1].asFloat;
+			timeIncrement = msg[2].asFloat;
+			gravityMag    = msg[3].asFloat;
+			gravityDir    = msg[4..6].asFloat;
+			numPendulums  = msg[7].asInt;
 
-			// TODO UPDATE GLOBAL TEMPO IF CHANGED
+			penddata = numPendulums.collect{|whichpend|
+				offset = 8 + (~perPendulumKeys.size * whichpend);
+				~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
+			};
+
+			// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
+			// ~settempo.(newtempo)
+
+			// TODO DO STUFF WITH THIS DATA ***********************
+
 
 
 		},
 		"v", {
-			//"it's v".postln;
+			//"it's v".postln;     // <----------- no longer needed, old api
 		},
 		"p", {
-			//"it's p".postln;
+			//"it's p".postln;     // <----------- no longer needed, old api
 			var npend = msg[1];
 			var offset;
 			var pendinfo = npend.collect{|n|
@@ -51,10 +67,24 @@ OSCFunc.trace(false)
 				~pendbus.setn(pendinfo.collect{|aninfo| aninfo[0][[0,2]]}.flat)
 			};
 		},
-		{"it's other: %".format(msg).postln;}
+		{"it's other: %".format(msg[0]).postln;}
 	);
 };};
 thisProcess.addOSCRecvFunc(~d3func);
+
+//////////////////////////////////////////////////////////////////////
+// receive led data from server and bounce it over to d3
+~ledtod3func = { arg msg, time, addr, recvPort;
+	var vals;
+	if(addr.port==s.addr.port and: {msg[0].asString=="/d3/lights/set"}){
+		vals = msg[3..];
+		"==> Received OSC LED data from server with % values".format(vals.size).postln;
+		// boing the values over to d3
+		~ledsendaddr.sendMsg(["/d3/lights/set"] ++ vals);
+	};
+};
+thisProcess.addOSCRecvFunc(~ledtod3func);
 )
 /*
 thisProcess.removeOSCRecvFunc(~d3func);
+thisProcess.removeOSCRecvFunc(~ledtod3func);
