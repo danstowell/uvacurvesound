@@ -233,6 +233,26 @@ s.waitForBoot{
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize)
 	}, []];
+	~scenetypes["oneper_to_orch_thrum_varsaw_fizzin"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+		var basefreq = In.kr(~basefreqbus) * 0.5;
+		var inxfade = XLine.kr(1e-12, 1, 30);
+		var indensity = XLine.kr(0.1, 1000, 30);
+		var son = ~npendulums.collect{|which|
+			var mybasefreq = basefreq * (which+1);
+			var asig = LPF.ar(
+			5.collect{
+				BPF.ar(
+					VarSaw.ar(mybasefreq * IRand(1, 4) * BrownNoise.ar.range(0.98, 1.03), 0, LFSaw.ar(ExpRand(10, 20) * LFNoise0.kr(2).range(0.9, 1.1)).range(1, 0.75).squared),
+					(basefreq * IRand(1, 32)).min(15000),
+					5 /* MouseX.kr(1, 10, 1) */
+					)
+			}.mean
+				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
+			XFade2.ar(asig * EnvGen.ar(Env.perc(0.02, 0.02), Dust.kr(indensity)), asig, inxfade * 2 - 1);
+		} * 0.2;
+		var sub = {DC.ar(0)}.dup(~nsubs);
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize)
+	}, []];
 	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
