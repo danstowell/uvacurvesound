@@ -2,7 +2,7 @@
 ~fromport = 7400;
 //~recvaddr = NetAddr.new("127.0.0.1", ~fromport);    // create the NetAddr
 ~recvaddr = NetAddr.new(nil, ~fromport);    // create the NetAddr
-thisProcess.openUDPPort(~fromport); // attempt to open 1121
+thisProcess.openUDPPort(~fromport); // attempt to open
 );
 
 /*
@@ -19,8 +19,20 @@ OSCFunc.trace(false)
 
 (
 ~d3func = { arg msg, time, addr, recvPort; if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
+
+	// *** TODO *** CHANGE ALL THIS -- TIEMEN IS GOING TO SEND GLOBAL PARAMS _AND_ PENDULUM STATS IN /d3/sound/pendulum
+
 	//msg.postln;
 	msg[0].asString[10..].switch(
+		"pendulum", {
+			// *** TODO *** TIEMEN IS GOING TO SEND GLOBAL PARAMS _AND_ PENDULUM STATS IN /d3/sound/pendulum
+			"Received OSC /d3/sound/pendulum with % args".format(msg.size - 1).postln;
+
+
+			// TODO UPDATE GLOBAL TEMPO IF CHANGED
+
+
+		},
 		"v", {
 			//"it's v".postln;
 		},
