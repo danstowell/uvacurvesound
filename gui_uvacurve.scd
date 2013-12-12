@@ -16,7 +16,7 @@ mainbox = VLayout();
 wrapperwidget = HLayout();
 wrapperwidget.add(StaticText().string_("Tempo"));
 obj = Slider().orientation_(\horizontal).value_(1).action_({|slider|
-	~settempo.value((1/3.4) * slider.value);
+	~settempo.value((1/~normalperiod) * slider.value);
 });
 //~scenesampsliders.add(obj);
 wrapperwidget.add(obj);
