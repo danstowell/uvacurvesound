@@ -1,9 +1,9 @@
-
+s.boot
 // 1/[0.08, 0.13]
 // 3.4 towards 6
 
-~scenepossynths[1].set(\ratescale, 1)
-~scenepossynths[1].set(\ratescale, 3)
+~scenepossynths[1].set(\rapidity, 1)
+~scenepossynths[1].set(\rapidity, 3)
 
 
 s.scope(4)
@@ -54,3 +54,8 @@ OSC Message Received:
 	recvPort: 7400
 	msg: [ /d3/sound/v, 1 ]
 
+	~sceneplayers[0].set(\circlesize, 4)
+	~sceneplayers[0].set(\circlesize, 1)
+
+
+	
