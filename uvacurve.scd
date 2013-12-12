@@ -38,14 +38,15 @@ s.waitForBoot{
 	~settempo = {|val|
 		~tempobus.set(val);
 		~tempo = val;
-		TempoClock.default.tempo_(val * 3.4); // This may seem weird. We're using the default TempoClock for scene sequencing, where we want to think in seconds which get warped if we're slower than the standard period
+		TempoClock.default.tempo_(max(1e-22, val * 3.4)); // This may seem weird. We're using the default TempoClock for scene sequencing, where we want to think in seconds which get warped if we're slower than the standard period
 	};
 
 	// - SYNTH: pulsespos - a single synth that implements some kind of chaotic attractor or something, that ensures the scenes are dynamically moving around and mostly stay spatially separate from each other.
 	~scenepossynths = ~nscenes.collect{|whichscene|
 		{ |rapidity=5, circlesize=1|
 			var pos;
-			pos = LFSaw.kr(0.07 * rrand(0.9, 1.1) * (rapidity/circlesize.max(1)), 2.0.rand).range(0, 1);
+			var movespeed = (rapidity/circlesize.max(1)) * (3.4 * In.kr(~tempobus));
+			pos = LFSaw.kr(0.07 * rrand(0.9, 1.1) * movespeed, 2.0.rand).range(0, 1);
 			Out.kr(~sceneposbus.index + whichscene, pos);
 		}.play(~ksettersgroup);
 	};
