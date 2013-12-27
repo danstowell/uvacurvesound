@@ -88,6 +88,7 @@
 	// TODO WE WANT MANY MORE MOMENTS OF SPARSITY - eg with wide circle,  <<<<<<<<<<<<<
 	~jumpcut.("one_harmonic_per", 0);
 	loop{
+		"position 0".postln;
 		~setparams.value(1, amp:0.0); // ensure set at least once
 		0.2.wait;
 		//~bringin.("oneper_to_orch_thrum_varsaw", 1, 20);
@@ -99,6 +100,7 @@
 		~oneper_orch_modulations.();
 		~jumpcut.("one_harmonic_per+waveactiv", 0);
 		30.wait;
+		"position 2".postln;
 		~bringin.("tracerbeep", 1, 20);
 		10.wait;
 		~crossfadeparams.(0, 20, amp: [0.7, 0.0]); // fadeout wavactiv
@@ -109,6 +111,7 @@
 		~jumpcutamps.([0, 0.7]); // pull away tracerbeep (i.e. silence 0)
 		5.wait;
 		~brief_superhigh.(); // on 0
+		"position 5".postln;
 		~alternate_fragpwm.();
 		~jumpcut.("tracerbeep", 0);
 		15.wait;
@@ -118,12 +121,14 @@
 		0.2.wait;
 		~bringin.("one_harmonic_per", 0, 20);
 		5.wait;
+		"position 7".postln;
 		~crossfadeparams.(0, 20, amp: [0.7, 0.0]); // fadeout oneper
 		20.wait;
 		~bringin.("tracerbeep", 0, 0.1);
 		5.wait;
 		~setparams.value(1, amp:0.0);
 		5.wait;
+		"position 10".postln;
 		~jumpcut.("one_harmonic_per+waveactiv", 1);
 		10.wait;
 		~bringin.("tonestack01sin", 0, 20, amp:0.4);
