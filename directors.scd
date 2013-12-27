@@ -28,7 +28,7 @@
 // Note that amp is treated logarithmically
 ~crossfadeparams = {|index, xfadetime=4, amp=0.7, width=0.5, freqscale=1, circlesize=1, rapidity=5|
 
-	var params = (amp:log(max(amp, 1e-30)), width:width, freqscale:freqscale, circlesize:circlesize, rapidity:rapidity);
+	var params = (amp:log(max(amp, 1e-10)), width:width, freqscale:freqscale, circlesize:circlesize, rapidity:rapidity);
 	var frm = Dictionary[];
 	var too = Dictionary[];
 	var delta = 0.05, xfade0, xfade1, interp = Dictionary[];

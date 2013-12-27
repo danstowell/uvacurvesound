@@ -8,6 +8,7 @@
 ~athome = false;
 ~hardmul = if(~athome){10}{0.75};
 ////////////////////////
+s.latency = 0.5;
 s.options.numOutputBusChannels_(12);
 s.options.numWireBufs = 128;
 s.options.memSize = 8192 * 4;
@@ -223,7 +224,7 @@ s.waitForBoot{
 	}, []];
 	~scenetypes["oneper_to_orch_thrum"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
-		var thrummul = 0.8; //MouseY.kr(0.5, 2, 1);
+		var thrummul = 0.8 * ~normalperiod * In.kr(~tempobus); //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1);
 			LPF.ar(
@@ -241,7 +242,7 @@ s.waitForBoot{
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
-		var thrummul = 0.8; //MouseY.kr(0.5, 2, 1);
+		var thrummul = 0.8 * ~normalperiod * In.kr(~tempobus); //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1);
 			LPF.ar(
@@ -261,7 +262,7 @@ s.waitForBoot{
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var inxfade = XLine.kr(1e-12, 1, 30);
 		var indensity = XLine.kr(0.1, 1000, 30);
-		var thrummul = 0.8; //MouseY.kr(0.5, 2, 1);
+		var thrummul = 0.8 * ~normalperiod * In.kr(~tempobus); // MouseY.kr(0.1, 1, 1);
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1);
 			var asig = LPF.ar(
@@ -280,7 +281,7 @@ s.waitForBoot{
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
-		var thrummul = 0.5; //MouseY.kr(0.5, 2, 1);
+		var thrummul = 0.5 * ~normalperiod * In.kr(~tempobus); //MouseY.kr(0.1, 1, 1).poll;
 		var son = ~npendulums.collect{|which|
 			var mybasefreq;
 			//which = (which * 2).fold(0, ~npendulums - 0.5); // folds the ramp down again
