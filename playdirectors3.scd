@@ -150,9 +150,9 @@
 		~crossfadeparams.(1, 10, amp: [0.7, 0], width: [0.1, 0], rapidity: 30); // frag goes
 		20.wait;
 		~bringin.("passingzero_frompend_conc", 0, 3);
-		5.wait;
+		15.wait;
 		~jumpcutamps.value([0.7, 0.0]);
-		20.wait;
+		10.wait;
 		~brief_fragpwm.(1);
 		5.wait;
 		/////////////////////////////////////////////////// // full
