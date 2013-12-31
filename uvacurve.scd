@@ -65,7 +65,8 @@ s.waitForBoot{
 	// - SYNTH: fakependulums - let's send SinOsc.kr(exprand(), 2pi.rand) to the busses for test.
 	~fakependulums = {
 		// NB ~normalperiod is the standard period of the pendulums
-		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) / ~normalperiod, 2pi.rand)}.dup(~npendulums * 2);
+		var tempo = In.kr(~tempobus).max(1e-12);
+		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) * tempo, 2pi.rand)}.dup(~npendulums * 2);
 		Out.kr(~pendbus, pendpos);
 	}.play(~ksettersgroup);
 
