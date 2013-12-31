@@ -239,7 +239,11 @@ s.waitForBoot{
 				}.mean
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
-		var sub = {DC.ar(0)}.dup(~nsubs);
+		var sub = {SinOsc.ar(basefreq) * LFTri.ar(ExpRand(5, 10)).range(0.25, 0.05)}.dup(~nsubs);
+		son.do{|oneson, which|
+			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100));
+		};
 		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_varsaw_fizzin"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -261,6 +265,10 @@ s.waitForBoot{
 			XFade2.ar(asig * EnvGen.ar(Env.perc(0.02, 0.02), Dust.kr(indensity)), asig, inxfade * 2 - 1);
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
+		son.do{|oneson, which|
+			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
+		};
 		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -327,6 +335,10 @@ s.waitForBoot{
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
+		son.do{|oneson, which|
+			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
+		};
 		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["orch_saw1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -379,25 +391,12 @@ s.waitForBoot{
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
+		son.do{|oneson, which|
+			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+			sub[reindex] = sub[reindex] + LPF.ar(oneson, 100);
+		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, circlesize:circlesize)
 	}, [["misalign (0--1)", 0], ["histuff (0--1)", [1,0,1]]]];
-	/*
-	~scenetypes["frag_pwm2"] = [{|pendspos, onescenepos, width, freqscale, threevals|
-	var phases, son, onewidth, amps, sub, freq;
-	width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
-	phases = (0..~npendulums-1) * 0.5 / ~npendulums;
-	onewidth = 0.5; //0.5 / ~npendulums;
-	amps = ~npendulums.collect{|index| width.linlin(index, index+1, 0, 1)};
-	freq = 0.5 * IRand(25, 35).midicps * freqscale;
-	son = ~npendulums.collect{|which|
-	LFPulse.ar(freq, phases[which], onewidth, amps[which]).lag(0.007) * 1.3;
-	} * 0.1;
-	sub = ~nsubs.collect{|which|
-	DC.ar(0);
-	};
-	~sceneenveloper.value(son, sub, onescenepos, 1, circlesize:circlesize)
-	}, []];
-	*/
 	~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub;
 		var pos, trig, rawson, scaler, panenv, thruspeed;
@@ -416,6 +415,10 @@ s.waitForBoot{
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0); // TODO crossover filter
+		};
+		son.do{|oneson, which|
+			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 50, 0.5, 3, 0.9), 100);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["zappiness", 0], ["thruspeed", 1]]];
@@ -437,6 +440,10 @@ s.waitForBoot{
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0); // TODO crossover filter
+		};
+		son.do{|oneson, which|
+			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 5, 0.5, 3, 0.9), 100);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
