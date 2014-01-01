@@ -418,7 +418,7 @@ s.waitForBoot{
 		};
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
-			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 50, 0.5, 3, 0.9), 100);
+			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["zappiness", 0], ["thruspeed", 1]]];
@@ -443,7 +443,7 @@ s.waitForBoot{
 		};
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
-			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 5, 0.5, 3, 0.9), 100);
+			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 5, 0.5, 0.5, 0.99999), 100);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
