@@ -383,12 +383,13 @@ s.waitForBoot{
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
 	}, []];
 	~scenetypes["frag_pwm"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var phases, son, onewidth, amps, sub, freq, leds;
+		var phases, son, onewidth, amps, sub, freq, leds, reltempo;
+		reltempo = ~normalperiod * In.kr(~tempobus);
 		width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
 		phases = (0..~npendulums-1) * 0.5 / ~npendulums;
-		onewidth = 0.5 / ~npendulums;
+		onewidth = (0.5 / ~npendulums) / reltempo;
 		amps = ~npendulums.collect{|index| width.linlin(index, index+1, 0, 1)};
-		freq = In.kr(~basefreqbus) * 0.25 * freqscale;
+		freq = In.kr(~basefreqbus) * 0.25 * freqscale * reltempo;
 		son = ~npendulums.collect{|which|
 			var misalign = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			var histuff  = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
