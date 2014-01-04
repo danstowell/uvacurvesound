@@ -79,7 +79,7 @@ s.waitForBoot{
 	The nodeproxy has a fairly long fadetime, so that when different scenes are sent it crosses sensibly.
 	*/
 	// standard enveloper reused by each scene type
-	~sceneenveloper = {|audio, sub, led, position, width=0, movewith=true, circlesize=1|
+	~sceneenveloper = {|audio, sub, leds, position, width=0, movewith=true, circlesize=1|
 		var distances, subdistances;
 		circlesize = max(1, circlesize); // circlesize is like adding virtual silent speakers to the end of the list
 		distances    = ((position * ~npendulums * circlesize) - (0..~npendulums-1)).abs;   // so, +1 is 1 speaker away
@@ -96,19 +96,23 @@ s.waitForBoot{
 		//position.poll(1);
 		//((distances[11]-0.5).max(0)/~npendulums).linexp(0, 1, 1, width.min(0.999).max(0.001)).poll(10, "...distmul[11] is");
 		if(movewith){
-			audio = audio.sum{|anaudio, index| PanAz.ar(~npendulums, anaudio, (position + (index / ~npendulums)) * 2) };
+			audio = audio        .sum{|anaudio, index| PanAz.ar(~npendulums, anaudio, (position + (index / ~npendulums)) * 2) };
+			leds  = leds.clump(2).sum{|anled  , index| PanAz.kr(~npendulums, anled  , (position + (index / ~npendulums)) * 2) }.flop.flat;
 		};
 		audio = distances.collect{|adist, which|
 			var distmul = ((adist-0.5).max(0)/~npendulums).linexp(0, 1, 1, width.min(0.999).max(0.001));
 			//distmul.poll(1);
-			audio[which] * distmul.squared;  /////// TEST IF HARDER ISOLATION IS GOOD
+			distmul = distmul.squared;  /////// TEST IF HARDER ISOLATION IS GOOD
+			leds[which * 2    ] = leds[which * 2    ] * distmul;
+			leds[which * 2 + 1] = leds[which * 2 + 1] * distmul;
+			audio[which] * distmul;
 		};
 		sub = subdistances.collect{|adist, which|
 			var distmul = ((adist-0.5).max(0)/~nsubs).linexp(0, 1, 1, width.min(0.999).max(0.001));
 			//distmul.poll(1);
 			sub[which] * distmul;
 		};
-		[audio, sub, led] // return
+		[audio, sub, leds] // return
 	};
 
 	// This function is used to map from a pendulum position in range [-1, +1] to three envelope points
