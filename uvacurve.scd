@@ -218,7 +218,7 @@ s.waitForBoot{
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -237,7 +237,7 @@ s.waitForBoot{
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {SinOsc.ar(basefreq) * LFTri.ar(ExpRand(5, 10)).range(0.25, 0.05)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100));
@@ -249,6 +249,9 @@ s.waitForBoot{
 		var inxfade = XLine.kr(1e-12, 1, 30);
 		var indensity = XLine.kr(0.1, 1000, 30);
 		var thrummul = 0.8 * ~normalperiod * In.kr(~tempobus); // MouseY.kr(0.1, 1, 1);
+		var envs = ~npendulums.collect{|which|
+			EnvGen.ar(Env.perc(0.02, 0.02), Dust.kr(indensity));
+		};
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1) * freqscale;
 			var asig = LPF.ar(
@@ -260,10 +263,10 @@ s.waitForBoot{
 					)
 				}.mean
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
-			XFade2.ar(asig * EnvGen.ar(Env.perc(0.02, 0.02), Dust.kr(indensity)), asig, inxfade * 2 - 1);
+			XFade2.ar(asig * envs[which], asig, inxfade * 2 - 1);
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = ~npendulums.collect{|which| DC.kr([0, 0.95]) * A2K.kr(envs[which])}.flat;
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
@@ -298,7 +301,7 @@ s.waitForBoot{
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["oneper_to_orch_g"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -317,7 +320,7 @@ s.waitForBoot{
 				, (MouseY.kr(1, 100, 1) * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["low_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -336,7 +339,7 @@ s.waitForBoot{
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = {DC.kr([0, 0.3])}.dup(~npendulums).flat;
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
@@ -355,7 +358,7 @@ s.waitForBoot{
 			}.mean;
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["orch_saw2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -370,7 +373,7 @@ s.waitForBoot{
 			}.mean;
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr(0)}.dup(~npendulums * 2);
+		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
 	}, []];
 	~scenetypes["driftysines"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -396,11 +399,12 @@ s.waitForBoot{
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + LPF.ar(oneson, 100);
+			leds[which * 2 + 1] = A2K.kr(oneson).abs * 10;
 		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, 1, circlesize:circlesize)
 	}, [["misalign (0--1)", 0], ["histuff (0--1)", [1,0,1]]]];
 	~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -419,7 +423,7 @@ s.waitForBoot{
 		// Now we delay-and-splay it so as to zap across speakers
 		son = ~npendulums.collect{|which|
 			var del = (~npendulums - which) * 0.06;
-			leds[which * 2] = DelayC.kr(env, del * 4, del * thruspeed.reciprocal);
+			leds[which * 2] = DelayC.kr(env, del * 4, del * thruspeed.reciprocal) > 0.25;
 			DelayC.ar(rawson, del * 4, del * thruspeed.reciprocal);
 		};
 		sub = ~nsubs.collect{|which|
@@ -447,7 +451,7 @@ s.waitForBoot{
 			var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
 			var del = which * 0.06;
-			leds[which * 2] = DelayC.kr(env, del, del);
+			leds[which * 2] = DelayC.kr(env, del, del) > 0.1;
 			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan, del, del) * amp;
 		};
 		sub = ~nsubs.collect{|which|
@@ -511,30 +515,36 @@ s.waitForBoot{
 	}, [["amp", [1,0,1]], ["modrate", [8,2,8]]]];
 	~scenetypes["passingzero_frompend"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		son = ~npendulums.collect{|which|
 			var tester = (pendspos[which][1]).sign;
-			SinOsc.ar((83 + which).midicps, 0, EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester))) * 0.2;
+			var env = EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester));
+			leds[which * 2 .. which * 2 + 1] = A2K.kr(env);
+			SinOsc.ar((83 + which).midicps, 0, env) * 0.2;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
 		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize)
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		[son, sub, leds]
 	}, []];
 	~scenetypes["passingzero_frompend_conc"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		son = ~npendulums.collect{|which|
 			var radialpos = (pendspos[which][1].squared + pendspos[which][0].squared).sqrt;
-			[0, 0.1, 0.2, 0.3, 0.4].collect{|radius, whichrad|
+			var envs = [0, 0.1, 0.2, 0.3, 0.4].collect{|radius, whichrad|
 				var tester = (radius - radialpos).sign;
-				SinOsc.ar((83 + which + (whichrad * 4)).midicps, 0, EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester))) * 0.2;
+				EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester))
+			};
+			leds[which * 2 .. which * 2 + 1] = A2K.kr(envs.sum);
+			envs.collect{|env, whichrad|
+				SinOsc.ar((83 + which + (whichrad * 4)).midicps, 0, env) * 0.2;
 			}.sum;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize)
 		[son, sub, leds]
 	}, []];
@@ -689,7 +699,7 @@ s.waitForBoot{
 		sub = ~nsubs.collect{|which|
 			SinOsc.ar((basefreqs * 0.125 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.2;
 		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		leds = {DC.kr([0, 0.7])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
 	}, [["harmonic stretch 0--1", 0], ["freqscale", 1]]];
 	~scenetypes["silent"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
