@@ -428,18 +428,19 @@ s.waitForBoot{
 			DelayC.ar(rawson, del * 4, del * thruspeed.reciprocal);
 		};
 		sub = ~nsubs.collect{|which|
-			DC.ar(0); // TODO crossover filter
+			DC.ar(0);
 		};
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
-			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
+			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 1000, 2) * BrownNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
 		};
 		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["zappiness", 0], ["thruspeed", 1]]];
 	~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
 		var pos, trig, rawson, scaler, env, panenv;
-		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * (~normalperiod * In.kr(~tempobus)));
+		var reltempo = ~normalperiod * In.kr(~tempobus);
+		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * reltempo);
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 
 		//rawson = (SinOsc.ar(1300 * [1,3,5,7]).mean * MouseY.kr(2,4)).clip2;
@@ -456,11 +457,11 @@ s.waitForBoot{
 			DelayC.ar((rawson * distort.linexp(0, 1, 1, 10)).atan, del, del) * amp;
 		};
 		sub = ~nsubs.collect{|which|
-			DC.ar(0); // TODO crossover filter
+			DC.ar(0);
 		};
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
-			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(oneson * WhiteNoise.ar * 5, 0.5, 0.5, 0.99999), 100);
+			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 100) * BrownNoise.ar * 50, 0.5, 0.5, 0.999), 100);
 		};
 		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
