@@ -18,14 +18,19 @@ OSCFunc.trace(false)
 //OSCdef(\vol).enable
 //OSCFunc.newMatching({|msg, time, addr, recvPort| \matching.postln}, '/d3', ~recvaddr); // path matching
 //o.free;    // remove the OSCFunc when you are done.
+/* To send self data:
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound", 1, 1, 9.809, 1,1,1, 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound", 1, 1, 0.809, 1,1,1, 0)
+*/
 
 (
 // this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
 ~perPendulumKeys = #[\normPosx, \normPosy, \normPosz, \normVelx, \normVely, \normVelz, \approxPeriod];
 
+if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 ~d3func = { arg msg, time, addr, recvPort; if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
 	//msg.postln;
-	"Received OSC /d3/sound with % args".format(msg.size - 1).postln;
+	//"Received OSC /d3/sound with % args".format(msg.size - 1).postln;
 	var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset;
 
 	volume        = msg[1].asFloat;
@@ -41,6 +46,8 @@ OSCFunc.trace(false)
 
 	// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
 	// ~settempo.(newtempo)
+	"Received /d3/sound - gravityMag %, timeIncrement %".format(gravityMag, timeIncrement).postln;
+	~settempo.value((1/~normalperiod) * timeIncrement * sqrt(gravityMag / 9.81));
 
 	// TODO DO STUFF WITH THIS DATA ***********************
 };};
@@ -48,11 +55,13 @@ thisProcess.addOSCRecvFunc(~d3func);
 
 //////////////////////////////////////////////////////////////////////
 // receive led data from server and bounce it over to d3
+if(~ledtod3func.notNil){thisProcess.removeOSCRecvFunc(~ledtod3func)};
 ~ledtod3func = { arg msg, time, addr, recvPort;
 	var vals;
 	if(addr.port==s.addr.port and: {msg[0].asString=="/d3/lights/set"}){
 		vals = msg[3..];
-		"==> Received OSC LED data from server with % values".format(vals.size).postln;
+		//"==> Received OSC LED data from server with % values".format(vals.size).postln;
+		//vals.round(0.01).postln;
 		// boing the values over to d3
 		~ledsendaddr.sendMsg(["/d3/lights/set"] ++ vals);
 	};
