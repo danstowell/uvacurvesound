@@ -1,16 +1,19 @@
 s.boot;
 
-
+x.free;
 
 (
-{
+x={
 	// Elastic boinger - NB CombC and CombN give very different results - CombN tinnier
 	var sons, son;
-	sons = [48, 55, 60].collect{|val|
-		son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.001, 0.05), Dust.kr(1));
-		son = CombN.ar(son, 0.2, LFDNoise1.kr(0.1).exprange(0.01, 0.1), 3);
+	sons = 12.collect{|chan|
+		[48, 55, 60].collect{|val|
+			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.1));
+			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 20);
+		}.mean;
 	};
 	Splay.ar(sons);
+	sons * 0.02;
 }.play
 )
 
@@ -18,11 +21,15 @@ s.boot;
 {
 	// Elastic harder - NB CombC and CombN give very different results - CombN tinnier
 	var sons, son;
-	sons = [48, 55, 60].collect{|val|
-		son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.001, 0.05), Dust.kr(1));
-		son = CombC.ar(son, 0.2, LFDNoise1.kr(0.1).exprange(0.01, 0.1), 3);
+	sons = 12.collect{|chan|
+		[48, 55, 60].collect{|val|
+			var wib = LFDNoise1.kr(0.2).range(0, 0.1);
+			son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.1));
+			son = CombC.ar(son, 0.2, (LFDNoise1.kr(0.1) + LFPar.kr(10, 0, wib)).linexp(-1, 1, 0.01, 0.1), 20);
+		}.mean;
 	};
 	Splay.ar(sons);
+	sons * 0.05;
 }.play
 )
 
@@ -30,11 +37,14 @@ s.boot;
 {
 	// Elastic hiss
 	var sons, son;
-	sons = [48, 55, 60].collect{|val|
-		son = BPF.ar(WhiteNoise.ar(0.1), LFDNoise1.kr(1).exprange(500, 10000), 1);
-		son = CombC.ar(son, 0.2, LFDNoise1.kr(0.3).exprange(0.01, 0.1), 3);
+	sons = 12.collect{
+		[48, 55, 60].collect{|val|
+			son = BPF.ar(WhiteNoise.ar(0.1), LFDNoise1.kr(1).exprange(500, 10000), 0.2);
+			son = CombC.ar(son, 0.2, LFDNoise1.kr(0.3).exprange(0.005, 0.2), 3);
+		}.mean;
 	};
 	Splay.ar(sons);
+	sons.clip2(1) * 0.05;
 }.play
 )
 
@@ -64,7 +74,7 @@ s.boot;
 	forceBuildup = Phasor.ar(slipEvents, 10 * SampleDur.ir, 0, inf).min(1);
 	evtAmp = Latch.ar(Delay1.ar(forceBuildup.sqrt), slipEvents);
 	evtDecayTime = evtAmp.sqrt;
-	evts = EnvGen.ar(Env.perc(0.001, 1), slipEvents, evtAmp, 0, evtDecayTime * 0.01);
+	evts = EnvGen.ar(Env.perc(0.001, 1), slipEvents, evtAmp, 0, evtDecayTime * 0.01 * TExpRand.kr(0.5, 2, slipEvents)) * LPF.ar(BrownNoise.ar, 80);
 };
 ~squarepanel = { |inputs|
 	var times, filt;
@@ -82,14 +92,24 @@ s.boot;
 
 };
 
-{~squarepanel.value(~woodfilter.value(2.collect{~stickslip.value(LFPar.kr(0.2).range(0.1, 0.2))}))}.play
+{~squarepanel.value(~woodfilter.value(0.05 * 12.collect{~stickslip.value(LFPar.kr(ExpRand(0.01, 0.04), pi.rand).range(0.0, 0.2))}))}.play
 
 )
+
+// Formlet meh
 
 
 // Maybe GrainFM can be used to make a granular twisting elastic warp sound - or maybe it's too discordant and GrainSin wins
 // try GrainSin starting from 440
-GrainSin
+(
+{ // This sounds like the wind!
+	GrainSin.ar(6, Dust.ar(100), 0.01, LFNoise0.kr(10), LFNoise0.kr(10).range(0,2)) * 0.5
+}.play
+)
 
-
+(
+{
+	GrainSin.ar(6, Dust.ar(300), 0.01, Select.kr(LFPulse.kr(10) * 3, LFPar.kr(0.2, [0, 0.5, 1, 1.5]).exprange(880, 440)), LFNoise0.kr(10).range(0,2)) * 0.01
+}.play
+)
 
