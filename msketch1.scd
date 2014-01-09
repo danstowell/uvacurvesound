@@ -11,10 +11,11 @@ x={
 	var sons, son;
 	sons = 12.collect{|chan|
 		[48, 55, 60].collect{|val|
-			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.1));
-			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 20);
+			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.03));
+			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
 		}.mean;
 	};
+	sons = sons * XLine.ar(0.001, 1, 0.2);
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 	sons[..1]
@@ -28,10 +29,11 @@ x={
 	sons = 12.collect{|chan|
 		[48, 55, 60].collect{|val|
 			var wib = LFDNoise1.kr(0.2).range(0, 0.05);
-			son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.1));
+			son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.03, 0.05), Dust.kr(0.03));
 			son = CombC.ar(son, 0.2, (LFDNoise1.kr(0.1) + LFPar.kr(10, 0, wib)).linexp(-1, 1, 0.01, 0.1), 20);
 		}.mean;
 	};
+	sons = sons * XLine.ar(0.001, 1, 0.2);
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 	sons[..1]
@@ -45,9 +47,10 @@ x={
 	sons = 12.collect{
 		[48, 55, 60].collect{|val|
 			son = BPF.ar(WhiteNoise.ar(0.1), LFDNoise1.kr(1).exprange(500, 10000), 0.2);
-			son = CombC.ar(son, 0.2, LFDNoise1.kr(0.3).exprange(0.005, 0.2), 3);
+			son = CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.005, 0.2), 3);
 		}.mean;
 	};
+	sons = sons * XLine.ar(0.001, 1, 0.2);
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 	sons[..1]
@@ -72,7 +75,8 @@ x={
 
 
 (
-~stickslip = { |force|
+// stickslip01
+var stickslip = { |force|
 	var inMotion, slipEvents, forceBuildup, evtAmp, evtDecayTime, evts;
 	force = force.lag(0.1); // smoothing to get rid of volatile control changes
 	inMotion = force > 0.1; // static friction: nothing at all below a certain force
@@ -82,7 +86,7 @@ x={
 	evtDecayTime = evtAmp.sqrt;
 	evts = EnvGen.ar(Env.perc(0.001, 1), slipEvents, evtAmp, 0, evtDecayTime * 0.01 * TExpRand.kr(0.5, 2, slipEvents)) * LPF.ar(BrownNoise.ar, 80);
 };
-~squarepanel = { |inputs|
+var squarepanel = { |inputs|
 	var times, filt;
 	// times in milliseconds, converted to seconds:
 	times = [4.52, 5.06, 6.27, 8, 5.48, 7.14, 10.12, 16] * 0.001;
@@ -90,7 +94,7 @@ x={
 	filt = HPF.ar(filt, 125);
 	filt * 4
 };
-~woodfilter = { |inputs|
+var woodfilter = { |inputs|
 	var freqs, rqs, output;
 	freqs = [62.5, 125, 250, 395, 560, 790];
 	rqs   = 1 / [1, 1, 2, 2, 3, 3];
@@ -99,12 +103,12 @@ x={
 };
 
 {
-	var sons = ~squarepanel.value(~woodfilter.value(12.collect{
+	var sons = squarepanel.value(woodfilter.value(12.collect{
 		var chanphase = pi.rand;
 		2.collect{|phase|
 			var force; //= MouseX.kr; //LFPar.kr(ExpRand(0.01, 0.04), pi.rand).range(0.0, 0.9);
-			force = LFSaw.kr(-0.05, phase + chanphase).linexp(-1, 1, 0.1, 1.5) + Line.kr(2, 0, 3);
-			~stickslip.value(force) * XLine.ar(0.001, 1, 1)
+			force = LFSaw.kr(-0.03, phase + chanphase).linexp(-1, 1, 0.1, 1.5) + Line.kr(2, 0, 3);
+			stickslip.value(force) * XLine.ar(0.001, 1, 3)
 			// * BPF.ar(WhiteNoise.ar, 200, mul: 3)
 			* (1-force)
 		}.sum
