@@ -1,4 +1,7 @@
-s.boot;
+s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO LOW
+~twelve = Bus.audio(s, 12);
+~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free
+~twelve.scope;
 
 x.free;
 
@@ -12,8 +15,9 @@ x={
 			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 20);
 		}.mean;
 	};
+	Out.ar(~twelve, sons);
 	Splay.ar(sons);
-	sons * 0.02;
+	sons[..1]
 }.play
 )
 
@@ -23,13 +27,14 @@ x={
 	var sons, son;
 	sons = 12.collect{|chan|
 		[48, 55, 60].collect{|val|
-			var wib = LFDNoise1.kr(0.2).range(0, 0.1);
+			var wib = LFDNoise1.kr(0.2).range(0, 0.05);
 			son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.1));
 			son = CombC.ar(son, 0.2, (LFDNoise1.kr(0.1) + LFPar.kr(10, 0, wib)).linexp(-1, 1, 0.01, 0.1), 20);
 		}.mean;
 	};
+	Out.ar(~twelve, sons);
 	Splay.ar(sons);
-	sons * 0.05;
+	sons[..1]
 }.play
 )
 
@@ -43,8 +48,9 @@ x={
 			son = CombC.ar(son, 0.2, LFDNoise1.kr(0.3).exprange(0.005, 0.2), 3);
 		}.mean;
 	};
+	Out.ar(~twelve, sons);
 	Splay.ar(sons);
-	sons.clip2(1) * 0.05;
+	sons[..1]
 }.play
 )
 
@@ -92,7 +98,21 @@ x={
 
 };
 
-{~squarepanel.value(~woodfilter.value(0.05 * 12.collect{~stickslip.value(LFPar.kr(ExpRand(0.01, 0.04), pi.rand).range(0.0, 0.2))}))}.play
+{
+	var sons = ~squarepanel.value(~woodfilter.value(12.collect{
+		var chanphase = pi.rand;
+		2.collect{|phase|
+			var force; //= MouseX.kr; //LFPar.kr(ExpRand(0.01, 0.04), pi.rand).range(0.0, 0.9);
+			force = LFSaw.kr(-0.05, phase + chanphase).linexp(-1, 1, 0.1, 1.5) + Line.kr(2, 0, 3);
+			~stickslip.value(force) * XLine.ar(0.001, 1, 1)
+			// * BPF.ar(WhiteNoise.ar, 200, mul: 3)
+			* (1-force)
+		}.sum
+	}));
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+	sons[..1]
+}.play
 
 )
 
@@ -109,7 +129,49 @@ x={
 
 (
 {
-	GrainSin.ar(6, Dust.ar(300), 0.01, Select.kr(LFPulse.kr(10) * 3, LFPar.kr(0.2, [0, 0.5, 1, 1.5]).exprange(880, 440)), LFNoise0.kr(10).range(0,2)) * 0.01
+	var sons;
+	sons = GrainSin.ar(6, Dust.ar(300), 0.01,
+		Select.kr(LFPulse.kr(10) * 3, LFPar.kr(0.2, [0, 0.5, 1, 1.5]).exprange(880, 440)),
+		LFNoise0.kr(10).range(0,2)) * 0.2;
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+	sons[..1]
 }.play
 )
+
+
+
+(
+{
+	var source, local;
+	source = Decay.ar(Impulse.ar(0.3), 0.1) * WhiteNoise.ar(0.2);
+	source = Dust2.ar(50);
+	local = LocalIn.ar(1) + source; // read feedback, add to source
+	local = LPF.ar(DelayN.ar(local.round(0.01) * 1.2, 0.2, 0.2), 3000); // delay sound
+	local = [local, HPF.ar(LPF.ar(local, 100), 100)].sum.tanh * 0.8;
+	LocalOut.ar(local * 0.8);
+	Out.ar(0, local);
+}.play;
+)
+
+
+
+
+
+
+(
+{
+	var source, local;
+	source = Decay.ar(Impulse.ar(0.3), 0.1) * WhiteNoise.ar(0.2);
+	//source = Dust2.ar(50);
+	local = LocalIn.ar(1) + source; // read feedback, add to source
+	local = DelayN.ar(local.round(0.01) * 1.2, 0.2, 0.2);
+	local = HPF.ar(PitchShift.ar(local, 0.2, 0.9) * 1.9, 100).softclip;
+	local = local * (local.abs > 0.01);
+	LocalOut.ar(local * 0.8);
+	Out.ar(0, local);
+}.play;
+)
+
+
 
