@@ -46,7 +46,7 @@
 ~bringin = { |name, on, dur=20, width=1, rapidity=5, amp=0.7, circlesize=1|   // NB assumes always bringing in from silence
 	"~bringin(%, %)".format(name, on).postln;
 	~preparesilent.value(on, name, width: width, rapidity: rapidity, circlesize: circlesize);
-	0.3.wait;
+	0.5.wait;
 	~crossfadeparams.value(on, dur, amp:[0, amp], width: width, rapidity: rapidity, circlesize: circlesize);
 	dur.wait;
 };
@@ -102,6 +102,7 @@
 	~jumpcut.("tracerbeep", 1);
 	~bringin.("tracer", 0, 0.5);
 	loop{
+		"position 0".postln;
 		30.wait;
 		~setparams.value(0, amp:0.0);
 		0.2.wait;
@@ -118,6 +119,7 @@
 		3.wait;
 		~alternate_fragpwm.();
 		// this is a kind of jumpcut
+		"position 2".postln;
 		~pushascene.value("tracer", 1);
 		0.4.wait;
 		~setparams.value(0, amp:0.7);
@@ -136,6 +138,7 @@
 		0.6.wait;
 		~bringin.("oneper_to_orch_thrum_both", 1, 0.5, amp:0.7, rapidity: 10, circlesize: 5, width: 0.3); // sweeps thru occasionally
 		40.wait;
+		"position 5".postln;
 		~crossfadeparams.(0, 1.0, width: [1,0]);
 		1.1.wait;
 		~crossfadeparams.(0, 1.0, amp: [0.7, 0]); // fade scene 0 from 0.7 to 0 in 1 second
@@ -152,19 +155,24 @@
 		0.1.wait;
 		~preparesilent.value(1, "tracer");
 		1.0.wait;
+		"position 7".postln;
 		~jumpcutamps.([0.0, 0.7]);
 		0.4.wait;
-		~bringin.("tonestack01tri02", 0, 0.2);
-		~jumpcutamps.([0.7, 0]);
+		~bringin.("tonestack01tri02", 0, 4, amp:0.3);
+		1.0.wait;
+		~jumpcutamps.([0.3, 0]);
 		15.wait;
 		~bringin.("oneper_to_orch_thrum_varsaw_fizzin", 1, 0.5, amp:0.4); // bring in to scene 1 with a 0.5 fade in and amplitude of 0.4
-		30.wait;
+		10.wait;
+		~crossfadeparams.(0, 10.0, amp: [0.3, 0]); // remove tonestack slowly
+		20.wait;
 		~crossfadeparams.(1, 1.0, width: [1, 0], rapidity: [5, 0]); // thins and hits stasis
 		10.wait;
 		~crossfadeparams.(1, 0.5, width: [0], rapidity: [0, 5], amp: [0.7, 0]); // then goes
 		0.6.wait;
 		~bringin.("low_orch_thrum_varsaw", 1, 0.5);
 		10.wait;
+		"position 10".postln;
 		~crossfadeparams.(1, 1.0, width: [1, 0], rapidity: [5, 0]); // thins and hits stasis
 		10.wait;
 		~crossfadeparams.(1, 0.5, width: [0], rapidity: [0, 5], amp: [0.7, 0]); // then goes
