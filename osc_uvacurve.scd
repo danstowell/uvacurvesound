@@ -4,7 +4,8 @@
 ~recvaddr = NetAddr.new(nil, ~fromport);    // create the NetAddr
 thisProcess.openUDPPort(~fromport); // attempt to open
 
-~ledsendaddr = NetAddr("10.0.0.123", 1234); // TODO ------------------------- get proper settings from Tiemen
+~ledsendaddr = nil;
+//~ledsendaddr = NetAddr("10.0.0.123", 1234); // TODO ------------------------- get proper settings from Tiemen
 );
 
 /*
@@ -63,7 +64,8 @@ if(~ledtod3func.notNil){thisProcess.removeOSCRecvFunc(~ledtod3func)};
 		//"==> Received OSC LED data from server with % values".format(vals.size).postln;
 		//vals.round(0.01).postln;
 		// boing the values over to d3
-		~ledsendaddr.sendMsg(["/d3/lights/set"] ++ vals);
+
+		if(~ledsendaddr.notNil){~ledsendaddr.sendMsg(["/d3/lights/set"] ++ vals)};
 	};
 };
 thisProcess.addOSCRecvFunc(~ledtod3func);
