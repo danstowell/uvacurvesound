@@ -3,7 +3,12 @@ s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO
 ~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free
 ~twelve.scope;
 
+~dobuf = Buffer.alloc(s, 65536, 2);
+~dobuf.write("~/git/uvacurve/recordings/recorded.wav".standardizePath, "wav", "int24", 0, 0, true);
+// then record, then
 x.free;
+~dobuf.close;
+~dobuf.free; ~dobuf = nil;
 
 (
 x={
@@ -11,37 +16,58 @@ x={
 	var sons, son;
 	sons = 12.collect{|chan|
 		[48, 55, 60].collect{|val|
-			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.03));
+			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.01));
 			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
 		}.mean;
 	};
 	sons = sons * XLine.ar(0.001, 1, 0.2);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
-	sons[..1]
+	//sons[..1]
 }.play
 )
 
 (
-{
+x={
 	// Elastic harder - NB CombC and CombN give very different results - CombN tinnier
 	var sons, son;
 	sons = 12.collect{|chan|
 		[48, 55, 60].collect{|val|
 			var wib = LFDNoise1.kr(0.2).range(0, 0.05);
-			son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.03, 0.05), Dust.kr(0.03));
+			son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.03, 0.05), Dust.kr(0.01));
 			son = CombC.ar(son, 0.2, (LFDNoise1.kr(0.1) + LFPar.kr(10, 0, wib)).linexp(-1, 1, 0.01, 0.1), 20);
 		}.mean;
 	};
 	sons = sons * XLine.ar(0.001, 1, 0.2);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
-	sons[..1]
+	//sons[..1]
 }.play
 )
 
 (
-{
+x={
+	// Elastic boinger 2d
+	var sons, son;
+	sons = 12.collect{|chan|
+		[48, 55, 60].collect{|val|
+			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.01));
+			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40)
+			    + CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
+		}.mean;
+	};
+	sons = sons * XLine.ar(0.001, 1, 0.2);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+	//sons[..1]
+}.play
+)
+
+(
+x={
 	// Elastic hiss
 	var sons, son;
 	sons = 12.collect{
@@ -52,24 +78,9 @@ x={
 	};
 	sons = sons * XLine.ar(0.001, 1, 0.2);
 	Out.ar(~twelve, sons);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Splay.ar(sons);
-	sons[..1]
-}.play
-)
-
-
-// do elastic but with a HPFing delay - NOT WORKING
-(
-{
-	var sons;
-	sons = LocalIn.ar(3);
-	sons = [48, 55, 60].collect{|val, which|
-		var orig, son;
-		son = sons[which] + SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.001, 0.05), Dust.kr(1));
-		son
-	};
-	LocalOut.ar(sons.collect{|son| DelayC.ar(son * 0.9999, 0.2, LFDNoise1.kr(0.3).exprange(0.01, 0.1) )});
-	Splay.ar(sons);
+	//sons[..1]
 }.play
 )
 
@@ -102,20 +113,23 @@ var woodfilter = { |inputs|
 
 };
 
-{
-	var sons = squarepanel.value(woodfilter.value(12.collect{
+x={
+	var sons = squarepanel.value(woodfilter.value(3.collect{
 		var chanphase = pi.rand;
 		2.collect{|phase|
 			var force; //= MouseX.kr; //LFPar.kr(ExpRand(0.01, 0.04), pi.rand).range(0.0, 0.9);
-			force = LFSaw.kr(-0.03, phase + chanphase).linexp(-1, 1, 0.1, 1.5) + Line.kr(2, 0, 3);
+			force = LFSaw.kr(ExpRand(-0.03, -0.02), phase + chanphase).linexp(-1, 1, 0.1, 1.2) + Line.kr(2, 0, 3);
 			stickslip.value(force) * XLine.ar(0.001, 1, 3)
 			// * BPF.ar(WhiteNoise.ar, 200, mul: 3)
 			* (1-force)
 		}.sum
 	}));
+	//sons = [sons, sons[1..] ++ sons[0]].mean;
+	sons = sons.collect{|son, which| PanAz.ar(12, son, which * (2/3) + LFSaw.kr(0.1), width: 4)}.sum * 2;
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
-	sons[..1]
+	//sons[..1]
 }.play
 
 )
@@ -130,19 +144,6 @@ var woodfilter = { |inputs|
 	GrainSin.ar(6, Dust.ar(100), 0.01, LFNoise0.kr(10), LFNoise0.kr(10).range(0,2)) * 0.5
 }.play
 )
-
-(
-{
-	var sons;
-	sons = GrainSin.ar(6, Dust.ar(300), 0.01,
-		Select.kr(LFPulse.kr(10) * 3, LFPar.kr(0.2, [0, 0.5, 1, 1.5]).exprange(880, 440)),
-		LFNoise0.kr(10).range(0,2)) * 0.2;
-	Out.ar(~twelve, sons);
-	Splay.ar(sons);
-	sons[..1]
-}.play
-)
-
 
 
 (
