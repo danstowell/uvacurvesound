@@ -7,6 +7,7 @@
 ~hw_subbus = 4;
 ~athome = false;
 ~hardmul = if(~athome){10}{0.75};
+"localsettings.scd".loadRelative;
 ////////////////////////
 s.latency = 0.5;
 s.options.numOutputBusChannels_(12);
