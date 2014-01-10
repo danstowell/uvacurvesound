@@ -68,3 +68,29 @@ x = {
 )
 
 
+(
+x = {
+	// hi sliptick
+	var sons, rate, ourdevrate;
+	rate = LFDNoise1.kr(0.1).range(10, 20) * XLine.kr(0.1, 1, 1);
+	ourdevrate = LFDNoise1.kr(0.05).range(0.05, 0.1);
+	sons = 12.collect{
+		var son;
+		var dev = (LFTri.kr(ourdevrate) + LFDNoise1.kr(0.1, 0.3)).max(0) * 0.1;
+
+		son = Impulse.ar(rate /* 25 */ /* * ExpRand(20, 30) */ ) * WhiteNoise.ar;
+
+		son = son + 3.collect{
+			DelayN.ar(son, 0.1, dev * Rand(0, 1))
+		}.sum
+	};
+	sons = LPF.ar(HPF.ar(sons, 5000), 10000);
+	//Amplitude.ar(sons, 0.0001, 1).mean.poll;
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+	//sons[0].dup
+}.play
+)
+
+FreqScope()
