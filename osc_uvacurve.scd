@@ -5,7 +5,7 @@
 thisProcess.openUDPPort(~fromport); // attempt to open
 
 ~ledsendaddr = nil;
-//~ledsendaddr = NetAddr("10.0.0.123", 1234); // TODO ------------------------- get proper settings from Tiemen
+//~ledsendaddr = NetAddr("10.0.0.123", 1234);
 );
 
 /*
@@ -54,22 +54,6 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 };};
 thisProcess.addOSCRecvFunc(~d3func);
 
-//////////////////////////////////////////////////////////////////////
-// receive led data from server and bounce it over to d3
-if(~ledtod3func.notNil){thisProcess.removeOSCRecvFunc(~ledtod3func)};
-~ledtod3func = { arg msg, time, addr, recvPort;
-	var vals;
-	if(addr.port==s.addr.port and: {msg[0].asString=="/d3/lights/set"}){
-		vals = msg[3..];
-		//"==> Received OSC LED data from server with % values".format(vals.size).postln;
-		//vals.round(0.01).postln;
-		// boing the values over to d3
-
-		if(~ledsendaddr.notNil){~ledsendaddr.sendMsg(["/d3/lights/set"] ++ vals)};
-	};
-};
-thisProcess.addOSCRecvFunc(~ledtod3func);
 )
 /*
 thisProcess.removeOSCRecvFunc(~d3func);
-thisProcess.removeOSCRecvFunc(~ledtod3func);
