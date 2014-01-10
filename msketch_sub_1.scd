@@ -32,3 +32,20 @@ x = {|gate=1|
 }.play;
 )
 
+(
+x = {|gate=1|
+	// sub interpulse
+	var son;
+	son = 2.collect{|which|
+		var trig = Impulse.kr(0.2, which * 0.5);
+		var env = EnvGen.ar(Env.linen(0.1, 6, 4), trig);
+		var note = TIRand.kr(28, 33, trig);
+		son = SinOsc.ar(note.midicps, mul:env);
+	}.mean;
+
+	son = son * EnvGen.ar(Env.asr(0.1), gate, doneAction: 2);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Splay.ar(son.dup * 0.3);
+}.play;
+)
+
