@@ -20,8 +20,10 @@ OSCFunc.trace(false)
 //OSCFunc.newMatching({|msg, time, addr, recvPort| \matching.postln}, '/d3', ~recvaddr); // path matching
 //o.free;    // remove the OSCFunc when you are done.
 /* To send self data:
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound", 1, 1, 9.809, 1,1,1, 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound", 1, 1, 0.809, 1,1,1, 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 9.809, 1,1,1, 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 0.809, 1,1,1, 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang")
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracerbeep")
 */
 
 (
@@ -30,27 +32,49 @@ NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound", 1, 1, 0.809, 1,1,1, 0)
 
 if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 ~d3func = { arg msg, time, addr, recvPort; if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
+	var subaddr = msg[0].asString.split[3..];
 	//msg.postln;
-	//"Received OSC /d3/sound with % args".format(msg.size - 1).postln;
-	var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset;
+	"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 
-	volume        = msg[1].asFloat;
-	timeIncrement = msg[2].asFloat;
-	gravityMag    = msg[3].asFloat;
-	gravityDir    = msg[4..6].asFloat;
-	numPendulums  = msg[7].asInt;
+	subaddr[0].switch("state", {
+		var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset;
 
-	penddata = numPendulums.collect{|whichpend|
-		offset = 8 + (~perPendulumKeys.size * whichpend);
-		~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
-	};
+		volume        = msg[1].asFloat;
+		timeIncrement = msg[2].asFloat;
+		gravityMag    = msg[3].asFloat;
+		gravityDir    = msg[4..6].asFloat;
+		numPendulums  = msg[7].asInt;
 
-	// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
-	// ~settempo.(newtempo)
-	"Received /d3/sound - gravityMag %, timeIncrement %".format(gravityMag, timeIncrement).postln;
-	~settempo.value((1/~normalperiod) * timeIncrement * sqrt(gravityMag / 9.81));
+		penddata = numPendulums.collect{|whichpend|
+			offset = 8 + (~perPendulumKeys.size * whichpend);
+			~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
+		};
 
-	// TODO DO STUFF WITH THIS DATA ***********************
+		// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
+		// ~settempo.(newtempo)
+		"Received /d3/sound - gravityMag %, timeIncrement %".format(gravityMag, timeIncrement).postln;
+		~settempo.value((1/~normalperiod) * timeIncrement * sqrt(gravityMag / 9.81));
+
+		// TODO DO STUFF WITH THIS DATA ***********************
+	}, { // THE DEFAULT of the SWITCH
+		// not a "state" message
+		var targetslot = subaddr[0].asInt;
+		subaddr[1].switch(
+				"bang",        { // args [pendulumid]
+					// TODO simply send a nudge to the patch at the appropriate spot - WITH NO LATENCY
+					"todo:bang".postln;
+				},
+				"setparam",    { // args are just key-value pairs
+					// TODO simply send a "set" command appropriately
+					"todo:setparam".postln;
+				},
+				"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
+					// TODO bring in a new patch, with appropriate crossfade time
+					// (note, the crossfade can be done properly later)
+					"todo:changepatch".postln;
+				},
+		); // end of switch
+	});
 };};
 thisProcess.addOSCRecvFunc(~d3func);
 
