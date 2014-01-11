@@ -22,7 +22,9 @@ OSCFunc.trace(false)
 /* To send self data:
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 9.809, 1,1,1, 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 0.809, 1,1,1, 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang")
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracer")
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", 11)
+12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", val) }
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracerbeep")
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", "freqscale", 1.2)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 0.5)
@@ -74,7 +76,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 			subaddr[1].switch(
 				"bang",        { // args [pendulumid]
 					// TODO simply send a nudge to the patch at the appropriate spot - WITH NO LATENCY
-					"todo:bang".postln;
+					 ~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
 				},
 				"setparam",    { // args are just key-value pairs
 					~sceneplayers[targetslot].set(*msg[1..]);
