@@ -47,7 +47,7 @@ x = {
 	var sons;
 	sons = 12.collect{|val|
 		var son;
-		var addmidi = -6;//MouseX.kr(0, 40).round.poll(1);
+		var addmidi = -7;//MouseX.kr(0, 40).round.poll(1);
 		son = (([58, 65, 70] + addmidi).midicps.collect{|freq, inwhich|
 			var trig = Dust2.kr(1);
 			var lev  = Latch.kr(trig, trig.abs);

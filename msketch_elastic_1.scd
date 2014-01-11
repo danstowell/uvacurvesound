@@ -68,6 +68,27 @@ x={
 
 (
 x={
+	// Elastic boinger 2d 2
+	var sons, son, noise=WhiteNoise.ar.range(0.9, 1);
+	sons = 12.collect{|chan|
+		[48, 55, 60].collect{|val|
+			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.01, 0.05), Dust.kr(0.01));
+			son = HPF.ar(son * noise, 500);
+			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.08).exprange(0.03, 0.15), 60)
+			    + CombN.ar(son, 0.2, LFDNoise1.kr(0.08).exprange(0.03, 0.15), 60);
+		}.mean;
+	};
+	sons = sons * XLine.ar(0.001, 1, 0.2);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+	//sons[..1]
+}.play
+)
+
+
+(
+x={
 	// Elastic hiss
 	var sons, son;
 	sons = 12.collect{
@@ -177,6 +198,56 @@ x={
 	Out.ar(0, local);
 }.play;
 )
+
+
+
+(
+// tearing paper 1 - currently sounds quite a lot like velcro - I think it lacks some of the stiff resonances of paper
+x = {
+	var stage, stagelag, evt, res, son;
+	stage = LFSaw.kr(0.1).max(0);
+	stagelag = stage.lag(0.2, 0.2);
+	evt = Dust2.ar(stagelag.pow(3) * 400);
+	res = DynKlank.ar(`[10.collect{exprand(100, 400)}.postln, nil, 10.collect{0.1}], evt, stagelag.linexp(0, 1, 1, 10));
+	son = (evt) + (res * 0.6 * BPF.ar(WhiteNoise.ar, stagelag.linexp(0, 1, 10000, 2000), 2));
+	son = LPF.ar(son, stagelag.linexp(0, 1, 500, 10000));
+	son = CombC.ar(son, 0.15, 0.15, 0.4);
+	son.dup * 0.5 * 0.1;
+
+}.play
+)
+
+
+
+(
+// tearing 1 plus
+x = {
+	var stage, stagelag, evt, res, son;
+	stage = LFSaw.kr(0.05, 0.5).range(-3, 1).max(0);
+	stagelag = stage.lag(0.2, 0.2);
+	evt = Dust2.ar(stagelag.pow(3) * 400);
+	res = DynKlank.ar(`[10.collect{exprand(100, 400)}.postln, nil, 10.collect{0.1}], evt, stagelag.linexp(0, 1, 1, 10));
+	son = (evt) + (res * 0.6 * BPF.ar(WhiteNoise.ar, stagelag.linexp(0, 1, 10000, 2000), 2));
+	son = LPF.ar(son, stagelag.linexp(0, 1, 500, 10000));
+	son = son + CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.07, LFPar.ar(8).range(0.065, 0.07), stagelag.linexp(0, 1, 75, 0.1));
+	son.dup * 0.5 * 0.1;
+
+}.play
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

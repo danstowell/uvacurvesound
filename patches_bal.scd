@@ -41,7 +41,7 @@
 		};
 		sons = sons.collect{|son|
 			var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
-			XFade2.ar(son, nu, LFSaw.kr(-0.1, Rand(pi)));
+			XFade2.ar(son, nu, LFSaw.kr(0-ExpRand(0.08, 0.12), Rand(pi)));
 		};
 
 
