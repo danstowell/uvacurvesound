@@ -99,14 +99,31 @@ x = {
 
 
 
-///////////////TODO
+
+
+
 (
-{
-	var sons, freqs;
-	freqs = 10.collect{TIRand.kr(45, 65, Dust.kr(0.3)).midicps};
+x = {
+	// unbal diffle
 
-	sons = GrainSin.ar(12, Dust.ar(100), 0.01, Select.kr(LFSaw.kr.range(0, 10), freqs), LFNoise0.kr(100).range(0, 2));
-	sons = sons.clip2(1) * 0.01;
-}.play
+	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly
+	var sons;
+	sons = 12.collect{|val|
+		var son;
+		var addmidi = 7; //MouseX.kr(-20, 20).round.poll(1);
+		son = (([58, 65] + addmidi).midicps.collect{|freq, inwhich|
+			var trig = Dust2.kr(1);
+			var lev  = Latch.kr(trig, trig.abs).abs.neg;
+			SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))
+		} * [1.85, 0.07]).sum * 0.2;
+	};
+	sons = sons.collect{|son|
+		var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
+		XFade2.ar(son, nu, LFSaw.kr(-0.1, Rand(pi)));
+	};
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+}.play;
 )
-
+x.free;

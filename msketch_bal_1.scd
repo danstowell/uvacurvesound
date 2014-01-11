@@ -1,6 +1,6 @@
 s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO LOW
 ~twelve = Bus.audio(s, 12);
-~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free
+~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free; x.free;
 ~twelve.scope;
 
 ~dobuf = Buffer.alloc(s, 65536, 2);
@@ -39,3 +39,28 @@ x = {
 }.play;
 )
 
+(
+x = {
+	// bal riffle
+
+	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, but not far and they settle back quickly
+	var sons;
+	sons = 12.collect{|val|
+		var son;
+		var addmidi = -6;//MouseX.kr(0, 40).round.poll(1);
+		son = (([58, 65, 70] + addmidi).midicps.collect{|freq, inwhich|
+			var trig = Dust2.kr(1);
+			var lev  = Latch.kr(trig, trig.abs);
+			SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
+		} * [1.5, 0.7, 0.25]).sum * 0.3;
+	};
+	sons = sons.collect{|son|
+		var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
+		XFade2.ar(son, nu, LFSaw.kr(-0.1, Rand(pi)));
+	};
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+}.play;
+)
+x.free;

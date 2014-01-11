@@ -9,13 +9,13 @@
 ~hardmul = if(~athome){10}{0.75};
 "localsettings.scd".loadRelative;
 ////////////////////////
-s.latency = 0.5;
+s.latency = 0.75;
 s.options.numOutputBusChannels_(12);
 s.options.numWireBufs = 128;
 s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
-	~npendulums_true = 8; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
+	~npendulums_true = 6; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
 	~nscenes    = 2;
 	~nsubs      = 1;
 	// busses
@@ -212,8 +212,8 @@ s.waitForBoot{
 		};
 		/*
 		son.do{|oneson, which|
-			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
-			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 1000, 2) * BrownNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
+		var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+		sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 1000, 2) * BrownNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
 		};
 		*/
 		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize) // no width
@@ -492,7 +492,7 @@ s.waitForBoot{
 		var resolution = 1e-1;
 		son = ~npendulums.collect{|which|
 			var trig = HPZ1.kr(pendspos[which][0].round(resolution)).abs;
-			SinOsc.ar(freqs[which]) * EnvGen.ar(Env.perc(0.001, 0.1), trig, timeScale: 1/(In.kr(~tempobus)*~normalperiod)) * 0.4;
+			SinOsc.ar(freqs[which]) * EnvGen.ar(Env.perc(0.001, 0.1), trig, timeScale: 1/(In.kr(~tempobus)*~normalperiod)) * 0.2;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -519,7 +519,7 @@ s.waitForBoot{
 		var son, sub, leds;
 		son = ~npendulums.collect{|val|
 			([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * 51.midicps * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
-			} * [1, 0.002]).sum * 4;
+			} * [1, 0.002]).sum * 3;
 		};
 
 		sub = ~nsubs.collect{|which|
@@ -528,6 +528,32 @@ s.waitForBoot{
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
 	}, []];
+
+	~scenetypes["bal_riffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+		var sons, sub, leds;
+		// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, but not far and they settle back quickly
+		sons = ~npendulums.collect{|val|
+			var son;
+			var addmidi = -7;//MouseX.kr(0, 40).round.poll(1);
+			son = (([58, 65, 70] + addmidi).midicps.collect{|freq, inwhich|
+				var trig = Dust2.kr(1);
+				var lev  = Latch.kr(trig, trig.abs);
+				SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
+			} * [1.5, 0.7, 0.25]).sum * 0.1;
+		};
+		sons = sons.collect{|son|
+			var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
+			XFade2.ar(son, nu, LFSaw.kr(-0.1, Rand(pi)));
+		};
+
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+	}, []];
+
 	~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
 		var sons, sub, leds;
@@ -608,7 +634,7 @@ s.waitForBoot{
 			}.mean
 		};
 		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
-		sons = sons.stutter(3) * 0.02;
+		sons = sons.stutter(3) * 0.05;
 
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -616,6 +642,51 @@ s.waitForBoot{
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
 	}, []];
+	~scenetypes["unbal_clustpot_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+		var sub, leds;
+		var clusts, sons;
+
+		clusts = 4.collect{
+			4.collect{
+				var freq = TIRand.kr(75, 95, Dust.kr(0.03)).midicps;
+				SinOsc.ar(freq * PinkNoise.kr(0.1).linexp(-0.5, 0.5, 0.9, 1.1))
+			}.mean
+		};
+		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
+		sons = sons.stutter(3) * 0.0003;
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+	}, []];
+	~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+		var sons, sub, leds;
+		// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly
+		sons = 12.collect{|val|
+			var son;
+			var addmidi = 7; //MouseX.kr(-20, 20).round.poll(1);
+			son = (([58, 65] + addmidi).midicps.collect{|freq, inwhich|
+				var trig = Dust2.kr(1);
+				var lev  = Latch.kr(trig, trig.abs).abs.neg;
+				SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))
+			} * [1.85, 0.07]).sum * 0.07;
+		};
+		sons = sons.collect{|son|
+			var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
+			XFade2.ar(son, nu, LFSaw.kr(-0.1, Rand(pi)));
+		};
+
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+	}, []];
+
 	/*
 	~scenetypes[""] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var son, sub, leds, val1, val2;
@@ -655,18 +726,18 @@ s.waitForBoot{
 	// TODO - here I want to implement double-buffering to swap NPs around each time
 	// TODO - once double-buffering is in place, make proper use of the xfade arg
 	~pushascene = {|scenename, whichnp, xfade=4, arglist=nil|
+		var arglistdict = arglist.asArray.as(Dictionary);
 		scenename = scenename.asString;
 		if(~scenetypes[scenename].isNil){
 			"ERROR: ~pushascene..('%'): Scene name  not found".format(scenename).postln;
 		}{
 			var swoppo;
 			"~pushascene.('%', %)".format(scenename, whichnp).postln;
-			/*
+			"Will initialise with width %".format(arglistdict[\width]).postln;
 			// First we swap the double-buffering round, so that no-one else can address the old one
 			swoppo = ~sceneplayers[whichnp];
 			~sceneplayers[whichnp] = ~sceneplayers_offstage[whichnp];
 			~sceneplayers_offstage[whichnp] = swoppo;
-			*/
 			//NodeProxy;
 			// Now set the desired crossfade on both of them
 			//"fade time %".format(xfade).postln;
@@ -675,12 +746,10 @@ s.waitForBoot{
 			~sceneplayers[         whichnp].set(\xfade, xfade);
 			~sceneplayers_offstage[whichnp].set(\xfade, xfade);
 			s.bind{
-				/*
 				// Fade out the old one
-				~sceneplayers[whichnp].source = {
-					Out.ar(~finalaudiobus, DC.ar(0).dup(~npendulums));
+				~sceneplayers_offstage[whichnp].source = {
+					Out.ar(~finalaudiobus, DC.ar(0).dup(~npendulums + ~nsubs));
 				};
-				*/
 				// NOW we're at the point of constructing our new one
 				//"pushing tweakyvals".postln;
 				// This pushes the default tweaky vals to the appropriate bus
@@ -689,7 +758,10 @@ s.waitForBoot{
 				}}.flat);
 				//"pushed tweakyvals".postln;
 				// And this actually pushes the patch
-				~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1, circlesize=1, gate=1|
+				~sceneplayers[whichnp].source = {|circlesize=1, gate=1|
+					var amp       = \amp.kr(      arglistdict[\amp]       ? 0.7, 0.05, true);
+					var width     = \width.kr(    arglistdict[\width]     ? 0.5, 0.05, true);
+					var freqscale = \freqscale.kr(arglistdict[\freqscale] ? 1, 0.05, true);
 					var fadein = 1; // XLine.ar(0.0001, 1, xfade);
 					var fadeenv = EnvGen.ar(Env.asr(1, 1, 1), gate, timeScale:\xfade.kr(xfade, 0, true), doneAction: 2);
 					var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
