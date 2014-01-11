@@ -24,6 +24,16 @@ NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 9.809, 1,1,1, 0
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 0.809, 1,1,1, 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang")
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracerbeep")
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", "freqscale", 1.2)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 0.5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 2)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 1)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0.7)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "silent")
+s.dumpOSC(1);
+s.dumpOSC(0);
 */
 
 (
@@ -56,24 +66,23 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 		~settempo.value((1/~normalperiod) * timeIncrement * sqrt(gravityMag / 9.81));
 
 		// TODO DO STUFF WITH THIS DATA ***********************
-	}, { // THE DEFAULT of the SWITCH
-		// not a "state" message
-		var targetslot = subaddr[0].asInt;
-		subaddr[1].switch(
+
+		}, { // This is the default of the switch - we use this to drop into per-slot commands
+			// not a "state" message
+			var targetslot = subaddr[0].asInt;
+			//"Will address slot #%".format(targetslot).postln;
+			subaddr[1].switch(
 				"bang",        { // args [pendulumid]
 					// TODO simply send a nudge to the patch at the appropriate spot - WITH NO LATENCY
 					"todo:bang".postln;
 				},
 				"setparam",    { // args are just key-value pairs
-					// TODO simply send a "set" command appropriately
-					"todo:setparam".postln;
+					~sceneplayers[targetslot].set(*msg[1..]);
 				},
 				"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
-					// TODO bring in a new patch, with appropriate crossfade time
-					// (note, the crossfade can be done properly later)
-					"todo:changepatch".postln;
+					~pushascene.value(msg[1] ? "silent", targetslot, (msg[2] ? 1).asFloat, msg[3..]);
 				},
-		); // end of switch
+			); // end of switch
 	});
 };};
 thisProcess.addOSCRecvFunc(~d3func);

@@ -35,10 +35,10 @@ s.waitForBoot{
 
 	~ledbus = Bus.control(s, 2 * ~npendulums); // LED brightnesses to be sent over to d3 [pixel0, ring0, pixel1, ring1, ...]
 	/*{
-		~ledbusreader = {
-			SendReply.kr(Impulse.kr(30), "/d3/lights/set",  In.kr(~ledbus, 2 * ~npendulums));
-			DC.ar(0);
-		}.play(~outputtersgroup);
+	~ledbusreader = {
+	SendReply.kr(Impulse.kr(30), "/d3/lights/set",  In.kr(~ledbus, 2 * ~npendulums));
+	DC.ar(0);
+	}.play(~outputtersgroup);
 	}.defer(1); */
 
 	// global tempo
@@ -756,12 +756,12 @@ s.waitForBoot{
 	~scenetypes[""] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var son, sub, leds, val1, val2;
 	son = ~npendulums.collect{|which|
-		val1 = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
-		val2 = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-		DC.ar(0);
+	val1 = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+	val2 = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+	DC.ar(0);
 	};
 	sub = ~nsubs.collect{|which|
-		DC.ar(0);
+	DC.ar(0);
 	};
 	leds = {DC.kr(0)}.dup(~npendulums * 2);
 	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
@@ -780,26 +780,38 @@ s.waitForBoot{
 		np
 	};
 
-	~pushascene = {|scenename, whichnp|
-		s.bind{
-			//"pushing tweakyvals".postln;
-			// This pushes the default tweaky vals to the appropriate bus
-			~scenevalpointsbus[whichnp].setn(2.collect{|whichone| 3.collect{|whichsubboxer|
-				(~scenetypes[scenename][1][whichone] ? [\nil, 1])[1].asArray.wrapAt(whichsubboxer)
-			}}.flat);
-			//"pushed tweakyvals".postln;
-			// And this actually pushes the patch
-			~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1, circlesize=1|
-				var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
-				var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
-				var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
-				var mids, subs, leds;
-				# mids, subs, leds = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals, circlesize);
-				Out.ar(~finalaudiobus, mids * amp);
-				Out.ar(~subbus, subs * amp);
-				Out.kr(~ledbus, leds);
-			}
-		}
+	// TODO - here I want to implement double-buffering to swap NPs around each time
+	// TODO - once double-buffering is in place, make proper use of the xfade arg
+	~pushascene = {|scenename, whichnp, xfade=1, arglist=nil|
+		scenename = scenename.asString;
+		if(~scenetypes[scenename].isNil){
+			"ERROR: ~pushascene('%'): Scene name  not found".format(scenename).postln;
+		}{
+			s.bind{
+				//"pushing tweakyvals".postln;
+				// This pushes the default tweaky vals to the appropriate bus
+				~scenevalpointsbus[whichnp].setn(2.collect{|whichone| 3.collect{|whichsubboxer|
+					(~scenetypes[scenename][1][whichone] ? [\nil, 1])[1].asArray.wrapAt(whichsubboxer)
+				}}.flat);
+				//"pushed tweakyvals".postln;
+				// And this actually pushes the patch
+				~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1, circlesize=1|
+					var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
+					var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
+					var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
+					var mids, subs, leds;
+					# mids, subs, leds = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals, circlesize);
+					Out.ar(~finalaudiobus, mids * amp);
+					Out.ar(~subbus, subs * amp);
+					Out.kr(~ledbus, leds);
+				};
+				// Now if there are any args on the end, we will set them too
+				if(arglist.size>0){
+					"pushing argyvals".postln;
+					~sceneplayers[whichnp].set(*arglist)
+				};
+			};
+		};
 	};
 
 	// default scenes start playing
