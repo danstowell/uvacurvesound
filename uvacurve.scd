@@ -660,6 +660,7 @@ s.waitForBoot{
 			"ERROR: ~pushascene('%'): Scene name  not found".format(scenename).postln;
 		}{
 			var swoppo;
+			"~pushascene('%', %)".format(scenename, whichnp).postln;
 			/*
 			// First we swap the double-buffering round, so that no-one else can address the old one
 			swoppo = ~sceneplayers[whichnp];
