@@ -86,7 +86,6 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 					// We have to handle "position" separately
 					msg[1..].asArray.pairsDo{|k,v|
 						if(k==\position){
-							"Setting position".postln;
 							~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
 						};
 					};
