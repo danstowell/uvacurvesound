@@ -61,6 +61,11 @@ s.waitForBoot{
 			Out.kr(~sceneposbus.index + whichscene, pos);
 		}.play(~ksettersgroup);
 	};
+	~automoving = {|bool|
+		~scenepossynths.do{|n| n.run(bool)};
+	};
+	~automoving.value(true);
+
 	// ~sceneposbus.scope
 
 	// - SYNTH: fakependulums - let's send SinOsc.kr(exprand(), 2pi.rand) to the busses for test.

@@ -97,6 +97,14 @@ obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Col
 thiswidget.add(obj);
 mainbox.add(thiswidget);
 
+thiswidget = HLayout();
+thiswidget.add(StaticText().string_("Auto-movement around the circle"));
+obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
+	~automoving.value(but.value==1);
+});
+thiswidget.add(obj);
+mainbox.add(thiswidget);
+
 
 
 ///////////////////////////////////////////////////
