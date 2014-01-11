@@ -16,6 +16,8 @@ Task{
 	1.wait;
 	s.sync;
 	"osc_uvacurve.scd".loadRelative;
+	3.wait;
+	"playosc1.scd".loadRelative;
 }.play(AppClock);
 
 )

@@ -12,9 +12,10 @@ Task{
 	//~levmeter.window.bounds_(~levmeter.window.bounds.left_(1500).top_(700));
 	~fscope = FreqScope();
 	~fscope.window.bounds_(~fscope.window.bounds.left_(1400).top_(100));
-	"gui_uvacurve.scd".loadRelative;
+	//"gui_uvacurve.scd".loadRelative;
 	1.wait;
 	s.sync;
+	~automoving.value(false);
 	"osc_uvacurve.scd".loadRelative;
 }.play(AppClock);
 
