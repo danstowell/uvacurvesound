@@ -657,19 +657,19 @@ s.waitForBoot{
 	~pushascene = {|scenename, whichnp, xfade=4, arglist=nil|
 		scenename = scenename.asString;
 		if(~scenetypes[scenename].isNil){
-			"ERROR: ~pushascene('%'): Scene name  not found".format(scenename).postln;
+			"ERROR: ~pushascene..('%'): Scene name  not found".format(scenename).postln;
 		}{
 			var swoppo;
-			"~pushascene('%', %)".format(scenename, whichnp).postln;
+			"~pushascene.('%', %)".format(scenename, whichnp).postln;
 			/*
 			// First we swap the double-buffering round, so that no-one else can address the old one
 			swoppo = ~sceneplayers[whichnp];
 			~sceneplayers[whichnp] = ~sceneplayers_offstage[whichnp];
 			~sceneplayers_offstage[whichnp] = swoppo;
 			*/
-			NodeProxy;
+			//NodeProxy;
 			// Now set the desired crossfade on both of them
-			"fade time %".format(xfade).postln;
+			//"fade time %".format(xfade).postln;
 			~sceneplayers[         whichnp].fadeTime_(xfade);
 			~sceneplayers_offstage[whichnp].fadeTime_(xfade);
 			~sceneplayers[         whichnp].set(\xfade, xfade);
