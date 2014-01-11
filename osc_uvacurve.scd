@@ -33,6 +33,9 @@ NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 1)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0.7)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 4)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 5)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "silent")
 s.dumpOSC(1);
 s.dumpOSC(0);
@@ -80,6 +83,13 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 				},
 				"setparam",    { // args are just key-value pairs
 					~sceneplayers[targetslot].set(*msg[1..]);
+					// We have to handle "position" separately
+					msg[1..].asArray.pairsDo{|k,v|
+						if(k==\position){
+							"Setting position".postln;
+							~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
+						};
+					};
 				},
 				"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
 					~pushascene.value(msg[1] ? "silent", targetslot, (msg[2] ? 1).asFloat, msg[3..]);
