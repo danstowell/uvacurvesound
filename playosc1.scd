@@ -21,6 +21,8 @@ if(~fromport.isNil){"Please run osc_uvacurve before running playosc1".error}{
 	~selfsendaddr.sendMsg("/d3/sound/0/setparam", "position", 4)
 	~selfsendaddr.sendMsg("/d3/sound/0/setparam", "position", 5)
 	~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "silent")
+	~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "bal_riffle", 1, "freqscale", 1, "amp", 0.6, "width", 1);
+	~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "bal_riffle", 1, "freqscale", 1, "amp", 0.6, "width", 0);
 	*/
 
 	~automoving.value(true);
@@ -29,7 +31,7 @@ if(~fromport.isNil){"Please run osc_uvacurve before running playosc1".error}{
 		loop{
 			/////////////////////////////////////////////////////////////////
 			// bal_riffle (or tri) as a bed
-			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "bal_riffle", 1, "freqscale", 1, "amp", 0.3, "width", 1);
+			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "bal_riffle", 1, "freqscale", 1, "amp", 0.6, "width", 1);
 			~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "silent", 4);
 			15.wait;
 			// bal_purity1 in briefly, moving around spatially, then it narrows and goes
@@ -62,22 +64,23 @@ if(~fromport.isNil){"Please run osc_uvacurve before running playosc1".error}{
 			// boinger2d goes
 			~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "silent", 2);
 			15.wait;
-			~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "unbal_clustpot_hi", 2);
+			~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "unbal_clustpot_hi", 3);
 			15.wait;
 			// tracerbeep comes in
 			~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "tracerbeep", 0.1, "amp", 0.5);
 			15.wait;
 			// clustpot goes (suddenly?) leaving space for tracerbeep to live on its own
-			//TODO FIX		~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "puresine01", 0.2, "amp", 0.1);
-			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "puresine01", 0.2, "amp", 0.1);
+			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "puresine01", 0.2, "amp", 0.01);
 			2.wait;
 			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "silent", 0.2);
 			10.wait;
 			// a couple of high hisses fine under
+			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "hinoise", 0.4, "amp", 0.4);
+			1.0.wait;
 			3.do{
-				~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "hinoise", 0.4);
-				5.wait;
-				~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "silent", 0.2);
+				~selfsendaddr.sendMsg("/d3/sound/0/setparam", "amp", 0.4);
+				3.wait;
+				~selfsendaddr.sendMsg("/d3/sound/0/setparam", "amp", 0.0);
 				rand(5, 13).wait;
 			};
 			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "frag_pwm", 0.4, "amp", 0.3);

@@ -519,7 +519,7 @@ s.waitForBoot{
 		var son, sub, leds;
 		son = ~npendulums.collect{|val|
 			([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * 51.midicps * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
-			} * [1, 0.002]).sum * 4;
+			} * [1, 0.002]).sum * 3;
 		};
 
 		sub = ~nsubs.collect{|which|
@@ -654,7 +654,7 @@ s.waitForBoot{
 			}.mean
 		};
 		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
-		sons = sons.stutter(3) * 0.0005;
+		sons = sons.stutter(3) * 0.0003;
 
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -733,12 +733,11 @@ s.waitForBoot{
 		}{
 			var swoppo;
 			"~pushascene.('%', %)".format(scenename, whichnp).postln;
-			/*
+			"Will initialise with width %".format(arglistdict[\width]).postln;
 			// First we swap the double-buffering round, so that no-one else can address the old one
 			swoppo = ~sceneplayers[whichnp];
 			~sceneplayers[whichnp] = ~sceneplayers_offstage[whichnp];
 			~sceneplayers_offstage[whichnp] = swoppo;
-			*/
 			//NodeProxy;
 			// Now set the desired crossfade on both of them
 			//"fade time %".format(xfade).postln;
@@ -747,12 +746,10 @@ s.waitForBoot{
 			~sceneplayers[         whichnp].set(\xfade, xfade);
 			~sceneplayers_offstage[whichnp].set(\xfade, xfade);
 			s.bind{
-				/*
 				// Fade out the old one
-				~sceneplayers[whichnp].source = {
-				Out.ar(~finalaudiobus, DC.ar(0).dup(~npendulums));
+				~sceneplayers_offstage[whichnp].source = {
+					Out.ar(~finalaudiobus, DC.ar(0).dup(~npendulums + ~nsubs));
 				};
-				*/
 				// NOW we're at the point of constructing our new one
 				//"pushing tweakyvals".postln;
 				// This pushes the default tweaky vals to the appropriate bus
