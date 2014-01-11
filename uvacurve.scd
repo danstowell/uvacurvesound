@@ -518,8 +518,16 @@ s.waitForBoot{
 	// end scenetypes
 	//////////////////////////////////////////////////////////////////////////////////////
 
-	// now a nodeproxy for each scene instance
+	// now a nodeproxy for each scene instance, plus an "offstage" one for double-buffering
 	~sceneplayers = ~nscenes.collect{|which|
+		var np = NodeProxy.audio(s, ~npendulums + ~nsubs);
+		var onegroup = Group.tail(~scenesgroup);
+		np.group_(onegroup);
+		np.fadeTime_(4);
+		np.set(\width, 0);
+		np
+	};
+	~sceneplayers_offstage = ~nscenes.collect{|which|
 		var np = NodeProxy.audio(s, ~npendulums + ~nsubs);
 		var onegroup = Group.tail(~scenesgroup);
 		np.group_(onegroup);
@@ -530,12 +538,33 @@ s.waitForBoot{
 
 	// TODO - here I want to implement double-buffering to swap NPs around each time
 	// TODO - once double-buffering is in place, make proper use of the xfade arg
-	~pushascene = {|scenename, whichnp, xfade=1, arglist=nil|
+	~pushascene = {|scenename, whichnp, xfade=4, arglist=nil|
 		scenename = scenename.asString;
 		if(~scenetypes[scenename].isNil){
 			"ERROR: ~pushascene('%'): Scene name  not found".format(scenename).postln;
 		}{
+			var swoppo;
+			/*
+			// First we swap the double-buffering round, so that no-one else can address the old one
+			swoppo = ~sceneplayers[whichnp];
+			~sceneplayers[whichnp] = ~sceneplayers_offstage[whichnp];
+			~sceneplayers_offstage[whichnp] = swoppo;
+			*/
+			NodeProxy;
+			// Now set the desired crossfade on both of them
+			"fade time %".format(xfade).postln;
+			~sceneplayers[         whichnp].fadeTime_(xfade);
+			~sceneplayers_offstage[whichnp].fadeTime_(xfade);
+			~sceneplayers[         whichnp].set(\xfade, xfade);
+			~sceneplayers_offstage[whichnp].set(\xfade, xfade);
 			s.bind{
+				/*
+				// Fade out the old one
+				~sceneplayers[whichnp].source = {
+					Out.ar(~finalaudiobus, DC.ar(0).dup(~npendulums));
+				};
+				*/
+				// NOW we're at the point of constructing our new one
 				//"pushing tweakyvals".postln;
 				// This pushes the default tweaky vals to the appropriate bus
 				~scenevalpointsbus[whichnp].setn(2.collect{|whichone| 3.collect{|whichsubboxer|
@@ -543,14 +572,16 @@ s.waitForBoot{
 				}}.flat);
 				//"pushed tweakyvals".postln;
 				// And this actually pushes the patch
-				~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1, circlesize=1|
+				~sceneplayers[whichnp].source = {|amp=0.7, width=0.5, freqscale=1, circlesize=1, gate=1|
+					var fadein = 1; // XLine.ar(0.0001, 1, xfade);
+					var fadeenv = EnvGen.ar(Env.asr(1, 1, 1), gate, timeScale:\xfade.kr(xfade, 0, true), doneAction: 2);
 					var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
 					var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
 					var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
 					var mids, subs, leds;
 					# mids, subs, leds = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals, circlesize);
-					Out.ar(~finalaudiobus, mids * amp);
-					Out.ar(~subbus, subs * amp);
+					Out.ar(~finalaudiobus, mids * amp * fadein * fadeenv);
+					Out.ar(~subbus, subs * amp * fadein * fadeenv);
 					Out.kr(~ledbus, leds);
 				};
 				// Now if there are any args on the end, we will set them too
