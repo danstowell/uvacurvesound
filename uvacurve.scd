@@ -500,6 +500,73 @@ s.waitForBoot{
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
 	}, []];
+	~scenetypes["bal_purity1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+		var son, sub, leds;
+		son = ~npendulums.collect{|val|
+			var son;
+			son = SinOsc.ar(Array.series(4, 1, 1) * 60.midicps * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
+		};
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+	}, []];
+	~scenetypes["bal_purity2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+		var son, sub, leds;
+		son = ~npendulums.collect{|val|
+			([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * 51.midicps * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
+			} * [1, 0.002]).sum * 4;
+		};
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+	}, []];
+	~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+		var sons, sub, leds;
+		sons = 12.collect{|chan|
+			var son;
+			[48, 55, 60].collect{|val|
+				son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.01));
+				son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40)
+				+ CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
+			}.mean;
+		};
+		sons = sons * XLine.ar(0.001, 1, 0.2) * 0.25;
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+	}, []];
+	~scenetypes["unbal_clustpot"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+		var sub, leds;
+		var clusts, sons;
+
+		clusts = 4.collect{
+			4.collect{
+				var freq = TIRand.kr(45, 65, Dust.kr(0.03)).midicps;
+				SinOsc.ar(freq * PinkNoise.kr(0.1).linexp(-0.5, 0.5, 0.9, 1.1))
+			}.mean
+		};
+		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
+		sons = sons.stutter(3) * 0.02;
+
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		leds = {DC.kr(0)}.dup(~npendulums * 2);
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+	}, []];
 	/*
 	~scenetypes[""] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var son, sub, leds, val1, val2;
