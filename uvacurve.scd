@@ -492,7 +492,7 @@ s.waitForBoot{
 		var resolution = 1e-1;
 		son = ~npendulums.collect{|which|
 			var trig = HPZ1.kr(pendspos[which][0].round(resolution)).abs;
-			SinOsc.ar(freqs[which]) * EnvGen.ar(Env.perc(0.001, 0.1), trig, timeScale: 1/(In.kr(~tempobus)*~normalperiod)) * 0.3;
+			SinOsc.ar(freqs[which]) * EnvGen.ar(Env.perc(0.001, 0.1), trig, timeScale: 1/(In.kr(~tempobus)*~normalperiod)) * 0.2;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -608,7 +608,7 @@ s.waitForBoot{
 			}.mean
 		};
 		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
-		sons = sons.stutter(3) * 0.02;
+		sons = sons.stutter(3) * 0.05;
 
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
