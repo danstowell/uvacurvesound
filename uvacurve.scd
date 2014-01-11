@@ -15,7 +15,7 @@ s.options.numWireBufs = 128;
 s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
-	~npendulums_true = 8; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
+	~npendulums_true = 6; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
 	~nscenes    = 2;
 	~nsubs      = 1;
 	// busses
@@ -492,7 +492,7 @@ s.waitForBoot{
 		var resolution = 1e-1;
 		son = ~npendulums.collect{|which|
 			var trig = HPZ1.kr(pendspos[which][0].round(resolution)).abs;
-			SinOsc.ar(freqs[which]) * EnvGen.ar(Env.perc(0.001, 0.1), trig, timeScale: 1/(In.kr(~tempobus)*~normalperiod)) * 0.4;
+			SinOsc.ar(freqs[which]) * EnvGen.ar(Env.perc(0.001, 0.1), trig, timeScale: 1/(In.kr(~tempobus)*~normalperiod)) * 0.3;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
