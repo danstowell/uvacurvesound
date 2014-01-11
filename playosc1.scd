@@ -1,5 +1,5 @@
 (
-
+if(~fromport.isNil){"Please run osc_uvacurve before running playosc1".error};
 ~selfsendaddr = NetAddr("127.0.0.1", ~fromport);
 
 /*
@@ -29,11 +29,11 @@
 	loop{
 		/////////////////////////////////////////////////////////////////
 		// tonestack01sin (or tri) as a bed
-		~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "tonestack01sin", 1, "freqscale", 1, "amp", 0.3, "width", 1);
+		~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", 1, "freqscale", 1, "amp", 0.3, "width", 1);
 		~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "silent", 4);
 		15.wait;
 		// bal_purity1 in briefly, moving around spatially, then it narrows and goes
-		~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "bal_purity1", 4, "amp", 0.7, "width", 0.3);
+		~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "bal_purity2", 4, "amp", 0.7, "width", 0.3);
 		15.wait;
 		(0.3, 0.25 .. 0).do{|wid|
 			~selfsendaddr.sendMsg("/d3/sound/1/setparam", "width", wid);
@@ -50,17 +50,19 @@
 			~selfsendaddr.sendMsg("/d3/sound/1/setparam", "width", wid);
 			1.0.wait;
 		};
-		//
+
 		// - underneath it, the natural bed goes and is replaced by unbal_clustpot
 		~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "unbal_clustpot", 10, "freqscale", 1, "amp", 0.7, "width", 1);
 		15.wait;
 		// boinger2d goes
 		~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "silent", 4);
-		5.wait;
+		15.wait;
 		// tracerbeep comes in
 		~selfsendaddr.sendMsg("/d3/sound/1/changepatch", "tracerbeep", 0.1);
 		15.wait;
 		// clustpot goes (suddenly?) leaving space for tracerbeep to live on its own
+		~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "puresine01", 0.7);
+		3.wait;
 		~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "silent", 0.2);
 		10.wait;
 		// a couple of high hisses fine under
@@ -68,7 +70,7 @@
 			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "hinoise", 0.2);
 			5.wait;
 			~selfsendaddr.sendMsg("/d3/sound/0/changepatch", "silent", 0.2);
-			8.wait;
+			rand(5, 13).wait;
 		};
 		10.wait;
 	};
