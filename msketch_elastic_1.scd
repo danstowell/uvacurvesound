@@ -220,16 +220,16 @@ x = {
 
 
 (
-// tearing 1 plus
+// tearing 1 plus 1
 x = {
 	var stage, stagelag, evt, res, son;
-	stage = LFSaw.kr(0.05, 0.5).range(-3, 1).max(0);
+	stage = LFSaw.kr(0.03, 0.7).range(-5, 1).max(0);
 	stagelag = stage.lag(0.2, 0.2);
 	evt = Dust2.ar(stagelag.pow(3) * 400);
 	res = DynKlank.ar(`[10.collect{exprand(100, 400)}.postln, nil, 10.collect{0.1}], evt, stagelag.linexp(0, 1, 1, 10));
 	son = (evt) + (res * 0.6 * BPF.ar(WhiteNoise.ar, stagelag.linexp(0, 1, 10000, 2000), 2));
 	son = LPF.ar(son, stagelag.linexp(0, 1, 500, 10000));
-	son = son + CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.07, LFPar.ar(8).range(0.065, 0.07), stagelag.linexp(0, 1, 75, 0.1));
+	son = son + CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.09, LFPar.ar(4).range(0.08, 0.09), stagelag.linexp(0, 1, 75, 0.1));
 	son.dup * 0.5 * 0.1;
 
 }.play
