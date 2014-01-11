@@ -24,5 +24,5 @@ Task{
 
 /*
 s.boot
-s.scope(5)
+s.scope(2)
 */
