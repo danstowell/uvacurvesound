@@ -70,7 +70,7 @@ x = {
 
 (
 x = {
-	// hi sliptick
+	// hi slippytick
 	var sons, rate, ourdevrate;
 	rate = LFDNoise1.kr(0.1).range(10, 20) * XLine.kr(0.1, 1, 1);
 	ourdevrate = LFDNoise1.kr(0.05).range(0.05, 0.1);
