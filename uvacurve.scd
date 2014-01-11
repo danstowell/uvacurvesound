@@ -412,29 +412,39 @@ s.waitForBoot{
 	~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
 		var pos, trig, rawson, scaler, panenv, thruspeed, env;
+		var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
 		//scaler = MouseX.kr(0.5, 5, 1); //.poll(1, "mousex");
 		scaler    = ~pendvalto3val_exp.value(pendspos[0][1], threevals[0]).linexp(0,1, 0.5, 5); // NOTE READING FROM ZEROTH PEND ONLY
 		thruspeed = ~pendvalto3val_exp.value(pendspos[0][0], threevals[1]); // NOTE READING FROM ZEROTH PEND ONLY
+		/*
 		trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * (~normalperiod * In.kr(~tempobus)));
-		//		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, 20000), phase: 0.5pi);
-		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(1, "mousey topfreq")), phase: 0.5pi);
+		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(0.05, "mousey topfreq")), phase: 0.5pi);
 		env = EnvGen.ar(Env.perc(0, 0.1), trig, timeScale: scaler);
 		rawson = rawson * env;
 		rawson = HPF.ar(rawson, 5000) * 0.25;
+		*/
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		// Now we delay-and-splay it so as to zap across speakers
 		son = ~npendulums.collect{|which|
+			rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), bangs[which], timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000)), phase: 0.5pi);
+			env = EnvGen.ar(Env.perc(0, 0.1), bangs[which], timeScale: scaler);
+			rawson = rawson * env;
+			rawson = HPF.ar(rawson, 5000) * 0.25;
+			/*
 			var del = (~npendulums - which) * 0.06;
 			leds[which * 2] = DelayC.kr(env, del * 4, del * thruspeed.reciprocal) > 0.25;
 			DelayC.ar(rawson, del * 4, del * thruspeed.reciprocal);
+			*/
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
+		/*
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 1000, 2) * BrownNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
 		};
+		*/
 		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["zappiness", 0], ["thruspeed", 1]]];
 	~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
