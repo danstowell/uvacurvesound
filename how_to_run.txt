@@ -2,23 +2,24 @@
 
 HOW TO RUN A SEQUENCE
 
-
-Double-click SuperCollider app icon to open it - the session should be remembered, plenty of files in tabs.
-
-
-You need to run a subset of the files.
-
-To run a file, select its tab, select all (Cmd-A), then press Cmd-Return. (NOT RETURN ON ITS OWN...)
-
-To run one of the playthrough sequence examples:
-
-1. Run uvacurve.scd
-2. Run directors.scd
-3. Run playdirectors2.scd
+* Run the bash script "runme_selfcontrolled.scd" using Terminal
 
 
-If you want the GUI as well, run gui_uvacurve.scd. Note that the sequence will carry on changing the settings, but the GUI won't reflect those changes. The GUI and the sequencer will be able to "fight" to set a setting... so you can change a patch and it'll last until the sequencer decides to change patch again.
+HOW TO RUN SC BUT WAIT FOR d3 TO CONTROL
+
+* Run the bash script "runme_d3controlled.scd" using Terminal
 
 
 
-Some of the GUI "extras" (wave meter etc) are in scrunall.scd. If the sound is already running then you don't want to run that whole file, you just want to select the 3 lines beginning with ~scope and run them.
+
+In both cases, the way to terminate is by switching back to the Terminal (cmd+tab) and then pressing ctrl-c to quit.
+
+
+
+
+
+
+HOW TO EDIT STUFF:
+
+If you run the SuperCollider app (in the dock) it should resume the editing session.
+
