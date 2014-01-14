@@ -218,9 +218,8 @@ x = {
 )
 
 
-
 (
-// tearing 1 plus 1
+// rip 1 plus 1
 x = {
 	var stage, stagelag, evt, res, son;
 	stage = LFSaw.kr(0.03, 0.7).range(-5, 1).max(0);
@@ -230,24 +229,23 @@ x = {
 	son = (evt) + (res * 0.6 * BPF.ar(WhiteNoise.ar, stagelag.linexp(0, 1, 10000, 2000), 2));
 	son = LPF.ar(son, stagelag.linexp(0, 1, 500, 10000));
 	son = son + CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.09, LFPar.ar(4).range(0.08, 0.09), stagelag.linexp(0, 1, 75, 0.1));
-	son.dup * 0.5 * 0.1;
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son.dup)}; // TODO 12chan
+	son.dup;
 
 }.play
 )
 
+(
+// stretchballoon01
+x = {
+	var son, stim;
+	stim = EnvGen.ar(Env.perc(0.001, 0.001), Dust.ar(XLine.kr(100, 1, 2))) * XLine.ar(0.01, 1, 2);
+	stim = stim * EnvGen.ar(Env.linen(0, 2.5, 0), 1);
+	son = Klank.ar(`[20.collect{exprand(100, 500)}, nil, 20.collect{0.1}], stim);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son.dup)}; // TODO 12chan
+	son.dup;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}.play
+)
 
