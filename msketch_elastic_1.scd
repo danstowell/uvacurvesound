@@ -1,6 +1,6 @@
 s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO LOW
 ~twelve = Bus.audio(s, 12);
-~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free
+~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.1)}.play(s, addAction:\addToTail); //~ssh.free; x.free;
 ~twelve.scope;
 
 ~dobuf = Buffer.alloc(s, 65536, 2);
@@ -21,13 +21,14 @@ x={
 			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
 		}.mean;
 	};
-	sons = sons * XLine.ar(0.001, 1, 0.2);
+	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 	//sons[..1]
 }.play
 )
+x.free;
 
 (
 x={
@@ -40,13 +41,14 @@ x={
 			son = CombC.ar(son, 0.2, (LFDNoise1.kr(0.1) + LFPar.kr(10, 0, wib)).linexp(-1, 1, 0.01, 0.1), 20);
 		}.mean;
 	};
-	sons = sons * XLine.ar(0.001, 1, 0.2);
+	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 	//sons[..1]
 }.play
 )
+x.free;
 
 (
 x={
@@ -59,13 +61,14 @@ x={
 			    + CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
 		}.mean;
 	};
-	sons = sons * XLine.ar(0.001, 1, 0.2);
+	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 	//sons[..1]
 }.play
 )
+x.free;
 
 (
 x={
@@ -79,14 +82,14 @@ x={
 			    + CombN.ar(son, 0.2, LFDNoise1.kr(0.08).exprange(0.03, 0.15), 60);
 		}.mean;
 	};
-	sons = sons * XLine.ar(0.001, 1, 0.2);
+	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 	//sons[..1]
 }.play
 )
-
+x.free;
 
 (
 x={
@@ -105,6 +108,7 @@ x={
 	//sons[..1]
 }.play
 )
+x.free;
 
 
 (
@@ -147,7 +151,7 @@ x={
 		}.sum
 	}));
 	//sons = [sons, sons[1..] ++ sons[0]].mean;
-	sons = sons.collect{|son, which| PanAz.ar(12, son, which * (2/3) + LFSaw.kr(0.1), width: 4)}.sum * 2;
+	sons = sons.collect{|son, which| PanAz.ar(12, son, which * (2/3) + LFSaw.kr(0.1), width: 4)}.sum * 1.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
@@ -155,6 +159,7 @@ x={
 }.play
 
 )
+x.free;
 
 // Formlet meh
 
@@ -213,10 +218,12 @@ x = {
 	son = (evt) + (res * 0.6 * BPF.ar(WhiteNoise.ar, stagelag.linexp(0, 1, 10000, 2000), 2));
 	son = LPF.ar(son, stagelag.linexp(0, 1, 500, 10000));
 	son = CombC.ar(son, 0.15, 0.15, 0.4);
+	Out.ar(~twelve, son.dup(12) * 0.4);
 	son.dup * 0.5 * 0.1;
 
 }.play
 )
+x.free;
 
 
 (
@@ -232,10 +239,12 @@ x = {
 	son = son + CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.09, LFPar.ar(4).range(0.08, 0.09), stagelag.linexp(0, 1, 75, 0.1));
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son.dup)}; // TODO 12chan
+	Out.ar(~twelve, son.dup(12) * 0.4);
 	son.dup;
 
 }.play
 )
+x.free;
 
 (
 // stretchballoon01
@@ -245,10 +254,12 @@ x = {
 	stim = stim * EnvGen.ar(Env.linen(0, 2.5, 0), 1);
 	son = Klank.ar(`[20.collect{exprand(100, 500)}, nil, 20.collect{0.1}], stim).clip2(1) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)}; // TODO 12chan
+	Out.ar(~twelve, son.dup(12) * 0.4);
 	son.dup;
 
 }.play
 )
+x.free;
 
 (
 // stretchregular02
@@ -258,16 +269,18 @@ x = {
 	stim = stim * EnvGen.ar(Env.linen(0, 3, 0), 1);
 	son = Klank.ar(`[20.collect{exprand(100, 500)}, nil, 20.collect{0.1}], stim).clip2(1) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)}; // TODO 12chan
+	Out.ar(~twelve, son.dup(12) * 0.4);
 	son.dup;
 
 }.play
 )
+x.free;
 
 
 
 (
 x = {
-	// elastic feather
+	// elastic feather - NO, MEH
 	var sons;
 	sons = 12.collect{|val|
 		var son, freq, mod;
