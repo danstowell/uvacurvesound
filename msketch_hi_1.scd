@@ -3,6 +3,7 @@ s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO
 ~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free
 ~twelve.scope;
 
+~dobuf = Buffer.alloc(s, 65536, 1);
 ~dobuf = Buffer.alloc(s, 65536, 2);
 ~dobuf.write("~/git/uvacurve/recordings/recorded.wav".standardizePath, "wav", "int24", 0, 0, true);
 // then record, then
@@ -136,6 +137,21 @@ x = {
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
+}.play
+)
+
+
+(
+x = {
+	// hi clickwerk
+	var son, trig;
+
+	trig = Impulse.ar( Duty.kr(0.5, 0, Dxrand([5, 10, 15].stutter(3) ++ [20, 40], inf))  );
+	trig = trig * LFPulse.ar(1/16);
+	son = Decay2.ar(trig, 0.008, 0.02) * LPF.ar(HPF.ar(WhiteNoise.ar, 10000), 12000);
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	son.dup;
 }.play
 )
 
