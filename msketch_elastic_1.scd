@@ -4,6 +4,7 @@ s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO
 ~twelve.scope;
 
 ~dobuf = Buffer.alloc(s, 65536, 2);
+~dobuf = Buffer.alloc(s, 65536, 1);
 ~dobuf.write("~/git/uvacurve/recordings/recorded.wav".standardizePath, "wav", "int24", 0, 0, true);
 // then record, then
 x.free;
@@ -240,12 +241,43 @@ x = {
 // stretchballoon01
 x = {
 	var son, stim;
-	stim = EnvGen.ar(Env.perc(0.001, 0.001), Dust.ar(XLine.kr(100, 1, 2))) * XLine.ar(0.01, 1, 2);
+	stim = EnvGen.ar(Env.perc(0.001, 0.001), Dust.ar(XLine.kr(100, 4, 2))) * XLine.ar(0.01, 1, 2);
 	stim = stim * EnvGen.ar(Env.linen(0, 2.5, 0), 1);
-	son = Klank.ar(`[20.collect{exprand(100, 500)}, nil, 20.collect{0.1}], stim);
-	if(~dobuf.notNil){DiskOut.ar(~dobuf, son.dup)}; // TODO 12chan
+	son = Klank.ar(`[20.collect{exprand(100, 500)}, nil, 20.collect{0.1}], stim).clip2(1) * 0.5;
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)}; // TODO 12chan
 	son.dup;
 
 }.play
 )
 
+(
+// stretchregular02
+x = {
+	var son, stim;
+	stim = EnvGen.ar(Env.perc(0.001, 0.001), Impulse.ar(XLine.kr(50, 3, 3))) * XLine.ar(0.01, 1, 3);
+	stim = stim * EnvGen.ar(Env.linen(0, 3, 0), 1);
+	son = Klank.ar(`[20.collect{exprand(100, 500)}, nil, 20.collect{0.1}], stim).clip2(1) * 0.5;
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)}; // TODO 12chan
+	son.dup;
+
+}.play
+)
+
+
+
+(
+x = {
+	// elastic feather
+	var sons;
+	sons = 12.collect{|val|
+		var son, freq, mod;
+		mod = LFSaw.kr(ExpRand(0.03, 0.1), Rand(pi)).range(0,1);
+		freq = (63-5).midicps;
+		son = SinOsc.ar(freq * SinOsc.ar(mod.linexp(0, 1, 0.1, 20), mul: mod.squared).linexp(-1, 1, 0.666, 1.5)).softclip * 0.3;
+	};
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+}.play;
+)
+x.free;
