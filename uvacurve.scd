@@ -252,7 +252,7 @@ s.waitForBoot{
 		son = ~npendulums.collect{|which|
 			var freq   = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			var detune = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-			(SinOsc.ar(freq + ([detune, 0-detune])).mean) * 0.1;
+			(SinOsc.ar(freq + ([detune, 0-detune])).mean) * 0.05;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);

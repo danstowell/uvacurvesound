@@ -1,6 +1,6 @@
 s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO LOW
 ~twelve = Bus.audio(s, 12);
-~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free
+~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.1)}.play(s, addAction:\addToTail); //~ssh.free; x.free;
 ~twelve.scope;
 
 ~dobuf = Buffer.alloc(s, 65536, 1);
@@ -26,6 +26,7 @@ x = {
 	Splay.ar(sons);
 }.play;
 )
+x.free;
 
 
 (
@@ -46,11 +47,12 @@ x = {
 	Splay.ar(sons);
 }.play
 )
+x.free;
 
 
 (
 x = {
-	// hi ring ding
+	// hi ring ding - MEH
 	var sons;
 	sons = 12.collect{
 		var son, env;
@@ -67,6 +69,7 @@ x = {
 	Splay.ar(sons);
 }.play
 )
+x.free;
 
 
 (
@@ -85,7 +88,7 @@ x = {
 			DelayN.ar(son, 0.1, dev * Rand(0, 1))
 		}.sum
 	};
-	sons = LPF.ar(HPF.ar(sons, 5000), 10000);
+	sons = LPF.ar(HPF.ar(sons, 5000), 10000) * 1.5;
 	//Amplitude.ar(sons, 0.0001, 1).mean.poll;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -93,6 +96,7 @@ x = {
 	//sons[0].dup
 }.play
 )
+x.free;
 
 
 
@@ -134,11 +138,13 @@ x = {
 		son = Klank.ar(`[24.collect{exprand(14000, 18000)}, nil, 24.collect{0.1}], son);
 		son = son * 3;
 	};
+	sons = LPF.ar(sons, 10000);
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
 }.play
 )
+x.free;
 
 
 (
@@ -148,12 +154,14 @@ x = {
 
 	trig = Impulse.ar( Duty.kr(0.5, 0, Dxrand([5, 10, 15].stutter(3) ++ [20, 40], inf))  );
 	trig = trig * LFPulse.ar(1/16);
-	son = Decay2.ar(trig, 0.008, 0.02) * LPF.ar(HPF.ar(WhiteNoise.ar, 10000), 12000);
+	son = Decay2.ar(trig, 0.008, 0.02) * LPF.ar(HPF.ar(WhiteNoise.ar, 10000), 15000);
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Out.ar(~twelve, son.dup(12));
 	son.dup;
 }.play
 )
+x.free;
 
 
 FreqScope()
