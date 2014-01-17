@@ -269,7 +269,7 @@ s.waitForBoot{
 		son = ~npendulums.collect{|which|
 			var freq   = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			var detune = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-			(SinOsc.ar(freq + ([detune, 0-detune])).mean) * 0.1;
+			(SinOsc.ar(freq + ([detune, 0-detune])).mean) * 0.05;
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -651,7 +651,7 @@ s.waitForBoot{
 			4.collect{
 				var freq = TIRand.kr(75, 95, Dust.kr(0.03)).midicps;
 				SinOsc.ar(freq * PinkNoise.kr(0.1).linexp(-0.5, 0.5, 0.9, 1.1))
-			}.mean
+			}.mean * 0.5
 		};
 		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
 		sons = sons.stutter(3) * 0.0003;
