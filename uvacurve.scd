@@ -247,23 +247,6 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize) // no width
 	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
-	~scenetypes["crickle_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var son, sub, leds;
-		son = ~npendulums.collect{|which|
-			var sig, density, lowconv;
-			density = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
-			lowconv = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-			sig = Dust2.ar(density * (~normalperiod * In.kr(~tempobus)));
-			sig = HPF.ar(sig, 15000 /* MouseX.kr(5000, 20000, 1) */, 0.7);
-			//sig = BPF.ar(sig, MouseX.kr(1000, 5000, 1)) + BPF.ar(sig, MouseY.kr(100, 1000, 1).poll);
-			sig = XFade2.ar(sig, FreeVerb.ar(sig) * BrownNoise.ar(2), lowconv * 2 - 1);
-		};
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, [["density", [2, 400, 2]], ["lowconv (0--1)", 1]]];
 	~scenetypes["puresine01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
 		son = ~npendulums.collect{|which|
@@ -332,20 +315,6 @@ s.waitForBoot{
 		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize)
 		[son, sub, leds]
 	}, []];
-	~scenetypes["hinoise"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var son, sub, leds;
-		son = ~npendulums.collect{|which|
-			var locut   = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
-			var decimate= ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-
-			HPF.ar(PinkNoise.ar, locut) * locut.linlin(3000, 15000, 0.1, 0.5); // 10000 default
-		};
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, [["locut", [15000, 3000, 15000]], ["[unused]", 0]]];
 	[["sin", SinOsc] /* , ["saw", LFSaw] */ ].do{|adata|
 		~scenetypes["tonestack01" ++ adata[0]] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 			var son, sub, leds, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
@@ -453,39 +422,6 @@ s.waitForBoot{
 		leds = {DC.kr([0, 0.7])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
 	}, [["harmonic stretch 0--1", 0], ["freqscale", 1]]];
-	~scenetypes["silent"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var son, sub, leds;
-		son = ~npendulums.collect{|which|
-			DC.ar(0);
-		};
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-	~scenetypes["speakerTEST"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var imps, bongs, sub, leds;
-
-		imps = Impulse.ar(2 / ~npendulums,
-			(1..~npendulums)/(~npendulums+1)).reverse // These fire on individual channels
-		+
-		Impulse.ar(2/~npendulums)  // This one fires on all channels
-		;
-
-		bongs = SinOsc.ar(
-			{(10.rand + 50).midicps}.dup(~npendulums) + LFNoise2.kr(10, 40)
-		);
-		bongs = bongs + WhiteNoise.ar(0.25);
-		bongs = bongs * EnvGen.ar(Env.perc(0.02, 0.05, curve: [2, 0]), imps);
-		bongs = bongs * 0.5;
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		[bongs, sub, leds]
-	}, []];
 	~scenetypes["movebop"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds, val1, val2;
 		var freqs = (240 * ((0..~npendulums) * 3).midiratio).clump(3).flop.flat;
@@ -500,192 +436,12 @@ s.waitForBoot{
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
 	}, []];
-	~scenetypes["bal_purity1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-		var son, sub, leds;
-		son = ~npendulums.collect{|val|
-			var son;
-			son = SinOsc.ar(Array.series(4, 1, 1) * 60.midicps * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
-		};
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-	~scenetypes["bal_purity2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-
-		var son, sub, leds;
-		son = ~npendulums.collect{|val|
-			([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * 51.midicps * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
-			} * [1, 0.002]).sum * 3;
-		};
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-
-	~scenetypes["bal_riffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var sons, sub, leds;
-		// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, but not far and they settle back quickly
-		sons = ~npendulums.collect{|val|
-			var son;
-			var addmidi = -7;//MouseX.kr(0, 40).round.poll(1);
-			son = (([58, 65, 70] + addmidi).midicps.collect{|freq, inwhich|
-				var trig = Dust2.kr(1);
-				var lev  = Latch.kr(trig, trig.abs);
-				SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
-			} * [1.5, 0.7, 0.25]).sum * 0.1;
-		};
-		sons = sons.collect{|son|
-			var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
-			XFade2.ar(son, nu, LFSaw.kr(-0.1, Rand(pi)));
-		};
-
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-
-	~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-
-		var sons, sub, leds;
-		sons = 12.collect{|chan|
-			var son;
-			[48, 55, 60].collect{|val|
-				son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.01));
-				son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40)
-				+ CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
-			}.mean;
-		};
-		sons = sons * XLine.ar(0.001, 1, 0.2) * 0.25;
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-	~scenetypes["elastic_stickslip01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-
-		var sons, sub, leds;
-
-		var stickslip = { |force|
-			var inMotion, slipEvents, forceBuildup, evtAmp, evtDecayTime, evts;
-			force = force.lag(0.1); // smoothing to get rid of volatile control changes
-			inMotion = force > 0.1; // static friction: nothing at all below a certain force
-			slipEvents = inMotion * Impulse.ar(force.linlin(0.1, 1, 1, 1/0.003) * LFDNoise1.ar(50).squared.linexp(-1,1, 0.5, 2));
-			forceBuildup = Phasor.ar(slipEvents, 10 * SampleDur.ir, 0, inf).min(1);
-			evtAmp = Latch.ar(Delay1.ar(forceBuildup.sqrt), slipEvents);
-			evtDecayTime = evtAmp.sqrt;
-			evts = EnvGen.ar(Env.perc(0.001, 1), slipEvents, evtAmp, 0, evtDecayTime * 0.01 * TExpRand.kr(0.5, 2, slipEvents)) * LPF.ar(BrownNoise.ar, 80);
-		};
-		var squarepanel = { |inputs|
-			var times, filt;
-			// times in milliseconds, converted to seconds:
-			times = [4.52, 5.06, 6.27, 8, 5.48, 7.14, 10.12, 16] * 0.001;
-			filt = inputs.asArray.collect{|input| DelayC.ar(input, times, times).mean };
-			filt = HPF.ar(filt, 125);
-			filt * 4
-		};
-		var woodfilter = { |inputs|
-			var freqs, rqs, output;
-			freqs = [62.5, 125, 250, 395, 560, 790];
-			rqs   = 1 / [1, 1, 2, 2, 3, 3];
-			output = inputs.asArray.collect{|input| BPF.ar(input, freqs, rqs).sum + (input*0.2)};
-
-		};
-
-		sons = squarepanel.value(woodfilter.value(3.collect{
-			var chanphase = pi.rand;
-			2.collect{|phase|
-				var force; //= MouseX.kr; //LFPar.kr(ExpRand(0.01, 0.04), pi.rand).range(0.0, 0.9);
-				force = LFSaw.kr(ExpRand(-0.03, -0.02), phase + chanphase).linexp(-1, 1, 0.1, 1.2) + Line.kr(2, 0, 3);
-				stickslip.value(force) * XLine.ar(0.001, 1, 3)
-				// * BPF.ar(WhiteNoise.ar, 200, mul: 3)
-				* (1-force)
-			}.sum
-		}));
-		//sons = [sons, sons[1..] ++ sons[0]].mean;
-		sons = sons.collect{|son, which| PanAz.ar(~npendulums, son, which * (2/3) + LFSaw.kr(0.1), width: 4)}.sum;// * 2;
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-	~scenetypes["unbal_clustpot"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-
-		var sub, leds;
-		var clusts, sons;
-
-		clusts = 4.collect{
-			4.collect{
-				var freq = TIRand.kr(45, 65, Dust.kr(0.03)).midicps;
-				SinOsc.ar(freq * PinkNoise.kr(0.1).linexp(-0.5, 0.5, 0.9, 1.1))
-			}.mean
-		};
-		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
-		sons = sons.stutter(3) * 0.05;
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-	~scenetypes["unbal_clustpot_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-
-		var sub, leds;
-		var clusts, sons;
-
-		clusts = 4.collect{
-			4.collect{
-				var freq = TIRand.kr(75, 95, Dust.kr(0.03)).midicps;
-				SinOsc.ar(freq * PinkNoise.kr(0.1).linexp(-0.5, 0.5, 0.9, 1.1))
-			}.mean * 0.5
-		};
-		sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
-		sons = sons.stutter(3) * 0.0003;
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
-	~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var sons, sub, leds;
-		// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly
-		sons = 12.collect{|val|
-			var son;
-			var addmidi = 7; //MouseX.kr(-20, 20).round.poll(1);
-			son = (([58, 65] + addmidi).midicps.collect{|freq, inwhich|
-				var trig = Dust2.kr(1);
-				var lev  = Latch.kr(trig, trig.abs).abs.neg;
-				SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))
-			} * [1.85, 0.07]).sum * 0.07;
-		};
-		sons = sons.collect{|son|
-			var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
-			XFade2.ar(son, nu, LFSaw.kr(-0.1, Rand(pi)));
-		};
-
-
-		sub = ~nsubs.collect{|which|
-			DC.ar(0);
-		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
-	}, []];
+	"patches_utility.scd".loadRelative;
+	"patches_bal.scd".loadRelative;
+	"patches_elastic.scd".loadRelative;
+	"patches_unbal.scd".loadRelative;
+	"patches_hi.scd".loadRelative;
 
 	/*
 	~scenetypes[""] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
