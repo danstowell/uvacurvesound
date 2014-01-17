@@ -1,6 +1,6 @@
 s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO LOW
 ~twelve = Bus.audio(s, 12);
-~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.05)}.play(s, addAction:\addToTail); //~ssh.free
+~ssh = {ReplaceOut.ar(0, In.ar(~twelve, 12) * 0.1)}.play(s, addAction:\addToTail); //~ssh.free; x.free;
 ~twelve.scope;
 
 ~dobuf = Buffer.alloc(s, 65536, 2);
@@ -27,6 +27,7 @@ x = { // unbal clustpot
 	Splay.ar(sons);
 }.play
 )
+x.free;
 
 
 (
@@ -45,6 +46,7 @@ x = { // unbal clustpot hi
 	Splay.ar(sons);
 }.play
 )
+x.free;
 
 
 
@@ -93,6 +95,7 @@ x = {
 	//sons[..1]
 }.play
 )
+x.free;
 
 
 // TODO tracerbeep to be rendered out here
@@ -115,7 +118,7 @@ x = {
 			var trig = Dust2.kr(1);
 			var lev  = Latch.kr(trig, trig.abs).abs.neg;
 			SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))
-		} * [1.85, 0.07]).sum * 0.2;
+		} * [1.85, 0.07]).sum * 0.1;
 	};
 	sons = sons.collect{|son|
 		var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
@@ -131,7 +134,7 @@ x.free;
 
 (
 x = {
-	// unbal feather
+	// unbal feather - a bit too comedy actually
 	var sons;
 	sons = 12.collect{|val|
 		var son, freq, mod;
