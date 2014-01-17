@@ -127,3 +127,22 @@ x = {
 }.play;
 )
 x.free;
+
+
+(
+x = {
+	// unbal feather
+	var sons;
+	sons = 12.collect{|val|
+		var son, freq, mod;
+		mod = LFSaw.kr(ExpRand(0.05, 0.2), Rand(pi)).range(0,1);
+		freq = (63-5 + Demand.kr(HPZ1.kr(mod) < 0,0, Drand([0, 3, -2], inf)) ).midicps;
+		son = SinOsc.ar(freq * SinOsc.ar(mod.linexp(0, 1, 0.1, 20), mul: mod.squared).linexp(-1, 1, 0.9, 1.1)).tanh * 0.3;
+	};
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+}.play;
+)
+x.free;
+
