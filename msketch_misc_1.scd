@@ -81,3 +81,122 @@ x = { // short tracerbeep
 )
 x.free;
 
+
+(
+x = { // misc passingzero
+	var son, sub, leds;
+	son = 12.collect{|which|
+		var tester = (LFPar.kr(ExpRand(0.1, 0.2), Rand(pi))).sign;
+		var env = EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester));
+		SinOsc.ar((83 + which).midicps, 0, env) * 0.2;
+	};
+	son = son * 3;
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
+	Out.ar(~twelve, son);
+	Splay.ar(son)
+}.play
+)
+x.free;
+
+
+(
+x = { // misc puresine03
+	var son, sub, leds, freqscale=1, basefreq=120;
+	son = 12.collect{|which|
+		var amp, modrate;
+		amp     = 1;
+		modrate = ExpRand(0.2, 0.25);
+		(
+			(SinOsc.ar([basefreq * 0.5] * freqscale)) * 0.1 * SinOsc.ar(0.25 * modrate).range(0.5, 1)
+			+
+			(SinOsc.ar([basefreq * 2.0] * freqscale)) * 0.1 * SinOsc.ar(1 * modrate).range(0.5, 1)
+		).sum * amp
+	};
+	son = son * 0.4;
+	son.postln;
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
+	Out.ar(~twelve, son);
+	Splay.ar(son)
+}.play
+)
+x.free;
+
+
+(
+x = { // misc tonestack01sin
+	var son, sub, leds, freqscale=1, basefreq=120;
+	var freqsel;
+
+	var basefreqs = [60, 90, 120, 240, 480].scramble * 0.5 * freqscale;
+	var harmstack = [1, 1.5, 2];
+	var harmamps = [1.5, 0.4, 0.1];
+
+	var freqs = basefreqs.collect{|bfreq| Array.series(12, bfreq, 0)};
+
+	var fmlfo = LFNoise0.ar(400);
+
+	son = harmstack.mean{|val, harmindex|
+		freqs.collect{|afreq, which|
+			var fmdepth = 0; //  ~pendvalto3val_lin.value(pendspos[which][1], threevals[0]) * 0.5;
+			var freqscale2 = 1; //~pendvalto3val_lin.value(pendspos[which][0], threevals[1]);
+			var fm = fmlfo.exprange(1 - fmdepth, 1 + fmdepth);
+			SinOsc.ar(afreq * val * freqscale2 * (fm * harmindex), mul: 0.05 * harmamps[harmindex])
+		};
+	};
+
+	freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/30, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+	//freqsel.poll;
+	son = (son * freqsel).sum;
+
+	son = 12.collect{|which|
+		son[which] * SinOsc.ar(0.125, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
+	}; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+
+	son = son * 20;
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
+	Out.ar(~twelve, son);
+	Splay.ar(son)
+}.play
+)
+x.free;
+
+
+
+(
+x = { // misc drift_sine
+	var son, sub, leds, freqscale=1, basefreqs;
+	var amps, harmstack, harmamps, freqs, freqsel;
+
+	//basefreqs = [120, 180, 240, 360, 480].scramble;
+	basefreqs = [120, 130] * 3 * freqscale;
+	harmstack = [1, 1.5, 2];
+	harmamps = [1.5, 0.4, 0.1];
+
+	freqs = basefreqs.collect{|bfreq| Array.series(~npendulums, bfreq, 0)};
+
+	son = harmstack.mean{|val, harmindex|
+		freqs.collect{|afreq, which|
+			var freqscale2 = 1;
+			SinOsc.ar(afreq * val * freqscale2 * harmindex, mul: 0.05 * harmamps[harmindex])
+		};
+	};
+
+	freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+	//freqsel.poll;
+	son = (son * freqsel).sum;
+
+	son = son * 0.5; // Deliberately making it MORE subtle than the main bed
+
+	amps = ~npendulums.collect{|val| SinOsc.ar(0.125, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+
+	son = son * amps * 15;
+
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
+	Out.ar(~twelve, son);
+	Splay.ar(son)
+}.play
+)
+x.free;
+
