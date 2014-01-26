@@ -45,6 +45,8 @@ x = { // short blipff
 	son = son + (verb * 0.9);
 
 	son = HPF.ar(son, 120);
+	son = MidEQ.ar(son, 600, 2,   -24); // notch out for betterness
+	son = MidEQ.ar(son, 300, 2,   -24); // notch out for betterness
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
 	Out.ar(~twelve, son);
@@ -112,7 +114,9 @@ x = { // misc puresine03
 			(SinOsc.ar([basefreq * 2.0] * freqscale)) * 0.1 * SinOsc.ar(1 * modrate).range(0.5, 1)
 		).sum * amp
 	};
-	son = son * 0.4;
+	son = HPF.ar(son, 100); // from review, saw unwanted low component
+	son = HPF.ar(son, 100); // from review, saw unwanted low component
+	son = HPF.ar(son, 100); // from review, saw unwanted low component
 	son.postln;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
 	Out.ar(~twelve, son);
@@ -154,6 +158,9 @@ x = { // misc tonestack01sin
 
 	son = son * 20;
 
+	son = HPF.ar(son, 100); // from review, saw unwanted low component
+	son = HPF.ar(son, 100); // from review, saw unwanted low component
+
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
 	Out.ar(~twelve, son);
 	Splay.ar(son)
@@ -170,10 +177,11 @@ x = { // misc drift_sine
 
 	//basefreqs = [120, 180, 240, 360, 480].scramble;
 	basefreqs = [120, 130] * 3 * freqscale;
+	basefreqs = basefreqs * -8.midiratio; // from review, preferred this
 	harmstack = [1, 1.5, 2];
 	harmamps = [1.5, 0.4, 0.1];
 
-	freqs = basefreqs.collect{|bfreq| Array.series(~npendulums, bfreq, 0)};
+	freqs = basefreqs.collect{|bfreq| Array.series(12, bfreq, 0)};
 
 	son = harmstack.mean{|val, harmindex|
 		freqs.collect{|afreq, which|
@@ -188,9 +196,9 @@ x = { // misc drift_sine
 
 	son = son * 0.5; // Deliberately making it MORE subtle than the main bed
 
-	amps = ~npendulums.collect{|val| SinOsc.ar(0.125, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+	amps = 12.collect{|val| SinOsc.ar(0.125, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
 
-	son = son * amps * 15;
+	son = son * amps * 25;
 
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
@@ -200,3 +208,88 @@ x = { // misc drift_sine
 )
 x.free;
 
+
+
+///////////////////////
+// Some clicks
+(
+// cowbell!
+x = {
+	var son, trig;
+
+	trig = Impulse.ar(1/3.7);
+
+	10.collect{exprand(500, 10000)}.postln;
+	son = Klank.ar(`[[ 594.94231631221, 9293.1531053909, 5323.0468699634, 1587.6040139916, 1474.0744245392, 2038.3815528575, 3655.1898189271, 8075.9250147431, 2680.7204736392, 664.83564199876 ], nil, {0.1}.dup(10)], trig);
+
+	son = son.clip2(1) * 0.1;
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Out.ar(~twelve, son.dup(12));
+	son.dup;
+}.play
+)
+x.free;
+
+
+(
+// click wood
+x = {
+	var son, trig;
+
+	trig = Impulse.ar(1/3.7);
+
+	10.collect{exprand(500, 10000)}.postln;
+	son = Klank.ar(`[[ 898.57360436391, 872.5298557576, 782.59036890516, 522.91466105288, 607.05406376995, 506.90960173234, 886.07016472432, 961.1559397461, 553.33696697469, 767.22393448859 ]
+, nil, {0.1}.dup(10)], trig);
+
+	son = son.clip2(1) * 0.1;
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Out.ar(~twelve, son.dup(12));
+	son.dup;
+}.play
+)
+x.free;
+
+(
+// click metallic
+x = {
+	var son, trig;
+
+	trig = Impulse.ar(1/3.7);
+
+	10.collect{exprand(500, 10000)}.postln;
+	son = Klank.ar(`[[ 1673.7309187879, 3530.0518140983, 1837.6414495397, 3762.8005580855, 3740.1288428511, 2974.533084582, 1966.6477137549, 2161.7169830521, 2451.2064295, 1708.2406493548 ]
+
+, nil, {0.1}.dup(10)], trig);
+
+	son = son.clip2(1) * 0.1;
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Out.ar(~twelve, son.dup(12));
+	son.dup;
+}.play
+)
+x.free;
+(
+// click lighter
+x = {
+	var son, trig;
+
+	trig = Impulse.ar(1/3.7);
+	trig = HPF.ar(WhiteNoise.ar, 10000) * Trig1.ar(trig, 0.02);
+
+	10.collect{exprand(10000, 15000)}.postln;
+	son = Klank.ar(`[10.collect{exprand(5000, 10000)}.postln
+
+, nil, {0.03}.dup(10)], trig);
+
+	son = son.clip2(1) * 0.1;
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Out.ar(~twelve, son.dup(12));
+	son.dup;
+}.play
+)
+x.free;
