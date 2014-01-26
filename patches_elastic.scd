@@ -16,7 +16,7 @@
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["elastic_stickslip01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
@@ -65,5 +65,5 @@
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];

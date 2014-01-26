@@ -15,7 +15,7 @@
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
@@ -38,7 +38,7 @@
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100));
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_varsaw_fizzin"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
@@ -67,7 +67,7 @@
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
@@ -98,7 +98,7 @@
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["oneper_to_orch_g"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
@@ -117,7 +117,7 @@
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["low_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
@@ -140,7 +140,7 @@
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["orch_saw1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
@@ -155,7 +155,7 @@
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["orch_saw2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
@@ -170,5 +170,5 @@
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
 		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
