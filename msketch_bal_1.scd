@@ -27,7 +27,7 @@ x.free;
 
 (
 x = {
-	// bal purity1down12
+	// bal purity1lower
 	var sons;
 	sons = 12.collect{|val|
 		var son;

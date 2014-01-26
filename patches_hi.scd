@@ -1,3 +1,4 @@
+/*
 	~scenetypes["hinoise"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
 		son = ~npendulums.collect{|which|
@@ -29,3 +30,5 @@
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["density", [2, 400, 2]], ["lowconv (0--1)", 1]]];
+*/
+
