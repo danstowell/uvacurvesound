@@ -149,3 +149,22 @@ x = {
 )
 x.free;
 
+/*
+(
+x = {
+	// unbal dobble - meh unsure about this
+	var son, env, trig;
+
+	trig = Duty.kr(0.04, 0, Dseq([24,36,2,2,2,2,2,120].collect{|val| [1]++([0].dup(val-1))}.flat, inf));
+	env = EnvGen.ar(Env.perc(0.01, 0.1), trig);
+	son = BPF.ar(WhiteNoise.ar(env), env.linexp(0, 1, 1000, 2000), 0.2);
+
+	son = son + HPF.ar(LPF.ar(BrownNoise.ar(env.lagud(0, 0.5) * 0.5), 500), 100);
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Out.ar(~twelve, son.dup(12));
+	son.dup;
+}.play
+)
+x.free;
+*/
