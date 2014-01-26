@@ -97,7 +97,7 @@ x.free;
 
 (
 x = {
-	// bal feather
+	// bal roundfeather
 	var sons;
 	sons = 12.collect{|val|
 		var son, freq, mod;

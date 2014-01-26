@@ -55,7 +55,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 	"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 
 	subaddr[0].switch("state", {
-		var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset;
+		var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset, pendspos;
 
 		volume        = msg[1].asFloat;
 		timeIncrement = msg[2].asFloat;
@@ -75,6 +75,10 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 
 		// TODO DO STUFF WITH THIS DATA ***********************
 
+		// Here we simply send the xy data to the bus
+		pendspos = penddata.collect{|pend| [pend[\normPosx], pend[\normPosy]] }.flat;
+		~pendbus.setn(pendspos);
+
 		}, { // This is the default of the switch - we use this to drop into per-slot commands
 			// not a "state" message
 			var targetslot = subaddr[0].asInt;
@@ -82,7 +86,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 			subaddr[1].switch(
 				"bang",        { // args [pendulumid]
 					// NB setting the trig to the group not the np, for low-latency
-					 ~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
+					~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
 				},
 				"setparam",    { // args are just key-value pairs
 					~sceneplayers[targetslot].set(*msg[1..]);
