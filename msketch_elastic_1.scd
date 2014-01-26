@@ -90,6 +90,8 @@ x={
 			}.sum;
 		}.mean;
 	};
+	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
+	sons = MidEQ.ar(sons, 300, 2, -6); // following review, pull to fix buzzing a little
 	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -227,7 +229,7 @@ x = {
 	son = (evt) + (res * 0.6 * BPF.ar(WhiteNoise.ar, stagelag.linexp(0, 1, 10000, 2000), 2));
 	son = LPF.ar(son, stagelag.linexp(0, 1, 500, 10000));
 	son = /* son + */ CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.09, LFPar.ar(4).range(0.08, 0.09), stagelag.linexp(0, 1, 75, 0.1));
-	son = Normalizer.ar(son, dur: 1) * 0.5; // TODO test Normalizer is making sense
+	son = Normalizer.ar(son, dur: 1) * 0.5;
 	son = son + HPF.ar(son, 1000); // following speaker review, push the top
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son.dup)}; // TODO 12chan
