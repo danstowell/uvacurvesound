@@ -16,7 +16,7 @@
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["unbal_clustpot_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
@@ -36,7 +36,7 @@
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var sons, sub, leds;
@@ -60,5 +60,5 @@
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];

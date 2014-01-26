@@ -85,7 +85,7 @@ s.waitForBoot{
 	The nodeproxy has a fairly long fadetime, so that when different scenes are sent it crosses sensibly.
 	*/
 	// standard enveloper reused by each scene type
-	~sceneenveloper = {|audio, sub, leds, position, width=0, movewith=true, circlesize=1|
+	~sceneenveloper = {|audio, sub, leds, position, width=0, movewith=true, circlesize=1, pendspos=nil|
 		var distances, subdistances;
 		circlesize = max(1, circlesize); // circlesize is like adding virtual silent speakers to the end of the list
 		distances    = ((position * ~npendulums * circlesize) - (0..~npendulums-1)).abs;   // so, +1 is 1 speaker away
@@ -152,7 +152,7 @@ s.waitForBoot{
 		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)} * 0.1;
 		var sub = {SinOsc.ar(rrand(20, 60))}.dup(~nsubs) * 0.4;
 		var leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["frag_pwm"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var phases, son, onewidth, amps, sub, freq, leds, reltempo;
@@ -178,7 +178,7 @@ s.waitForBoot{
 			sub[reindex] = sub[reindex] + LPF.ar(oneson, 100);
 			leds[which * 2 + 1] = A2K.kr(oneson).abs * 10;
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, 1, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, 1, circlesize:circlesize, pendspos:pendspos)
 	}, [["misalign (0--1)", 0], ["histuff (0--1)", [1,0,1]]]];
 	~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
@@ -216,7 +216,7 @@ s.waitForBoot{
 		sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 1000, 2) * BrownNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
 		};
 		*/
-		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize) // no width
+		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 	}, [["zappiness", 0], ["thruspeed", 1]]];
 	~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
@@ -245,7 +245,7 @@ s.waitForBoot{
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 100) * BrownNoise.ar * 50, 0.5, 0.5, 0.999), 100);
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize) // no width
+		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
 	~scenetypes["puresine01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
@@ -258,7 +258,7 @@ s.waitForBoot{
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["freq", 880], ["detune", 2.5]]];
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds, basefreq = In.kr(~basefreqbus);
@@ -277,7 +277,7 @@ s.waitForBoot{
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize)
+		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 		[son, sub, leds]
 	}, [["amp", [1,0,1]], ["modrate", [8,2,8]]]];
 	~scenetypes["passingzero_frompend"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -292,7 +292,7 @@ s.waitForBoot{
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
-		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize)
+		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 		[son, sub, leds]
 	}, []];
 	~scenetypes["passingzero_frompend_conc"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -312,7 +312,7 @@ s.waitForBoot{
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
-		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize)
+		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 		[son, sub, leds]
 	}, []];
 	[["sin", SinOsc] /* , ["saw", LFSaw] */ ].do{|adata|
@@ -352,7 +352,7 @@ s.waitForBoot{
 				SinOsc.ar((basefreqs * 0.25 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.1;
 			};
 			leds = {DC.kr(0)}.dup(~npendulums * 2);
-			~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+			~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 		}, [["fmdepth 0--1", 0], ["freqscale", 1]]];
 	}; // end adata iter
 	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -386,7 +386,7 @@ s.waitForBoot{
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["UNUSED", 1], ["freqscale", 1]]];
 
 	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
@@ -420,7 +420,7 @@ s.waitForBoot{
 			SinOsc.ar((basefreqs * 0.125 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.2;
 		};
 		leds = {DC.kr([0, 0.7])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["harmonic stretch 0--1", 0], ["freqscale", 1]]];
 	~scenetypes["movebop"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds, val1, val2;
@@ -434,7 +434,7 @@ s.waitForBoot{
 			DC.ar(0);
 		};
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 
 	"patches_utility.scd".loadRelative;
@@ -455,7 +455,7 @@ s.waitForBoot{
 	DC.ar(0);
 	};
 	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize)
+	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	*/
 	// end scenetypes
