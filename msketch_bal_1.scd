@@ -27,12 +27,11 @@ x.free;
 
 (
 x = {
-	// bal purity2
+	// bal purity1down12
 	var sons;
 	sons = 12.collect{|val|
 		var son;
-		son = ([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * 51.midicps * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
-	} * [1, 0.002]).sum * 1.5;
+		son = SinOsc.ar(Array.series(4, 1, 1) * (60-12).midicps * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.35)).sum * 0.1;
 	};
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -40,6 +39,27 @@ x = {
 }.play;
 )
 x.free;
+
+(
+x = {
+	// bal purity2
+	var sons;
+	sons = 12.collect{|val|
+		var son;
+		son = ([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * 51.midicps * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
+		} * [1, 0.002]).sum * 4.5;
+		son = [son, BRF.ar(son, 160, 0.5, mul: 1)].mean; // notch out a buzz on the cone
+	};
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+}.play;
+)
+x.free;
+
+
+y = {|sons| BRF.ar(sons, 160, 1, mul: 1.5)}.scopeResponse
+y.free
 
 (
 x = {
@@ -55,6 +75,8 @@ x = {
 			var lev  = Latch.kr(trig, trig.abs);
 			SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
 		} * [1.5, 0.7, 0.25]).sum * 0.3;
+		son = BRF.ar(son, 160, 0.125); // notch out a buzz on the cone
+		son = HPF.ar(son, 300);
 	};
 	sons = sons.collect{|son|
 		var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
@@ -82,6 +104,8 @@ x = {
 			var lev  = Latch.kr(trig, trig.abs);
 			SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
 		} * [1.5, 0.7, 0.25]).sum * 0.3;
+		son = BRF.ar(son, 160, 0.125); // notch out a buzz on the cone
+		son = HPF.ar(son, 300);
 	};
 	sons = sons.collect{|son|
 		var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
