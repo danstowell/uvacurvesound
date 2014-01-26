@@ -21,6 +21,9 @@ x = { // unbal clustpot
 		}.mean
 	};
 	sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
+	sons = sons * 1.5;
+	sons = MidEQ.ar(sons, 250, 1,   -12); // notch out a buzz on the cone
+	sons = MidEQ.ar(sons, 120, 1,   -6); // notch out a buzz on the cone
 	sons = sons.stutter(3) * 0.05;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -40,6 +43,7 @@ x = { // unbal clustpot hi
 		}.mean
 	};
 	sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
+	sons = MidEQ.ar(sons, 1250, 1,   -6, mul: 1.4); // notch out a slightly piercing bit
 	sons = sons.stutter(3) * 0.0005;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -89,6 +93,8 @@ x = {
 		LFNoise0.kr(10).range(0,2)) * 0.2;
 	}.mean;
 	sons = (sons * 0.33) +  (LPF.ar(sons, 500) * 0.66);
+	sons = MidEQ.ar(sons, 250, 1,   -6); // notch out a buzz on the cone
+	sons = MidEQ.ar(sons, 120, 1,   -6); // notch out a buzz on the cone
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);
@@ -118,7 +124,9 @@ x = {
 			var trig = Dust2.kr(1);
 			var lev  = Latch.kr(trig, trig.abs).abs.neg;
 			SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))
-		} * [1.85, 0.07]).sum * 0.1;
+		} * [1.5, 0.07]).sum * 0.1;
+		son = MidEQ.ar(son, 160, 0.5, -6); // notch out a buzz on the cone
+		son = MidEQ.ar(son, 500, 1,   -6); // notch out a buzz on the cone
 	};
 	sons = sons.collect{|son|
 		var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
@@ -132,6 +140,8 @@ x = {
 x.free;
 
 
+
+/*
 (
 x = {
 	// unbal feather - a bit too comedy actually
@@ -148,6 +158,7 @@ x = {
 }.play;
 )
 x.free;
+*/
 
 /*
 (

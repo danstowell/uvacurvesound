@@ -21,6 +21,8 @@ x={
 			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
 		}.mean;
 	};
+	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
+	sons = MidEQ.ar(sons, 300, 2, -6); // following review, pull to fix buzzing a little
 	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -41,6 +43,8 @@ x={
 			son = CombC.ar(son, 0.2, (LFDNoise1.kr(0.1) + LFPar.kr(10, 0, wib)).linexp(-1, 1, 0.01, 0.1), 20);
 		}.mean;
 	};
+	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
+	sons = MidEQ.ar(sons, 300, 2, -6); // following review, pull to fix buzzing a little
 	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -61,6 +65,8 @@ x={
 			+ CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
 		}.mean;
 	};
+	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
+	sons = MidEQ.ar(sons, 300, 2, -6); // following review, pull to fix buzzing a little
 	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
@@ -93,6 +99,7 @@ x={
 )
 x.free;
 
+/* DROPPED after review
 (
 x={
 	// Elastic hiss
@@ -111,6 +118,7 @@ x={
 }.play
 )
 x.free;
+*/
 
 
 (
@@ -154,6 +162,7 @@ x={
 	}));
 	//sons = [sons, sons[1..] ++ sons[0]].mean;
 	sons = sons.collect{|son, which| PanAz.ar(12, son, which * (2/3) + LFSaw.kr(0.1), width: 4)}.sum * 1.5;
+	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
 	Out.ar(~twelve, sons);
 	Splay.ar(sons);

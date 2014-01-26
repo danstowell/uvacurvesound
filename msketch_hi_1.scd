@@ -29,6 +29,8 @@ x = {
 x.free;
 
 
+/*
+// DROPPED this one following speaker review
 (
 x = {
 	// hi ring speckle
@@ -48,7 +50,7 @@ x = {
 }.play
 )
 x.free;
-
+*/
 
 (
 x = {
@@ -155,6 +157,7 @@ x = {
 	trig = Impulse.ar( Duty.kr(0.5, 0, Dxrand([5, 10, 15].stutter(3) ++ [20, 40], inf))  );
 	trig = trig * LFPulse.ar(1/16);
 	son = Decay2.ar(trig, 0.008, 0.02) * LPF.ar(HPF.ar(WhiteNoise.ar, 10000), 15000);
+	son = son + HPF.ar(son, 1000); // following speaker review, push the top
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
 	Out.ar(~twelve, son.dup(12));
