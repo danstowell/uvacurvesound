@@ -58,7 +58,7 @@ x={
 		[48, 55, 60].collect{|val|
 			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.01));
 			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40)
-			    + CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
+			+ CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
 		}.mean;
 	};
 	sons = sons * XLine.ar(0.001, 1, 0.2) * 0.5;
@@ -407,3 +407,85 @@ x={
 )
 x.free;
 
+
+(
+//x.free;
+x={
+	// elastic arrow
+	var son, sons, penv, aenv, panenv, trig=Trig1.kr(1);
+
+	penv   = EnvGen.ar(Env([200, 200, 100, 20, 1], [0, 0.15, 0.15, 2]), trig) * LFPar.ar(10).exprange(0.9, 1.1);
+	aenv   = EnvGen.ar(Env([1, 1, 0.22, 0.22], [1, 3, 5]), trig);
+	panenv = EnvGen.ar(Env([1.8, 1.8, 0.2, 0.2], [0, 0.05, 20]), trig);
+
+	son = LeakDC.ar(Pluck.ar(HPF.ar(WhiteNoise.ar, 10000), trig, 1, min(1, 1/penv), 15));
+	son = LPF.ar(son, 1500);
+	son = son * 40 * aenv;
+
+	DetectSilence.ar(son, time: 0.5, doneAction: 2);
+
+	sons = PanAz.ar(12, son, pos: panenv);
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+	//sons[..1]
+}.play
+)
+x.free;
+
+(
+//x.free;
+x={
+	// elastic echo experiment
+	var son, sons, penv, aenv, panenv, trig=Trig1.kr(Impulse.kr(0.3));
+
+	penv   = LFNoise1.ar(1).exprange(20, 1) + Decay.ar(Trig1.ar(trig * 200, 0), 0.1); // EnvGen.ar(Env([200, 200, 100, 20, 1], [0, 0.15, 0.15, 2]), trig) * LFPar.ar(10).exprange(0.9, 1.1);
+	aenv   = EnvGen.ar(Env([1, 1, 0.22, 0.22], [1, 3, 5]), trig);
+	panenv = EnvGen.ar(Env([1.8, 1.8, 0.2, 0.2], [0, 0.05, 20]), trig);
+
+	son = LeakDC.ar(Pluck.ar(LPF.ar(WhiteNoise.ar(0.5 * trig.lag(0.1)), 8000), trig, 1, min(1, 1/penv), 15, coef:0.9125).clip2(0.3));
+	son = HPF.ar(LPF.ar(son, 1500), 100);
+	son = son * 40 * aenv;
+
+	DetectSilence.ar(son, time: 0.5, doneAction: 2);
+
+	sons = PanAz.ar(12, son, pos: panenv);
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+	//sons[..1]
+}.play
+)
+x.free;
+
+
+(
+// elastic groanik
+var woodfilter = { |inputs|
+	var freqs, rqs, output;
+	freqs = [62.5, 125, 250, 395, 560, 790];
+	rqs   = 1 / [1, 1, 2, 2, 3, 3];
+	output = inputs.asArray.collect{|input| BPF.ar(input, freqs, rqs).sum + (input*0.2)};
+	output = output.collect{|son| Klank.ar(`[freqs * 0.8, nil, 0.015.dup(freqs.size)], son) * 0.2};
+};
+x={
+	var son, trigs, envlens, envs, reso, num=4, genrate;
+
+	genrate = LFPar.kr(0.1).exprange(0.5, 2) * Line.kr(0.001, 1, 1);
+	trigs   = num.collect{ Impulse.ar(genrate * LFNoise1.kr(1).exprange(4, 50))};
+	envlens = num.collect{ LFNoise1.kr(1).exprange(0.1, 10) };
+
+	envs = num.collect{|which|
+		EnvGen.ar(Env.perc(0.000, 0.0001), trigs[which], timeScale: envlens[which]);
+	};
+
+	son = woodfilter.value(envs);
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(son))};
+	Out.ar(~twelve, son.wrapAt((0..11)));
+	Splay.ar(son);
+}.play
+)
+x.free;
