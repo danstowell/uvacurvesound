@@ -65,3 +65,24 @@
 	};
 	~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
+
+/*
+~scenetypes["scanbip"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	var son, sub, leds;
+	var pos, trig, rawson, scaler, panenv, thruspeed, env;
+	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
+
+
+// TODO scanbip, blipff
+
+
+
+
+
+
+sub = ~nsubs.collect{|which|
+		DC.ar(0);
+	};
+	~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
+}, []];
+*/
