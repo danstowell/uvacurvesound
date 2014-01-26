@@ -57,9 +57,10 @@ x = {
 )
 x.free;
 
-
+/*
 y = {|sons| BRF.ar(sons, 160, 1, mul: 1.5)}.scopeResponse
 y.free
+*/
 
 (
 x = {
@@ -75,7 +76,7 @@ x = {
 			var lev  = Latch.kr(trig, trig.abs);
 			SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
 		} * [1.5, 0.7, 0.25]).sum * 0.3;
-		son = BRF.ar(son, 160, 0.125); // notch out a buzz on the cone
+		son = MidEQ.ar(son, 160, 0.25, -6); // notch out a buzz on the cone
 		son = HPF.ar(son, 300);
 	};
 	sons = sons.collect{|son|
@@ -104,7 +105,7 @@ x = {
 			var lev  = Latch.kr(trig, trig.abs);
 			SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
 		} * [1.5, 0.7, 0.25]).sum * 0.3;
-		son = BRF.ar(son, 160, 0.125); // notch out a buzz on the cone
+		son = MidEQ.ar(son, 160, 0.25, -6); // notch out a buzz on the cone
 		son = HPF.ar(son, 300);
 	};
 	sons = sons.collect{|son|
