@@ -49,10 +49,13 @@ s.dumpOSC(0);
 ~perPendulumKeys = #[\normPosx, \normPosy, \normPosz, \normVelx, \normVely, \normVelz, \approxPeriod];
 
 if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
-~d3func = { arg msg, time, addr, recvPort; if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
+~d3func = { arg msg, time, addr, recvPort;
+	// "Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+	if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
 	var subaddr = msg[0].asString.split[3..];
 	//msg.postln;
-	"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+	//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+	msg[1..].postln;
 
 	subaddr[0].switch("state", {
 		var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset, pendspos;
@@ -108,3 +111,5 @@ thisProcess.addOSCRecvFunc(~d3func);
 )
 /*
 thisProcess.removeOSCRecvFunc(~d3func);
+
+~sceneposbus.get{|data| data.postln;};"";
