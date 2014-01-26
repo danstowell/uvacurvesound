@@ -148,12 +148,14 @@ s.waitForBoot{
 	~scenetypes = Dictionary(); // Each entry is a list of [func, tweakableparams] where the latter is [[\name, defaultval]...]
 
 
+/*
 	~scenetypes["driftysines"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son = ~npendulums.collect{|which| SinOsc.ar(rrand(220, 660) * freqscale)} * 0.1;
 		var sub = {SinOsc.ar(rrand(20, 60))}.dup(~nsubs) * 0.4;
 		var leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
+	*/
 	~scenetypes["frag_pwm"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var phases, son, onewidth, amps, sub, freq, leds, reltempo;
 		reltempo = ~normalperiod * In.kr(~tempobus);
@@ -247,6 +249,7 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 	}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
+	/*
 	~scenetypes["puresine01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds;
 		son = ~npendulums.collect{|which|
@@ -260,6 +263,7 @@ s.waitForBoot{
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["freq", 880], ["detune", 2.5]]];
+	*/
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds, basefreq = In.kr(~basefreqbus);
 		//"threevals is: %".format(threevals).postln;
@@ -273,6 +277,9 @@ s.waitForBoot{
 				(SinOsc.ar([basefreq * 2.0] * freqscale)) * 0.1 * SinOsc.ar(1 * modrate).range(0.5, 1)
 			) * amp
 		};
+		son = HPF.ar(son, 100); // from review, saw unwanted low component
+		son = HPF.ar(son, 100); // from review, saw unwanted low component
+		son = HPF.ar(son, 100); // from review, saw unwanted low component
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
@@ -340,6 +347,9 @@ s.waitForBoot{
 			//freqsel.poll;
 			son = (son * freqsel).sum;
 
+			son = HPF.ar(son, 100); // from review, saw unwanted low component
+			son = HPF.ar(son, 100); // from review, saw unwanted low component
+
 			son = ~npendulums.collect{|which|
 				son[which] * SinOsc.ar(0.125, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
 			}; // pow 0.25 makes move smoothly across speakers; higher, atomised.
@@ -360,6 +370,7 @@ s.waitForBoot{
 
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
 		basefreqs = [120, 130] * 3 * freqscale;
+		basefreqs = basefreqs * -8.midiratio; // from review, preferred this
 		harmstack = [1, 1.5, 2];
 		harmamps = [1.5, 0.4, 0.1];
 
@@ -422,6 +433,7 @@ s.waitForBoot{
 		leds = {DC.kr([0, 0.7])}.dup(~npendulums).flat;
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["harmonic stretch 0--1", 0], ["freqscale", 1]]];
+	/*
 	~scenetypes["movebop"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, leds, val1, val2;
 		var freqs = (240 * ((0..~npendulums) * 3).midiratio).clump(3).flop.flat;
@@ -436,6 +448,7 @@ s.waitForBoot{
 		leds = {DC.kr(0)}.dup(~npendulums * 2);
 		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
+	*/
 
 	"patches_utility.scd".loadRelative;
 	"patches_bal.scd".loadRelative;
