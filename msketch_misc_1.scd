@@ -4,8 +4,7 @@ s.boot;                               // IF IN UVA REMEMBER - THE VOLUME MUST GO
 ~twelve.scope;
 
 ~dobuf = Buffer.alloc(s, 65536, 1);
-~dobuf = Buffer.alloc(s, 65536, 2);
-~dobuf.write("~/git/uvacurve/recordings/recorded.wav".standardizePath, "wav", "int24", 0, 0, true);
+~dobuf.write("~/git/uvacurve/recordings/click_.wav".standardizePath, "wav", "int24", 0, 0, true);
 // then record, then
 x.free;
 ~dobuf.close;
@@ -212,6 +211,7 @@ x.free;
 
 ///////////////////////
 // Some clicks
+/*
 (
 // cowbell!
 x = {
@@ -230,20 +230,22 @@ x = {
 }.play
 )
 x.free;
-
+*/
 
 (
 // click wood
 x = {
 	var son, trig;
 
-	trig = Impulse.ar(1/3.7);
+	trig = Impulse.ar(1/3.7, 0.99);
 
 	10.collect{exprand(500, 10000)}.postln;
 	son = Klank.ar(`[[ 898.57360436391, 872.5298557576, 782.59036890516, 522.91466105288, 607.05406376995, 506.90960173234, 886.07016472432, 961.1559397461, 553.33696697469, 767.22393448859 ]
 , nil, {0.1}.dup(10)], trig);
 
 	son = son.clip2(1) * 0.1;
+
+	son = son + HPF.ar(son, 1000);
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
 	Out.ar(~twelve, son.dup(12));
@@ -257,12 +259,36 @@ x.free;
 x = {
 	var son, trig;
 
-	trig = Impulse.ar(1/3.7);
+	trig = Impulse.ar(1/3.7, 0.99);
 
 	10.collect{exprand(500, 10000)}.postln;
 	son = Klank.ar(`[[ 1673.7309187879, 3530.0518140983, 1837.6414495397, 3762.8005580855, 3740.1288428511, 2974.533084582, 1966.6477137549, 2161.7169830521, 2451.2064295, 1708.2406493548 ]
 
 , nil, {0.1}.dup(10)], trig);
+
+	son = son.clip2(1) * 0.1;
+
+	son = son + HPF.ar(son, 1000);
+
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
+	Out.ar(~twelve, son.dup(12));
+	son.dup;
+}.play
+)
+x.free;
+
+(
+// click flint
+x = {
+	var son, trig;
+
+	trig = Impulse.ar(1/3.7, 0.99);
+	trig = HPF.ar(WhiteNoise.ar, 10000) * Trig1.ar(trig, 0.02);
+
+	10.collect{exprand(10000, 15000)}.postln;
+	son = Klank.ar(`[10.collect{exprand(5000, 10000)}.postln
+
+, nil, {0.03}.dup(10)], trig);
 
 	son = son.clip2(1) * 0.1;
 
@@ -272,20 +298,25 @@ x = {
 }.play
 )
 x.free;
+
 (
 // click lighter
 x = {
-	var son, trig;
+	var son, trig, env, noise, ress;
 
-	trig = Impulse.ar(1/3.7);
-	trig = HPF.ar(WhiteNoise.ar, 10000) * Trig1.ar(trig, 0.02);
+	noise = WhiteNoise.ar * LFPar.ar(100);
+	trig = Impulse.ar(1/3.7, 0.99);
+	env = EnvGen.ar(Env.perc(0.065, 0.02, curve:[4, -2]), trig);
+	son = noise * env;
+	son = son + EnvGen.ar(Env.perc(0.065, 0.02, 5, curve:[400, -200]), trig); // very narrow impulse added
 
-	10.collect{exprand(10000, 15000)}.postln;
-	son = Klank.ar(`[10.collect{exprand(5000, 10000)}.postln
-
-, nil, {0.03}.dup(10)], trig);
+//	ress = 10.collect{rrand(100, 5000)}.postln;
+//	ress = [ 3768, 4365, 4063, 1340, 3700, 798, 3102, 2420, 845, 3009 ];
+//	son = son + (Klank.ar(`[ress, nil, {0.06}.dup(ress.size)], son) * 0.1);
 
 	son = son.clip2(1) * 0.1;
+
+	son = son + HPF.ar(son, 1000);
 
 	if(~dobuf.notNil){DiskOut.ar(~dobuf, son)};
 	Out.ar(~twelve, son.dup(12));
