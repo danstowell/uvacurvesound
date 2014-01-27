@@ -137,3 +137,21 @@ x = {
 )
 x.free;
 
+
+(
+x = {
+	// bal fleet
+	var sons, son2, freq;
+	freq = (60 + 7).midicps;
+	son2 = Formant.ar(freq, 715, 400) * 0.015; // 715
+	sons = 12.collect{|val|
+		var son;
+		son = SinOsc.ar(freq * LFDNoise0.ar(2).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.35)).sum * 0.1;
+	};
+	sons = sons + PanAz.ar(12, son2, LFSaw.ar(0.1).range(0, 2), width: 2);
+	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
+	Out.ar(~twelve, sons);
+	Splay.ar(sons);
+}.play;
+)
+x.free;
