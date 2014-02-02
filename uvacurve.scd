@@ -185,11 +185,13 @@ s.waitForBoot{
 	*/
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreq = In.kr(~basefreqbus);
+		var reltempo = ~normalperiod * In.kr(~tempobus);
 		//"threevals is: %".format(threevals).postln;
 		son = ~npendulums.collect{|which|
 			var amp, modrate;
 			amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			modrate = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			modrate = modrate * reltempo;
 			(
 				(SinOsc.ar([basefreq * 0.5] * freqscale)) * 0.1 * SinOsc.ar(0.25 * modrate).range(0.5, 1)
 				+
@@ -282,6 +284,7 @@ s.waitForBoot{
 	}; // end adata iter
 	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
+		var reltempo = ~normalperiod * In.kr(~tempobus);
 
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
 		basefreqs = [120, 130] * 3 * freqscale;
@@ -298,7 +301,7 @@ s.waitForBoot{
 			};
 		};
 
-		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(reltempo * 1/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
 		//freqsel.poll;
 		son = (son * freqsel).sum;
 
