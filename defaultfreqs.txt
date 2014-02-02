@@ -1,0 +1,10 @@
+PATCHNAME           	midi	Hz
+bal_purity1     	60	261.6255653006
+bal_purity1lower	48	130.8127826503
+bal_purity2     	51	155.56349186104
+bal_riffle      	51	155.56349186104
+bal_riffle_note2	54	184.99721135582
+bal_roundfeather	51	155.56349186104
+tonestack01sin   	-	120
+tonestack01tri02	-	120
+unbal_diffle    	65	349.228231433

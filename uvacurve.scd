@@ -17,8 +17,8 @@ s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
 	~npendulums_true = 12; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
-	~nscenes    = 3;
-	~nsubs      = 1;
+	~nscenes    = 4;
+	~nsubs      = 2;
 	// busses
 	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
 	~sceneposbus = Bus.control(s, ~nscenes);
@@ -240,7 +240,9 @@ s.waitForBoot{
 		~scenetypes["tonestack01" ++ adata[0]] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 			var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
 
-			basefreqs = [60, 90, 120, 240, 480].scramble * 0.5 * freqscale;
+			var freq = \freq.kr(120);
+
+			basefreqs = freq * [0.5, 0.75, 1, 2, 4].scramble * 0.5 * freqscale;
 			harmstack = [1, 1.5, 2];
 			harmamps = [1.5, 0.4, 0.1];
 
@@ -315,7 +317,8 @@ s.waitForBoot{
 	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
 
-		basefreqs = [120, 180, 240, 360, 480].scramble * freqscale;
+		var freq = \freq.kr(120);
+		basefreqs = freq * [1, 1.5, 2, 3, 4].scramble * freqscale;
 		//basefreqs = [120, 130] * 3;
 		harmstack = [1, 1.5, 2];
 		harmamps = [1.5, 0.4, 0.1];

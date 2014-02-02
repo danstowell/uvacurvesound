@@ -62,12 +62,15 @@
 }, []];
 
 ~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+		var freq = \freq.kr(65.midicps);
+
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly
 	sons = 12.collect{|val|
 		var son;
 		var addmidi = 7; //MouseX.kr(-20, 20).round.poll(1);
-		son = (([58, 65] + addmidi).midicps.collect{|freq, inwhich|
+		son = ((freq * [1, 1.5]).collect{|freq, inwhich|
 			var trig = Dust2.kr(1);
 			var lev  = Latch.kr(trig, trig.abs).abs.neg;
 			SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))
