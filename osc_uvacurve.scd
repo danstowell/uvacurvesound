@@ -76,7 +76,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 
 			// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
 			// ~settempo.(newtempo)
-			"Received /d3/sound/state - timeIncrement %".format(timeIncrement).postln;
+			//"Received /d3/sound/state - timeIncrement %".format(timeIncrement).postln;
 			~settempo.value((1/~normalperiod) * timeIncrement);
 
 			// TODO DO STUFF WITH THIS DATA ***********************
