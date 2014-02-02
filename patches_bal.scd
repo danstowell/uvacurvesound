@@ -99,7 +99,7 @@
 	var freq = \freq.kr(51.midicps);
 	var son, sub;
 	son = ~npendulums.collect{|val|
-		var son, freq, mod;
+		var son, mod;
 		mod = LFSaw.kr(ExpRand(0.05, 0.2), Rand(pi)).range(0,1);
 		son = SinOsc.ar(freq * SinOsc.ar(mod.linexp(0, 1, 0.1, 1), mul: mod.squared).linexp(-1, 1, 0.99, 1.01)).tanh * 0.2;
 	};
