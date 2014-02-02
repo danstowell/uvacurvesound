@@ -110,3 +110,21 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
+~scenetypes["bal_fleet"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+	var freq = \freq.kr(67.midicps);
+	var sub;
+	var sons, son2;
+	son2 = Formant.ar(freq, 715, 400) * 0.015; // 715
+	sons = ~npendulums.collect{|val|
+		var son;
+		son = SinOsc.ar(freq * LFDNoise0.ar(2).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.35)).sum * 0.1;
+	};
+	sons = sons + PanAz.ar(~npendulums, son2, LFSaw.ar(0.1).range(0, 2), width: 2);
+
+	sub = ~nsubs.collect{|which|
+		DC.ar(0);
+	};
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+}, []];
+
