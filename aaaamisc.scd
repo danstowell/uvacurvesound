@@ -6,8 +6,6 @@ s.boot
 ~scenepossynths[1].set(\rapidity, 3)
 
 
-~ledbus.scope
-
 s.scope(4)
 s.scope(12)
 
