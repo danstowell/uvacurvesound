@@ -1,7 +1,7 @@
 // s.boot
 (
 // Settings:
-~defaultscenes = ["tonestack01sin", "silent", "silent"]; // these are the ones that run on first invoke
+~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 4;
@@ -10,13 +10,14 @@
 "localsettings.scd".loadRelative;
 ////////////////////////
 s.latency = 0.75;
+s.options.numAudioBusChannels_(256);
 s.options.numOutputBusChannels_(12);
 s.options.numWireBufs = 128;
 s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
 	~npendulums_true = 12; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
-	~nscenes    = 2;
+	~nscenes    = 3;
 	~nsubs      = 1;
 	// busses
 	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
