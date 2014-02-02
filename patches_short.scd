@@ -1,5 +1,5 @@
 ~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var son, sub, leds;
+	var son, sub;
 	var pos, trig, rawson, scaler, panenv, thruspeed, env;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
 	//scaler = MouseX.kr(0.5, 5, 1); //.poll(1, "mousex");
@@ -12,7 +12,6 @@
 	rawson = rawson * env;
 	rawson = HPF.ar(rawson, 5000) * 0.25;
 	*/
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
 	// Now we delay-and-splay it so as to zap across speakers
 	son = ~npendulums.collect{|which|
 		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), bangs[which], timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000)), phase: 0.5pi);
@@ -21,7 +20,6 @@
 		rawson = HPF.ar(rawson, 5000) * 0.25;
 		/*
 		var del = (~npendulums - which) * 0.06;
-		leds[which * 2] = DelayC.kr(env, del * 4, del * thruspeed.reciprocal) > 0.25;
 		DelayC.ar(rawson, del * 4, del * thruspeed.reciprocal);
 		*/
 	};
@@ -34,14 +32,13 @@
 	sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 1000, 2) * BrownNoise.ar * 50, 0.5, 0.5, 0.99999), 100);
 	};
 	*/
-	~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
+	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, [["zappiness", 0], ["thruspeed", 1]]];
 ~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var son, sub, leds;
+	var son, sub;
 	var pos, trig, rawson, scaler, env, panenv;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
 	/*
 	trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * reltempo);
 
@@ -66,14 +63,13 @@
 		var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 		sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 100) * BrownNoise.ar * 50, 0.5, 0.5, 0.999), 100);
 	};
-	~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
+	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
 
 ~scenetypes["scanbip"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var son, sub, leds;
+	var son, sub;
 	var pos, trig, rawson, scaler, panenv, thruspeed, env;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
 
 	bangs = bangs.sum; // unify, bang one bang all
 	env = EnvGen.ar(Env([0, 0.1, 0.1, 0.3, 0.3, 2.5, 2, 2, 0, 0], [ 0.04, 0.8, 0.02, 0.5, 0.002, 0.02, 0.06, 0.002, 0.6 ]), bangs);
@@ -84,15 +80,14 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
+	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, []];
 
 ~scenetypes["blipff"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var son, sub, leds;
+	var son, sub;
 	var pos, trig, rawson, scaler, panenv, thruspeed, env;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
 	var penv, freq, verb;
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
 
 	bangs = bangs.sum; // unify, bang one bang all
 	freq = 1300 * 5.midiratio * EnvGen.kr(Env([0.5, 0.5, 2, 2, 0.5], [0.02, 0.001, 2, 0]), bangs);
@@ -114,7 +109,7 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	~sceneenveloper.value(son, sub, leds, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
+	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, []];
 
 

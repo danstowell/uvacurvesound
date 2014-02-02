@@ -1,7 +1,7 @@
 
 ~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var sons, sub, leds;
+	var sons, sub;
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -17,14 +17,13 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 
 ~scenetypes["elastic_boinger2d2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var sons, sub, leds, noise=WhiteNoise.ar.range(0.9, 1);
+	var sons, sub, noise=WhiteNoise.ar.range(0.9, 1);
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -43,13 +42,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["elastic_stickslip01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var sons, sub, leds;
+	var sons, sub;
 
 	var stickslip = { |force|
 		var inMotion, slipEvents, forceBuildup, evtAmp, evtDecayTime, evts;
@@ -94,13 +92,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["elastic_boinger"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var sons, sub, leds;
+	var sons, sub;
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -115,14 +112,13 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 
 ~scenetypes["elastic_harder"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var sons, sub, leds;
+	var sons, sub;
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -138,13 +134,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["elastic_rip1plus1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var son, sub, leds;
+	var son, sub;
 
 	var stage, stagelag, evt, res;
 	stage = LFSaw.kr(0.03, 0.7).range(-5, 1).max(0);
@@ -161,13 +156,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["elastic_stretch_balloon"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var son, sub, leds;
+	var son, sub;
 
 	var stim;
 	stim = EnvGen.ar(Env.perc(0.001, 0.001), Dust.ar(XLine.kr(100, 4, 2))) * XLine.ar(0.01, 1, 2);
@@ -179,13 +173,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["elastic_stretch_regular"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var son, sub, leds;
+	var son, sub;
 
 	var stim;
 	stim = EnvGen.ar(Env.perc(0.001, 0.001), Impulse.ar(XLine.kr(50, 3, 3))) * XLine.ar(0.01, 1, 3);
@@ -197,13 +190,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["elastic_stretch_stepped"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var son, sub, leds;
+	var son, sub;
 
 	var stim;
 	stim = EnvGen.ar(Env.perc(0.001, 0.001), Impulse.ar(XLine.kr(100, 3, 3).round(10))) * XLine.ar(0.01, 1, 3);
@@ -215,13 +207,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["elastic_arrow"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var son, sub, leds;
+	var son, sub;
 
 	var sons, penv, aenv, panenv, trig=Trig1.kr(1);
 
@@ -242,8 +233,7 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 
@@ -259,7 +249,7 @@
 		output = MidEQ.ar(output, 800, 0.5, -12); // following speaker review, brutal remove around 200--1000
 	};
 
-	var son, sub, leds;
+	var son, sub;
 
 	var trigs, envlens, envs, reso, num=4, genrate;
 
@@ -277,7 +267,6 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 

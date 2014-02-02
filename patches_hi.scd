@@ -1,5 +1,5 @@
 ~scenetypes["hi_ring_ding"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var son, sub, leds;
+	var son, sub;
 	son = ~npendulums.collect{|which|
 		var son, env;
 		env = HPF.ar(EnvGen.ar(Env.perc(0.001, 0.1), Dust.ar(100)), 10000);
@@ -12,12 +12,11 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
 ~scenetypes["hi_slippytick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var son, sub, leds;
+	var son, sub;
 	var sons, rate, ourdevrate;
 	rate = LFDNoise1.kr(0.1).range(10, 20) * XLine.kr(0.1, 1, 1);
 	ourdevrate = LFDNoise1.kr(0.05).range(0.05, 0.1);
@@ -35,12 +34,11 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
 ~scenetypes["hi_fabrickle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var sons, sub, leds;
+	var sons, sub;
 	sons = ~npendulums.collect{|which|
 		var son, env, trig;
 		trig = Dust.ar(LFPulse.kr(ExpRand(0.05, 0.1), Rand(0, 2)).range(30, 100));
@@ -53,12 +51,11 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
 ~scenetypes["hi_clickwerk"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var son, sub, leds;
+	var son, sub;
 
 	var trig;
 
@@ -70,12 +67,11 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
 ~scenetypes["hi_tring"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var sub, leds;
+	var sub;
 	var sons, trig1, trig2;
 
 	trig1 = Impulse.kr(3.1 / 16);
@@ -102,13 +98,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
 
 ~scenetypes["dut_ter"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var sub, leds;
+	var sub;
 
 	var son, env, trig, dly, rate;
 
@@ -125,7 +120,6 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
+	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 

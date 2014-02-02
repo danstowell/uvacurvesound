@@ -4,8 +4,6 @@
 ~recvaddr = NetAddr.new(nil, ~fromport);    // create the NetAddr
 thisProcess.openUDPPort(~fromport); // attempt to open
 
-~ledsendaddr = nil;
-//~ledsendaddr = NetAddr("10.0.0.123", 1234);
 );
 
 /*
