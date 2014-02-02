@@ -13,7 +13,7 @@
 	sons = sons * 1.5;
 	sons = MidEQ.ar(sons, 250, 1,   -12); // notch out a buzz on the cone
 	sons = MidEQ.ar(sons, 120, 1,   -6); // notch out a buzz on the cone
-	sons = sons.stutter(3) * 0.05;
+	sons = sons.stutter(3) * 0.03;
 
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
@@ -52,7 +52,7 @@
 		var pos = WhiteNoise.kr.range(0, range) + bigpos;
 		GrainSin.ar(12, Dust.ar(30), 1.95, Index.kr(freqs.as(LocalBuf), pos), LFNoise0.kr(10).range(0,2)) * 0.3;
 	}.mean;
-	sons = (sons * 0.33) +  (LPF.ar(sons, 500) * 0.66);
+	sons = (sons * 0.33) +  (LPF.ar(sons, 500) * 0.1);
 	sons = MidEQ.ar(sons, 250, 1,   -6); // notch out a buzz on the cone
 	sons = MidEQ.ar(sons, 120, 1,   -6); // notch out a buzz on the cone
 	sub = ~nsubs.collect{|which|
@@ -62,12 +62,15 @@
 }, []];
 
 ~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+
+		var freq = \freq.kr(65.midicps);
+
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly
 	sons = 12.collect{|val|
 		var son;
 		var addmidi = 7; //MouseX.kr(-20, 20).round.poll(1);
-		son = (([58, 65] + addmidi).midicps.collect{|freq, inwhich|
+		son = ((freq * [1, 1.5]).collect{|freq, inwhich|
 			var trig = Dust2.kr(1);
 			var lev  = Latch.kr(trig, trig.abs).abs.neg;
 			SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))

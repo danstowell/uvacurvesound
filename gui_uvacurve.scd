@@ -66,14 +66,6 @@ mainbox.add(wrapperwidget);
 
 /*
 thiswidget = HLayout();
-thiswidget.add(StaticText().string_("Scene pos motion"));
-obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
-if(but.value==0){~scenepossynth.run(false)}{~scenepossynth.run(true)}
-});
-thiswidget.add(obj);
-mainbox.add(thiswidget);
-*/
-thiswidget = HLayout();
 thiswidget.add(StaticText().string_("Fake doppler & indirectness"));
 obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(0).action_({|but|
 	~dopplerfaker.set(\active, but.value);
@@ -104,7 +96,7 @@ obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Col
 });
 thiswidget.add(obj);
 mainbox.add(thiswidget);
-
+*/
 
 
 ///////////////////////////////////////////////////
@@ -121,7 +113,13 @@ mainbox.add(thiswidget);
 	thiswidget = VLayout();
 	thiswidget.add(StaticText().string_("Scene %".format(whichscene)));
 	obj = Button().states_([["off", Color.white, Color.black], ["ON", Color.red, Color.white]]).value_(1).action_({|but|
-		if(but.value==0){~sceneplayers[whichscene].pause}{~sceneplayers[whichscene].resume};
+		if(but.value==0){
+			~sceneplayers[whichscene].pause;
+			~sceneplayers_offstage[whichscene].pause;
+		}{
+			~sceneplayers[whichscene].resume;
+			~sceneplayers_offstage[whichscene].resume;
+		};
 	});
 	thiswidget.add(obj);
 	obj = Slider().value_(0.7).action_({|slider|
@@ -135,7 +133,8 @@ mainbox.add(thiswidget);
 
 	thiswidget = VLayout();
 	obj = Slider().orientation_(\horizontal).value_(0).action_({|slider|
-		~sceneplayers[whichscene].set(\width, slider.value)
+		~sceneplayers[whichscene].set(\width, slider.value);
+		~sceneplayers_offstage[whichscene].set(\width, slider.value);
 	});
 	thiswidget.add(obj);
 
@@ -151,7 +150,8 @@ mainbox.add(thiswidget);
 	subwidget.add(obj);
 	obj = NumberBox().value_(1).action_({|widg|
 		~scenepossynths[whichscene].set(\circlesize, widg.value);
-		~sceneplayers[whichscene].set(\circlesize, widg.value)
+		~sceneplayers[whichscene].set(\circlesize, widg.value);
+		~sceneplayers_offstage[whichscene].set(\circlesize, widg.value);
 	});
 	subwidget.add(obj);
 	thiswidget.add(subwidget);

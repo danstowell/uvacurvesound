@@ -2,6 +2,19 @@ s.boot
 // 1/[0.08, 0.13]
 // 3.4 towards 6
 
+s.makeWindow
+
+ServerOptions
+
+
+
+
+~sceneplayers_offstage[0].get(\amp)
+~sceneplayers[0].get(\amp)
+~sceneplayers[0].set(\amp, 0.7)
+NodeProxy
+
+
 ~scenepossynths[1].set(\rapidity, 1)
 ~scenepossynths[1].set(\rapidity, 3)
 

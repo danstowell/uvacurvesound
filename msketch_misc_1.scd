@@ -286,8 +286,7 @@ x = {
 	trig = HPF.ar(WhiteNoise.ar, 10000) * Trig1.ar(trig, 0.02);
 
 	10.collect{exprand(10000, 15000)}.postln;
-	son = Klank.ar(`[10.collect{exprand(5000, 10000)}.postln
-
+	son = Klank.ar(`[[ 9832.1833187756, 7733.5246778064, 9358.2628378095, 7756.069229784, 5058.8088845282, 9367.2957711644, 9739.0695928308, 7487.1737936217, 8103.4010087982, 8389.1871626481 ]
 , nil, {0.03}.dup(10)], trig);
 
 	son = son.clip2(1) * 0.1;
@@ -309,10 +308,6 @@ x = {
 	env = EnvGen.ar(Env.perc(0.065, 0.02, curve:[4, -2]), trig);
 	son = noise * env;
 	son = son + EnvGen.ar(Env.perc(0.065, 0.02, 5, curve:[400, -200]), trig); // very narrow impulse added
-
-//	ress = 10.collect{rrand(100, 5000)}.postln;
-//	ress = [ 3768, 4365, 4063, 1340, 3700, 798, 3102, 2420, 845, 3009 ];
-//	son = son + (Klank.ar(`[ress, nil, {0.06}.dup(ress.size)], son) * 0.1);
 
 	son = son.clip2(1) * 0.1;
 

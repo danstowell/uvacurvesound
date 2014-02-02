@@ -142,7 +142,7 @@ x.free;
 x = {
 	// bal fleet
 	var sons, son2, freq;
-	freq = (60 + 7).midicps;
+	freq = (67).midicps;
 	son2 = Formant.ar(freq, 715, 400) * 0.015; // 715
 	sons = 12.collect{|val|
 		var son;
