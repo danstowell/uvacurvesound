@@ -1,6 +1,6 @@
 ~scenetypes["unbal_clustpot"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var sub, leds;
+	var sub;
 	var clusts, sons;
 
 	clusts = 4.collect{
@@ -18,13 +18,12 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["unbal_clustpot_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-	var sub, leds;
+	var sub;
 	var clusts, sons;
 
 	clusts = 4.collect{
@@ -40,12 +39,11 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["unbal_singrain_mover"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var sub, leds;
+	var sub;
 
 	var sons, freqs = ([55, 56, 57] ++ ((48,51..52)+12).dup(7).flatten).scramble.midicps;
 	var range = 6;
@@ -60,12 +58,11 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
 ~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-	var sons, sub, leds;
+	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly
 	sons = 12.collect{|val|
 		var son;
@@ -87,6 +84,5 @@
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	leds = {DC.kr(0)}.dup(~npendulums * 2);
-	~sceneenveloper.value(sons, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];

@@ -85,7 +85,7 @@ x.free;
 
 (
 x = { // misc passingzero
-	var son, sub, leds;
+	var son, sub;
 	son = 12.collect{|which|
 		var tester = (LFPar.kr(ExpRand(0.1, 0.2), Rand(pi))).sign;
 		var env = EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester));
@@ -102,7 +102,7 @@ x.free;
 
 (
 x = { // misc puresine03
-	var son, sub, leds, freqscale=1, basefreq=120;
+	var son, sub, freqscale=1, basefreq=120;
 	son = 12.collect{|which|
 		var amp, modrate;
 		amp     = 1;
@@ -127,7 +127,7 @@ x.free;
 
 (
 x = { // misc tonestack01sin
-	var son, sub, leds, freqscale=1, basefreq=120;
+	var son, sub, freqscale=1, basefreq=120;
 	var freqsel;
 
 	var basefreqs = [60, 90, 120, 240, 480].scramble * 0.5 * freqscale;
@@ -171,7 +171,7 @@ x.free;
 
 (
 x = { // misc drift_sine
-	var son, sub, leds, freqscale=1, basefreqs;
+	var son, sub, freqscale=1, basefreqs;
 	var amps, harmstack, harmamps, freqs, freqsel;
 
 	//basefreqs = [120, 180, 240, 360, 480].scramble;
