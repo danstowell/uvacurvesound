@@ -54,8 +54,8 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 	if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
 		var subaddr = msg[0].asString.split[3..];
 		//msg.postln;
-		"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
-		msg[1..].postln;
+		//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+		//msg[1..].postln;
 
 		subaddr[0].switch("state", {
 			var volume, maxAngle, timeIncrement, naturalness, penddata, offset, pendspos;
@@ -91,6 +91,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 				//"Will address slot #%".format(targetslot).postln;
 				subaddr[1].switch(
 					"bang",        { // args [pendulumid]
+						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 						// NB setting the trig to the group not the np, for low-latency
 						~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
 					},
@@ -105,6 +106,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 					},
 					"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
 						// NB msg[2] is NEXTPATCH, currently unused
+						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 						~pushascene.value(msg[1] ? "silent", targetslot, (msg[3] ? 1).asFloat, msg[4..]);
 					},
 				); // end of switch

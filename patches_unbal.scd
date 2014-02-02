@@ -13,7 +13,7 @@
 	sons = sons * 1.5;
 	sons = MidEQ.ar(sons, 250, 1,   -12); // notch out a buzz on the cone
 	sons = MidEQ.ar(sons, 120, 1,   -6); // notch out a buzz on the cone
-	sons = sons.stutter(3) * 0.05;
+	sons = sons.stutter(3) * 0.03;
 
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
@@ -52,7 +52,7 @@
 		var pos = WhiteNoise.kr.range(0, range) + bigpos;
 		GrainSin.ar(12, Dust.ar(30), 1.95, Index.kr(freqs.as(LocalBuf), pos), LFNoise0.kr(10).range(0,2)) * 0.3;
 	}.mean;
-	sons = (sons * 0.33) +  (LPF.ar(sons, 500) * 0.66);
+	sons = (sons * 0.33) +  (LPF.ar(sons, 500) * 0.1);
 	sons = MidEQ.ar(sons, 250, 1,   -6); // notch out a buzz on the cone
 	sons = MidEQ.ar(sons, 120, 1,   -6); // notch out a buzz on the cone
 	sub = ~nsubs.collect{|which|
