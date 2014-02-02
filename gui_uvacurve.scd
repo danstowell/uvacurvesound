@@ -126,7 +126,8 @@ mainbox.add(thiswidget);
 	thiswidget.add(obj);
 	obj = Slider().value_(0.7).action_({|slider|
 		~scenesamps[whichscene] = slider.value;
-		~sceneplayers[whichscene].set(\amp, slider.value)
+		~sceneplayers[whichscene].set(\amp, slider.value);
+		~sceneplayers_offstage[whichscene].set(\amp, slider.value);  // ekk - yuck to have to touch those while offstage
 	});
 	//~scenesampsliders.add(obj);
 	thiswidget.add(obj);
@@ -184,14 +185,18 @@ mainbox.add(thiswidget);
 	obj.value_(~scenenames.indexOfEqual(~defaultscenes[whichscene]));
 	obj.action_({|list|
 		Task{
+			/* // hard stop-start no longer needed now scenes are double-buffered
 			~sceneplayers[whichscene].set(\amp, 0);
 			0.05.wait;
 			s.sync;
-			~pushascene.value(list.items[list.value], whichscene);
+			*/
+			~pushascene.value(list.items[list.value], whichscene, 1);
 			~updatehackbox.value(list.items[list.value], whichscene);
+			/*
 			0.05.wait;
 			s.sync;
 			~sceneplayers[whichscene].set(\amp, ~scenesamps[whichscene]);
+			*/
 		}.play(AppClock);
 	});
 	subwidget = HLayout();

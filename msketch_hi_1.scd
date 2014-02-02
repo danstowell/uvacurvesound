@@ -54,7 +54,7 @@ x.free;
 
 (
 x = {
-	// hi ring ding - MEH
+	// hi ring ding
 	var sons;
 	sons = 12.collect{
 		var son, env;
@@ -99,33 +99,6 @@ x = {
 }.play
 )
 x.free;
-
-
-
-(
-x = {
-	// hi thiffle - MEHHHHHHHHHHH
-
-	var sons;
-	sons = 12.collect{|val|
-		var son;
-		var addmidi = 57; //47;//MouseX.kr(0, 40).round.poll(1);
-		son = ((3.collect{(55..70).choose} + addmidi).midicps.collect{|freq, inwhich|
-			SinOsc.ar(freq)
-		} * [1, 0.7, 0.25]).sum * 0.03;
-	};
-	sons = sons.collect{|son|
-		son = son * LFSaw.kr(0.3 + (ExpRand(0.001, 0.2) * LFPar.kr(0.07).range(0,1)), Rand(pi)).neg.exprange(0.1, 1);
-		son = son + (Amplitude.kr(son).poll * (son * HPF.ar(WhiteNoise.ar, 10000))) * 3;
-	};
-	if(~dobuf.notNil){DiskOut.ar(~dobuf, Splay.ar(sons))};
-	Out.ar(~twelve, sons);
-	Splay.ar(sons);
-}.play;
-)
-x.free;
-
-
 
 
 (

@@ -1,16 +1,15 @@
 	~scenetypes["silent"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var son, sub, leds;
+		var son, sub;
 		son = ~npendulums.collect{|which|
 			DC.ar(0);
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	~scenetypes["speakerTEST"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
-		var imps, bongs, sub, leds;
+		var imps, bongs, sub;
 
 		imps = Impulse.ar(2 / ~npendulums,
 			(1..~npendulums)/(~npendulums+1)).reverse // These fire on individual channels
@@ -28,6 +27,5 @@
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
-		leds = {DC.kr(0)}.dup(~npendulums * 2);
-		[bongs, sub, leds]
+		[bongs, sub]
 	}, []];
