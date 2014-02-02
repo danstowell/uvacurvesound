@@ -21,7 +21,7 @@ OSCFunc.trace(false)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 9.809, 1,1,1, 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 0.809, 1,1,1, 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracer")
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", 11)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", 0)
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", val); 0.05.wait }}.play
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val); 0.05.wait }}.play
 12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val)}
@@ -46,65 +46,72 @@ s.dumpOSC(0);
 
 (
 // this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
-~perPendulumKeys = #[\normPosx, \normPosy, \normPosz, \normVelx, \normVely, \normVelz, \approxPeriod];
+~perPendulumKeys = #[\normAlpha, \normBeta];
 
 if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 ~d3func = { arg msg, time, addr, recvPort;
 	// "Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 	if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
-	var subaddr = msg[0].asString.split[3..];
-	//msg.postln;
-	//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
-	msg[1..].postln;
+		var subaddr = msg[0].asString.split[3..];
+		//msg.postln;
+		//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+		//msg[1..].postln;
 
-	subaddr[0].switch("state", {
-		var volume, timeIncrement, gravityMag, gravityDir, numPendulums, penddata, offset, pendspos;
+		subaddr[0].switch("state", {
+			var volume, maxAngle, timeIncrement, naturalness, penddata, offset, pendspos;
 
-		volume        = msg[1].asFloat;
-		timeIncrement = msg[2].asFloat;
-		gravityMag    = msg[3].asFloat;
-		gravityDir    = msg[4..6].asFloat;
-		numPendulums  = msg[7].asInt;
+			var pendulumParamOffset = 5;
+			// "global" params
+			volume        = msg[1].asFloat;
+			maxAngle      = msg[2].asFloat;
+			timeIncrement = msg[3].asFloat;
+			naturalness   = msg[4].asFloat;
+			// "per-pendulum" params
+			penddata = ~npendulums.collect{|whichpend|
+				offset = pendulumParamOffset + (~perPendulumKeys.size * whichpend);
+				// normalpha // angle +-1 along the curve
+				// normbeta // angle +-1 sideways
+				~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
+			};
 
-		penddata = numPendulums.collect{|whichpend|
-			offset = 8 + (~perPendulumKeys.size * whichpend);
-			~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
-		};
+			// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
+			// ~settempo.(newtempo)
+			//"Received /d3/sound/state - timeIncrement %".format(timeIncrement).postln;
+			~settempo.value((1/~normalperiod) * timeIncrement);
 
-		// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
-		// ~settempo.(newtempo)
-		"Received /d3/sound - gravityMag %, timeIncrement %".format(gravityMag, timeIncrement).postln;
-		~settempo.value((1/~normalperiod) * timeIncrement * sqrt(gravityMag / 9.81));
+			// TODO DO STUFF WITH THIS DATA ***********************
 
-		// TODO DO STUFF WITH THIS DATA ***********************
+			// Here we simply send the xy data to the bus
+			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta]] }.flat;
+			~pendbus.setn(pendspos);
 
-		// Here we simply send the xy data to the bus
-		pendspos = penddata.collect{|pend| [pend[\normPosx], pend[\normPosy]] }.flat;
-		~pendbus.setn(pendspos);
-
-		}, { // This is the default of the switch - we use this to drop into per-slot commands
-			// not a "state" message
-			var targetslot = subaddr[0].asInt;
-			//"Will address slot #%".format(targetslot).postln;
-			subaddr[1].switch(
-				"bang",        { // args [pendulumid]
-					// NB setting the trig to the group not the np, for low-latency
-					~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
-				},
-				"setparam",    { // args are just key-value pairs
-					~sceneplayers[targetslot].set(*msg[1..]);
-					// We have to handle "position" separately
-					msg[1..].asArray.pairsDo{|k,v|
-						if(k==\position){
-							~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
+			}, { // This is the default of the switch - we use this to drop into per-slot commands
+				// not a "state" message
+				var targetslot = subaddr[0].asInt;
+				//"Will address slot #%".format(targetslot).postln;
+				subaddr[1].switch(
+					"bang",        { // args [pendulumid]
+						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+						// NB setting the trig to the group not the np, for low-latency
+						~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
+					},
+					"params",    { // args are just key-value pairs
+						//"(set)params: args %".format(msg[0], msg.size - 1).postln;
+						~sceneplayers[targetslot].set(*msg[1..]);
+						// We have to handle "position" separately
+						msg[1..].asArray.pairsDo{|k,v|
+							if(k==\position){
+								~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
+							};
 						};
-					};
-				},
-				"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
-					~pushascene.value(msg[1] ? "silent", targetslot, (msg[2] ? 1).asFloat, msg[3..]);
-				},
-			); // end of switch
-	});
+					},
+					"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
+						// NB msg[2] is NEXTPATCH, currently unused
+						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+						~pushascene.value(msg[1] ? "silent", targetslot, (msg[3] ? 1).asFloat, msg[4..]);
+					},
+				); // end of switch
+		});
 };};
 thisProcess.addOSCRecvFunc(~d3func);
 

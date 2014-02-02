@@ -1,23 +1,24 @@
 // s.boot
 (
 // Settings:
-~defaultscenes = ["tonestack01sin", "silent", "silent"]; // these are the ones that run on first invoke
+~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 4;
 ~athome = false;
-~hardmul = if(~athome){10}{0.75};
+~hardmul = if(~athome){10}{2};
 "localsettings.scd".loadRelative;
 ////////////////////////
 s.latency = 0.75;
+s.options.numAudioBusChannels_(256);
 s.options.numOutputBusChannels_(12);
 s.options.numWireBufs = 128;
 s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
 	~npendulums_true = 12; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
-	~nscenes    = 2;
-	~nsubs      = 1;
+	~nscenes    = 4;
+	~nsubs      = 2;
 	// busses
 	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
 	~sceneposbus = Bus.control(s, ~nscenes);
@@ -184,11 +185,13 @@ s.waitForBoot{
 	*/
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreq = In.kr(~basefreqbus);
+		var reltempo = ~normalperiod * In.kr(~tempobus);
 		//"threevals is: %".format(threevals).postln;
 		son = ~npendulums.collect{|which|
 			var amp, modrate;
 			amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 			modrate = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+			modrate = modrate * reltempo;
 			(
 				(SinOsc.ar([basefreq * 0.5] * freqscale)) * 0.1 * SinOsc.ar(0.25 * modrate).range(0.5, 1)
 				+
@@ -239,7 +242,9 @@ s.waitForBoot{
 		~scenetypes["tonestack01" ++ adata[0]] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 			var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
 
-			basefreqs = [60, 90, 120, 240, 480].scramble * 0.5 * freqscale;
+			var freq = \freq.kr(120);
+
+			basefreqs = freq * [0.5, 0.75, 1, 2, 4].scramble * 0.5 * freqscale;
 			harmstack = [1, 1.5, 2];
 			harmamps = [1.5, 0.4, 0.1];
 
@@ -279,6 +284,7 @@ s.waitForBoot{
 	}; // end adata iter
 	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
+		var reltempo = ~normalperiod * In.kr(~tempobus);
 
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
 		basefreqs = [120, 130] * 3 * freqscale;
@@ -295,7 +301,7 @@ s.waitForBoot{
 			};
 		};
 
-		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(reltempo * 1/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
 		//freqsel.poll;
 		son = (son * freqsel).sum;
 
@@ -314,7 +320,8 @@ s.waitForBoot{
 	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
 
-		basefreqs = [120, 180, 240, 360, 480].scramble * freqscale;
+		var freq = \freq.kr(120);
+		basefreqs = freq * [1, 1.5, 2, 3, 4].scramble * freqscale;
 		//basefreqs = [120, 130] * 3;
 		harmstack = [1, 1.5, 2];
 		harmamps = [1.5, 0.4, 0.1];
