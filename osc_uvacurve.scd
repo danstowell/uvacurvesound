@@ -95,7 +95,8 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 						// NB setting the trig to the group not the np, for low-latency
 						~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
 					},
-					"setparam",    { // args are just key-value pairs
+					"params",    { // args are just key-value pairs
+						//"(set)params: args %".format(msg[0], msg.size - 1).postln;
 						~sceneplayers[targetslot].set(*msg[1..]);
 						// We have to handle "position" separately
 						msg[1..].asArray.pairsDo{|k,v|
