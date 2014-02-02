@@ -141,8 +141,8 @@ mainbox.add(thiswidget);
 
 	thiswidget = VLayout();
 	obj = Slider().orientation_(\horizontal).value_(0).action_({|slider|
-		~sceneplayers[whichscene].set(\width, slider.value)
-		~sceneplayers_offstage[whichscene].set(\width, slider.value)
+		~sceneplayers[whichscene].set(\width, slider.value);
+		~sceneplayers_offstage[whichscene].set(\width, slider.value);
 	});
 	thiswidget.add(obj);
 
