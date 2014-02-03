@@ -353,6 +353,8 @@ s.waitForBoot{
 	"patches_unbal.scd".loadRelative;
 	"patches_hi.scd".loadRelative;
 	"patches_short.scd".loadRelative;
+	"patches_clicks.scd".loadRelative;
+	"patches_subs.scd".loadRelative;
 
 	/*
 	~scenetypes[""] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
