@@ -2,12 +2,13 @@
 ~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
 	var sons, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
 			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.01));
-			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40)
-			+ CombC.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
+			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03 * reltempo).exprange(0.01, 0.1) / reltempo.max(0.001), 40)
+			+ CombC.ar(son, 0.2, LFDNoise1.kr(0.03 * reltempo).exprange(0.01, 0.1) / reltempo.min(0.001), 40);
 		}.mean;
 	};
 	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
@@ -24,13 +25,14 @@
 ~scenetypes["elastic_boinger2d2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
 	var sons, sub, noise=WhiteNoise.ar.range(0.9, 1);
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
 			son = SinOsc.ar(val.midicps * 2) * noise * EnvGen.ar(Env.perc(0.01, 0.02), Dust.kr(0.01));
 			son = BPF.ar(son, 500);
 			son = 2.collect{
-				var wib = LFDNoise1.kr(0.08).exprange(0.03, 0.2);
+				var wib = LFDNoise1.kr(0.08 * reltempo).exprange(0.03, 0.2) / reltempo.max(0.001);
 				CombN.ar(son, 0.2, wib, 60) * ((HPZ1.kr(wib) > 0) + 0.3).lag(0.5)
 			}.sum;
 		}.mean;
@@ -48,12 +50,13 @@
 ~scenetypes["elastic_stickslip01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
 	var sons, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 
 	var stickslip = { |force|
 		var inMotion, slipEvents, forceBuildup, evtAmp, evtDecayTime, evts;
 		force = force.lag(0.1); // smoothing to get rid of volatile control changes
 		inMotion = force > 0.1; // static friction: nothing at all below a certain force
-		slipEvents = inMotion * Impulse.ar(force.linlin(0.1, 1, 1, 1/0.003) * LFDNoise1.ar(50).squared.linexp(-1,1, 0.5, 2));
+		slipEvents = inMotion * Impulse.ar(reltempo * force.linlin(0.1, 1, 1, 1/0.003) * LFDNoise1.ar(50).squared.linexp(-1,1, 0.5, 2));
 		forceBuildup = Phasor.ar(slipEvents, 10 * SampleDur.ir, 0, inf).min(1);
 		evtAmp = Latch.ar(Delay1.ar(forceBuildup.sqrt), slipEvents);
 		evtDecayTime = evtAmp.sqrt;
@@ -98,11 +101,12 @@
 ~scenetypes["elastic_boinger"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
 	var sons, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
 			son = SinOsc.ar(val.midicps * 2) * EnvGen.ar(Env.perc(0.02, 0.05), Dust.kr(0.01));
-			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03).exprange(0.01, 0.1), 40);
+			son = CombN.ar(son, 0.2, LFDNoise1.kr(0.03 * reltempo).exprange(0.01, 0.1) / reltempo.max(0.0001), 40);
 		}.mean;
 	};
 	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
@@ -119,12 +123,13 @@
 ~scenetypes["elastic_harder"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
 	var sons, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
 			var wib = LFDNoise1.kr(0.2).range(0, 0.05);
 			son = BPF.ar(GrayNoise.ar, val.midicps * 2) * EnvGen.ar(Env.perc(0.03, 0.05), Dust.kr(0.025));
-			son = CombC.ar(son, 0.4, (LFDNoise1.kr(0.05) + LFPar.kr(5, 0, wib)).linexp(-1, 1, 0.1, 0.4), 20);
+			son = CombC.ar(son, 0.4, (LFDNoise1.kr(0.05 * reltempo) + LFPar.kr(5 * reltempo, 0, wib)).linexp(-1, 1, 0.1, 0.4) / reltempo.max(0.0001), 20);
 		}.mean;
 	};
 	sons = sons + HPF.ar(sons, 1000, 0.25); // following review, push the top a bit
@@ -141,6 +146,7 @@
 
 	var son, sub;
 
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var stage, stagelag, evt, res;
 	stage = LFSaw.kr(0.03, 0.7).range(-5, 1).max(0);
 	stagelag = stage.lag(0.2, 0.2);
@@ -148,7 +154,7 @@
 	res = DynKlank.ar(`[10.collect{exprand(100, 400)}.postln, nil, 10.collect{0.1}], evt, stagelag.linexp(0, 1, 1, 10));
 	son = (evt) + (res * 0.6 * BPF.ar(WhiteNoise.ar, stagelag.linexp(0, 1, 10000, 2000), 2));
 	son = LPF.ar(son, stagelag.linexp(0, 1, 500, 10000));
-	son = /* son + */ CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.09, LFPar.ar(4).range(0.08, 0.09), stagelag.linexp(0, 1, 75, 0.1));
+	son = /* son + */ CombC.ar(LPF.ar(son, 5000) * BrownNoise.ar * 0.5 * stage.squared, 0.3, LFPar.ar(4).range(0.08, 0.09) / reltempo.max(0.0001), stagelag.linexp(0, 1, 75, 0.1));
 	son = Normalizer.ar(son, dur: 1);
 	son = son * 0.1;
 	son = son + HPF.ar(son, 1000); // following speaker review, push the top
@@ -252,8 +258,9 @@
 	var son, sub;
 
 	var trigs, envlens, envs, reso, num=4, genrate;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 
-	genrate = LFPar.kr(0.1).exprange(0.5, 2) * Line.kr(0.001, 1, 1);
+	genrate = LFPar.kr(0.1).exprange(0.5, 2) * Line.kr(0.001, 1, 1) * reltempo;
 	trigs   = num.collect{ Impulse.ar(genrate * LFNoise1.kr(1).exprange(4, 50))};
 	envlens = num.collect{ LFNoise1.kr(1).exprange(0.1, 10) };
 

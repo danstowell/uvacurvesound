@@ -1,8 +1,9 @@
 ~scenetypes["hi_ring_ding"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var son, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	son = ~npendulums.collect{|which|
 		var son, env;
-		env = HPF.ar(EnvGen.ar(Env.perc(0.001, 0.1), Dust.ar(100)), 10000);
+		env = HPF.ar(EnvGen.ar(Env.perc(0.001, 0.1), Dust.ar(100 * reltempo)), 10000);
 		son = LeakDC.ar(Ringz.ar(env, 16.collect{exprand(800, 12000)} * 3).mean * 1.5);
 		//son = BPF.ar(son, 800) * 8;
 		son = HPZ1.ar(son) * 2;
@@ -18,7 +19,8 @@
 ~scenetypes["hi_slippytick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var son, sub;
 	var sons, rate, ourdevrate;
-	rate = LFDNoise1.kr(0.1).range(10, 20) * XLine.kr(0.1, 1, 1);
+	var reltempo = ~normalperiod * In.kr(~tempobus);
+	rate = LFDNoise1.kr(0.1).range(10, 20) * XLine.kr(0.1, 1, 1) * reltempo;
 	ourdevrate = LFDNoise1.kr(0.05).range(0.05, 0.1);
 	sons = ~npendulums.collect{|which|
 		var son;
@@ -39,9 +41,10 @@
 
 ~scenetypes["hi_fabrickle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var sons, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|
 		var son, env, trig;
-		trig = Dust.ar(LFPulse.kr(ExpRand(0.05, 0.1), Rand(0, 2)).range(30, 100));
+		trig = Dust.ar(reltempo * LFPulse.kr(ExpRand(0.05, 0.1), Rand(0, 2)).range(30, 100));
 		son = EnvGen.ar(Env.perc(0.002, 0.01), trig, timeScale:TExpRand.kr(0.5, 2, trig));
 		son = HPF.ar(son, 10000);
 		son = Klank.ar(`[24.collect{exprand(14000, 18000)}, nil, 24.collect{0.1}], son);
@@ -58,8 +61,9 @@
 	var son, sub;
 
 	var trig;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 
-	trig = Impulse.ar( Duty.kr(0.5, 0, Dxrand([5, 10, 15].stutter(3) ++ [20, 40], inf))  );
+	trig = Impulse.ar(reltempo * Duty.kr(0.5 / reltempo, 0, Dxrand([5, 10, 15].stutter(3) ++ [20, 40], inf))  );
 	trig = trig * LFPulse.ar(1/16);
 	son = Decay2.ar(trig, 0.008, 0.02) * LPF.ar(HPF.ar(WhiteNoise.ar, 10000), 15000);
 	son = son + HPF.ar(son, 1000); // following speaker review, push the top
@@ -73,10 +77,11 @@
 ~scenetypes["hi_tring"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var sub;
 	var sons, trig1, trig2;
+	var tempo = In.kr(~tempobus);
 
-	trig1 = Impulse.kr(3.1 / 16);
+	trig1 = Impulse.kr(tempo);
 	trig1 = Trig1.kr(CombN.kr(trig1, 0.05, 0.05, 1) - 0.05, 0);
-	trig2 = Impulse.kr(3.1 / 1);
+	trig2 = Impulse.kr(tempo * 16);
 
 	sons = 8.collect{|which|
 		var son, env, penv, onetrig, freq;
@@ -107,7 +112,7 @@
 
 	var son, env, trig, dly, rate;
 
-	rate = 3.1 / 8;
+	rate = In.kr(~tempobus);
 	dly = 1 / (rate * 8);
 	trig = Impulse.kr(rate);
 

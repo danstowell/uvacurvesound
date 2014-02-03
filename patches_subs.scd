@@ -11,10 +11,11 @@
 
 ~scenetypes["sub_intersimple"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
 	var sons, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
 		var son;
-		son = SinOsc.ar([32, 31].midicps, mul:[1, LFPar.kr(0.1).range(0, 1)]).mean;
+		son = SinOsc.ar(32.midicps * [1, (-1 * reltempo).midiratio], mul:[1, LFPar.kr(0.1).range(0, 1)]).mean;
 		son = son * EnvGen.ar(Env.asr(0.1), gate, doneAction: 2);
 	};
 	[sons, sub]
@@ -22,10 +23,11 @@
 
 ~scenetypes["sub_intersimple2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
 	var sons, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
 		var son;
-		son = SinOsc.ar([34, 33.5].midicps, mul:[1, LFPar.kr(0.1).range(0, 1)]).mean;
+		son = SinOsc.ar(34 * [1, (-0.5 * reltempo).midiratio], mul:[1, LFPar.kr(0.1).range(0, 1)]).mean;
 		son = son * EnvGen.ar(Env.asr(0.1), gate, doneAction: 2);
 	};
 	[sons, sub]

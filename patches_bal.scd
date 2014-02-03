@@ -44,12 +44,13 @@
 }, []];
 ~scenetypes["bal_riffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var freq = \freq.kr(51.midicps);
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, but not far and they settle back quickly
 	sons = ~npendulums.collect{|val|
 		var son;
 		son = ((freq * [1, 1.5, 2]).collect{|freq, inwhich|
-			var trig = Dust2.kr(1);
+			var trig = Dust2.kr(reltempo);
 			var lev  = Latch.kr(trig, trig.abs);
 			SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
 		} * [1.5, 0.7, 0.25]).sum * 0.1;
@@ -69,12 +70,13 @@
 }, []];
 ~scenetypes["bal_riffle_note2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var freq = \freq.kr(54.midicps);
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, but not far and they settle back quickly
 	sons = ~npendulums.collect{|val|
 		var son;
 		son = ((freq * [1, 1.5, 2]).collect{|freq, inwhich|
-			var trig = Dust2.kr(1);
+			var trig = Dust2.kr(reltempo);
 			var lev  = Latch.kr(trig, trig.abs);
 			SinOsc.ar(freq + EnvGen.ar(Env.perc(0.01, 0.1), trig.abs, 15 * lev))
 		} * [1.5, 0.7, 0.25]).sum * 0.1;
@@ -98,9 +100,10 @@
 
 	var freq = \freq.kr(51.midicps);
 	var son, sub;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	son = ~npendulums.collect{|val|
 		var son, mod;
-		mod = LFSaw.kr(ExpRand(0.05, 0.2), Rand(pi)).range(0,1);
+		mod = LFSaw.kr(reltempo * ExpRand(0.05, 0.2), Rand(pi)).range(0,1);
 		son = SinOsc.ar(freq * SinOsc.ar(mod.linexp(0, 1, 0.1, 1), mul: mod.squared).linexp(-1, 1, 0.99, 1.01)).tanh * 0.2;
 	};
 
@@ -115,12 +118,13 @@
 	var freq = \freq.kr(67.midicps);
 	var sub;
 	var sons, son2;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	son2 = Formant.ar(freq, 715, 400) * 0.015; // 715
 	sons = ~npendulums.collect{|val|
 		var son;
-		son = SinOsc.ar(freq * LFDNoise0.ar(2).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.35)).sum * 0.1;
+		son = SinOsc.ar(freq * LFDNoise0.ar(2 * reltempo).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.35)).sum * 0.1;
 	};
-	sons = sons + PanAz.ar(~npendulums, son2, LFSaw.ar(0.1).range(0, 2), width: 2);
+	sons = sons + PanAz.ar(~npendulums, son2, LFSaw.ar(0.1 * reltempo).range(0, 2), width: 2);
 
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);

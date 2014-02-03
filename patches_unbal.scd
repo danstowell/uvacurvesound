@@ -2,10 +2,11 @@
 
 	var sub;
 	var clusts, sons;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 
 	clusts = 4.collect{
 		4.collect{
-			var freq = TIRand.kr(45, 65, Dust.kr(0.03)).midicps;
+			var freq = TIRand.kr(45, 65, Dust.kr(0.03 * reltempo)).midicps;
 			SinOsc.ar(freq * PinkNoise.kr(0.1).linexp(-0.5, 0.5, 0.9, 1.1))
 		}.mean
 	};
@@ -25,10 +26,11 @@
 
 	var sub;
 	var clusts, sons;
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 
 	clusts = 4.collect{
 		4.collect{
-			var freq = TIRand.kr(75, 95, Dust.kr(0.03)).midicps;
+			var freq = TIRand.kr(75, 95, Dust.kr(0.03 * reltempo)).midicps;
 			SinOsc.ar(freq * PinkNoise.kr(0.1).linexp(-0.5, 0.5, 0.9, 1.1))
 		}.mean
 	};
@@ -45,12 +47,13 @@
 ~scenetypes["unbal_singrain_mover"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 	var sub;
 
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var sons, freqs = ([55, 56, 57] ++ ((48,51..52)+12).dup(7).flatten).scramble.midicps;
 	var range = 6;
-	var bigpos = LFPar.kr(0.05, pi.rand).range(freqs.size-1-range);
+	var bigpos = LFPar.kr(0.05 * reltempo, pi.rand).range(freqs.size-1-range);
 	sons = 3.collect{
-		var pos = WhiteNoise.kr.range(0, range) + bigpos;
-		GrainSin.ar(12, Dust.ar(30), 1.95, Index.kr(freqs.as(LocalBuf), pos), LFNoise0.kr(10).range(0,2)) * 0.3;
+		var pos = WhiteNoise.kr.range(0, range * reltempo) + bigpos;
+		GrainSin.ar(12, Dust.ar(30 * reltempo), 1.95, Index.kr(freqs.as(LocalBuf), pos), LFNoise0.kr(10 * reltempo).range(0,2)) * 0.3;
 	}.mean;
 	sons = (sons * 0.33) +  (LPF.ar(sons, 500) * 0.1);
 	sons = MidEQ.ar(sons, 250, 1,   -6); // notch out a buzz on the cone
@@ -63,7 +66,8 @@
 
 ~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 
-		var freq = \freq.kr(65.midicps);
+	var freq = \freq.kr(65.midicps);
+	var reltempo = ~normalperiod * In.kr(~tempobus);
 
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly
@@ -71,7 +75,7 @@
 		var son;
 		var addmidi = 7; //MouseX.kr(-20, 20).round.poll(1);
 		son = ((freq * [1, 1.5]).collect{|freq, inwhich|
-			var trig = Dust2.kr(1);
+			var trig = Dust2.kr(reltempo);
 			var lev  = Latch.kr(trig, trig.abs).abs.neg;
 			SinOsc.ar(freq * LFNoise1.kr(0.1).exprange(0.975, 1.025) + EnvGen.ar(Env.perc(0.1, 1.9), trig.abs, 20 * lev))
 		} * [1.5, 0.07]).sum * 0.07;
@@ -80,7 +84,7 @@
 	};
 	sons = sons.collect{|son|
 		var nu = FreeVerb.ar(son * HPF.ar(WhiteNoise.ar, 10000), 1) * 0.1;
-		XFade2.ar(son, nu, LFSaw.kr(0-ExpRand(0.08, 0.12), Rand(pi)));
+		XFade2.ar(son, nu, LFSaw.kr((0-ExpRand(0.08, 0.12)) * reltempo, Rand(pi)));
 	};
 
 

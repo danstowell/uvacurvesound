@@ -12,7 +12,7 @@
 s.latency = 0.75;
 s.options.numAudioBusChannels_(256);
 s.options.numOutputBusChannels_(12);
-s.options.numWireBufs = 128;
+s.options.numWireBufs = 150;
 s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
@@ -35,7 +35,7 @@ s.waitForBoot{
 	~outputtersgroup = Group.after(~postfxgroup);
 
 	// global tempo
-	~normalperiod = 3.4;
+	~normalperiod = 3.7;
 	~tempo = 1/~normalperiod;
 	~tempobus = Bus.control(s);
 	{~tempobus.set(~tempo)}.defer(0.1);
@@ -242,6 +242,8 @@ s.waitForBoot{
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
 
 		var freq = \freq.kr(120);
+		var reltempo = ~normalperiod * In.kr(~tempobus);
+		var moverspeed = reltempo * 0.125;
 
 		basefreqs = freq * [0.5, 0.75, 1, 2, 4].scramble * 0.5 * freqscale;
 		harmstack = [1, 1.5, 2];
@@ -251,12 +253,12 @@ s.waitForBoot{
 
 		son = harmstack.mean{|val, harmindex|
 			freqs.collect{|afreq, which|
-				var freqscale2 = ~pendvalto3val_lin.value(pendspos[which][0], threevals[1]);
-				SinOsc.ar(afreq * val * freqscale2 * harmindex, mul: 0.05 * harmamps[harmindex])
+				//var freqscale2 = ~pendvalto3val_lin.value(pendspos[which][0], threevals[1]).poll;
+				SinOsc.ar(afreq * val * harmindex, mul: 0.05 * harmamps[harmindex])
 			};
 		};
 
-		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/30, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(reltempo/30, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
 		//freqsel.poll;
 		son = (son * freqsel).sum;
 
@@ -264,7 +266,7 @@ s.waitForBoot{
 		son = HPF.ar(son, 100); // from review, saw unwanted low component
 
 		son = ~npendulums.collect{|which|
-			son[which] * SinOsc.ar(0.125, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
+			son[which] * SinOsc.ar(moverspeed, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
 		}; // pow 0.25 makes move smoothly across speakers; higher, atomised.
 
 		son = son * 15;
@@ -280,6 +282,7 @@ s.waitForBoot{
 	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
 		var reltempo = ~normalperiod * In.kr(~tempobus);
+		var moverspeed = reltempo * 0.125;
 
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
 		basefreqs = [120, 130] * 3 * freqscale;
@@ -302,7 +305,7 @@ s.waitForBoot{
 
 		son = son * 0.5; // Deliberately making it MORE subtle than the main bed
 
-		amps = ~npendulums.collect{|val| SinOsc.ar(0.125, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+		amps = ~npendulums.collect{|val| SinOsc.ar(moverspeed, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
 
 		son = son * amps * 15;
 
@@ -314,7 +317,8 @@ s.waitForBoot{
 
 	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
-
+		var reltempo = ~normalperiod * In.kr(~tempobus);
+		var moverspeed = reltempo * 0.125;
 		var freq = \freq.kr(120);
 		basefreqs = freq * [1, 1.5, 2, 3, 4].scramble * freqscale;
 		//basefreqs = [120, 130] * 3;
@@ -332,11 +336,11 @@ s.waitForBoot{
 			};
 		};
 
-		freqsel = basefreqs.collect{|val, index| SinOsc.kr(1/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
+		freqsel = basefreqs.collect{|val, index| SinOsc.kr(reltempo/20, index * -2pi / basefreqs.size).linexp(-1, 1, 1e-3, 1).pow(0.5)   };
 		//freqsel.poll;
 		son = (son * freqsel).sum;
 
-		amps = ~npendulums.collect{|val| SinOsc.ar(0.125, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
+		amps = ~npendulums.collect{|val| SinOsc.ar(moverspeed, (4-val) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)   }; // pow 0.25 makes move smoothly across speakers; higher, atomised.
 
 		son = son * amps * 15;
 
