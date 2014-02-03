@@ -272,7 +272,8 @@ s.waitForBoot{
 		//freqscale.poll;
 
 		sub = ~nsubs.collect{|which|
-			SinOsc.ar((basefreqs * 0.25 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.1;
+			//SinOsc.ar((basefreqs * 0.25 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.1;
+			DC.ar(0);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["fmdepth 0--1", 0], ["freqscale", 1]]];
@@ -340,7 +341,8 @@ s.waitForBoot{
 		son = son * amps * 15;
 
 		sub = ~nsubs.collect{|which|
-			SinOsc.ar((basefreqs * 0.125 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.2;
+			//SinOsc.ar((basefreqs * 0.125 * [1, LFPar.kr(0.1).range(1, 0.75)]).flat, mul: freqsel).sum * 0.2;
+			DC.ar(0);
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["harmonic stretch 0--1", 0], ["freqscale", 1]]];
