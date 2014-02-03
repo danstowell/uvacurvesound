@@ -270,6 +270,7 @@
 
 	son = woodfilter.value(envs) * 0.15;
 	son = son.wrapAt((0..~npendulums-1));
+	son = son + HPF.ar(son, 1000); // following speaker review, push the top
 
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
