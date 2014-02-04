@@ -1,4 +1,4 @@
-	~scenetypes["silent"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["silent"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
 			DC.ar(0);
@@ -8,7 +8,7 @@
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["speakerTEST"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["speakerTEST"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var imps, bongs, sub;
 
 		imps = Impulse.ar(2 / ~npendulums,

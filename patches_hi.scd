@@ -1,4 +1,4 @@
-~scenetypes["hi_ring_ding"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["hi_ring_ding"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	son = ~npendulums.collect{|which|
@@ -16,7 +16,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
-~scenetypes["hi_slippytick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["hi_slippytick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var sons, rate, ourdevrate;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
@@ -39,7 +39,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
-~scenetypes["hi_fabrickle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["hi_fabrickle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|
@@ -57,7 +57,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
-~scenetypes["hi_clickwerk"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["hi_clickwerk"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 
 	var trig;
@@ -74,7 +74,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos, movewith:false)
 }, [["[unused]", 0], ["[unused]", 0]]];
 
-~scenetypes["hi_tring"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["hi_tring"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sub;
 	var sons, trig1, trig2;
 	var tempo = In.kr(~tempobus);
@@ -107,7 +107,7 @@
 }, [["[unused]", 0], ["[unused]", 0]]];
 
 
-~scenetypes["dut_ter"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["dut_ter"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sub;
 
 	var son, env, trig, dly, rate;

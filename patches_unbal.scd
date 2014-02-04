@@ -1,4 +1,4 @@
-~scenetypes["unbal_clustpot"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["unbal_clustpot"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sub;
 	var clusts, sons;
@@ -22,7 +22,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["unbal_clustpot_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["unbal_clustpot_hi"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sub;
 	var clusts, sons;
@@ -44,7 +44,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["unbal_singrain_mover"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["unbal_singrain_mover"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sub;
 
 	var reltempo = ~normalperiod * In.kr(~tempobus);
@@ -64,7 +64,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr(65.midicps);
 	var reltempo = ~normalperiod * In.kr(~tempobus);

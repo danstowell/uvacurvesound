@@ -145,7 +145,7 @@ s.waitForBoot{
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, []];
 	*/
-	~scenetypes["frag_pwm"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["frag_pwm"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var phases, son, onewidth, amps, sub, freq, reltempo;
 		reltempo = ~normalperiod * In.kr(~tempobus);
 		width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
@@ -170,7 +170,7 @@ s.waitForBoot{
 		~sceneenveloper.value(son, sub, onescenepos, 1, circlesize:circlesize, pendspos:pendspos)
 	}, [["misalign (0--1)", 0], ["histuff (0--1)", [1,0,1]]]];
 	/*
-	~scenetypes["puresine01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["puresine01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	son = ~npendulums.collect{|which|
 	var freq   = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
@@ -183,7 +183,7 @@ s.waitForBoot{
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["freq", 880], ["detune", 2.5]]];
 	*/
-	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub, basefreq = In.kr(~basefreqbus);
 		var reltempo = ~normalperiod * In.kr(~tempobus);
 		//"threevals is: %".format(threevals).postln;
@@ -207,7 +207,7 @@ s.waitForBoot{
 		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 		[son, sub]
 	}, [["amp", [1,0,1]], ["modrate", [8,2,8]]]];
-	~scenetypes["passingzero_frompend"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["passingzero_frompend"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
 			var tester = (pendspos[which][1]).sign;
@@ -220,7 +220,7 @@ s.waitForBoot{
 		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 		[son, sub]
 	}, []];
-	~scenetypes["passingzero_frompend_conc"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["passingzero_frompend_conc"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
 			var radialpos = (pendspos[which][1].squared + pendspos[which][0].squared).sqrt;
@@ -238,7 +238,7 @@ s.waitForBoot{
 		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 		[son, sub]
 	}, []];
-	~scenetypes["tonestack01sin"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["tonestack01sin"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
 
 		var freq = \freq.kr(120);
@@ -279,7 +279,7 @@ s.waitForBoot{
 		};
 		~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["fmdepth 0--1", 0], ["freqscale", 1]]];
-	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
 		var reltempo = ~normalperiod * In.kr(~tempobus);
 		var moverspeed = reltempo * 0.125;
@@ -315,7 +315,7 @@ s.waitForBoot{
 		~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 	}, [["UNUSED", 1], ["freqscale", 1]]];
 
-	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
 		var reltempo = ~normalperiod * In.kr(~tempobus);
 		var moverspeed = reltempo * 0.125;
@@ -361,7 +361,7 @@ s.waitForBoot{
 	"patches_subs.scd".loadRelative;
 
 	/*
-	~scenetypes[""] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes[""] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub, val1, val2;
 	son = ~npendulums.collect{|which|
 	val1 = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
@@ -433,6 +433,7 @@ s.waitForBoot{
 					var amp       = \amp.kr(      arglistdict[\amp]       ? 0.7, 0.05, true);
 					var width     = \width.kr(    arglistdict[\width]     ? 0.5, 0.05, true);
 					var freqscale = \freqscale.kr(arglistdict[\freqscale] ? 1, 0.05, true);
+					var patchtempo = \patchtempo.kr(arglistdict[\patchtempo] ? 1, 0.05, true);
 					var fadein = 1; // XLine.ar(0.0001, 1, xfade);
 					var fadeenv = EnvGen.ar(Env.asr(1, 1, 1), gate, timeScale:\xfade.kr(xfade, 0, true), doneAction: 2);
 					var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
@@ -440,7 +441,7 @@ s.waitForBoot{
 					var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
 					var mids, subs;
 					//if(whichnp==0){amp.poll(0.2, "amp")};
-					# mids, subs = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals, circlesize);
+					# mids, subs = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals, circlesize, patchtempo);
 					Out.ar(~finalaudiobus, mids * amp * fadein * fadeenv);
 					Out.ar(~subbus, subs * amp * fadein * fadeenv);
 				};

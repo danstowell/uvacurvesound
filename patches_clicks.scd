@@ -1,4 +1,4 @@
-~scenetypes["click_wood"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["click_wood"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
 	var tempo = In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|
@@ -15,7 +15,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["click_metallic"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["click_metallic"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
 	var tempo = In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|
@@ -30,7 +30,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["click_flint"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["click_flint"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
 	var tempo = In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|
@@ -45,7 +45,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["click_lighter"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["click_lighter"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
 	var tempo = In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|

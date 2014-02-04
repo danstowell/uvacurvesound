@@ -1,5 +1,5 @@
 
-~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
@@ -22,7 +22,7 @@
 }, []];
 
 
-~scenetypes["elastic_boinger2d2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_boinger2d2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub, noise=WhiteNoise.ar.range(0.9, 1);
 	var reltempo = ~normalperiod * In.kr(~tempobus);
@@ -47,7 +47,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["elastic_stickslip01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_stickslip01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
@@ -98,7 +98,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["elastic_boinger"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_boinger"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
@@ -120,7 +120,7 @@
 }, []];
 
 
-~scenetypes["elastic_harder"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_harder"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
@@ -142,7 +142,7 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["elastic_rip1plus1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_rip1plus1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var son, sub;
 
@@ -165,7 +165,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["elastic_stretch_balloon"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_stretch_balloon"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var son, sub;
 
@@ -182,7 +182,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["elastic_stretch_regular"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_stretch_regular"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var son, sub;
 
@@ -199,7 +199,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["elastic_stretch_stepped"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_stretch_stepped"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var son, sub;
 
@@ -216,7 +216,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["elastic_arrow"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_arrow"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var son, sub;
 
@@ -243,7 +243,7 @@
 }, []];
 
 
-~scenetypes["elastic_groanik"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["elastic_groanik"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var woodfilter = { |inputs|
 		var freqs, rqs, output;
 		freqs = [62.5, 125, 250, 395, 560, 790];

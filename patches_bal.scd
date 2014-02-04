@@ -1,4 +1,4 @@
-~scenetypes["bal_purity1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["bal_purity1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr(60.midicps);
 	var son, sub;
@@ -13,7 +13,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["bal_purity1lower"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["bal_purity1lower"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr((60-12).midicps);
 	var son, sub;
@@ -28,7 +28,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["bal_purity2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["bal_purity2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr(51.midicps);
 	var son, sub;
@@ -42,7 +42,7 @@
 	};
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
-~scenetypes["bal_riffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["bal_riffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var freq = \freq.kr(51.midicps);
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var sons, sub;
@@ -68,7 +68,7 @@
 	};
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
-~scenetypes["bal_riffle_note2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["bal_riffle_note2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var freq = \freq.kr(54.midicps);
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var sons, sub;
@@ -96,7 +96,7 @@
 }, []];
 
 
-~scenetypes["bal_roundfeather"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["bal_roundfeather"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr(51.midicps);
 	var son, sub;
@@ -113,7 +113,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
-~scenetypes["bal_fleet"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["bal_fleet"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr(67.midicps);
 	var sub;

@@ -1,4 +1,4 @@
-~scenetypes["sub_simplest"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
+~scenetypes["sub_simplest"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
@@ -9,7 +9,7 @@
 	[sons, sub]
 }, []];
 
-~scenetypes["sub_intersimple"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
+~scenetypes["sub_intersimple"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
@@ -21,7 +21,7 @@
 	[sons, sub]
 }, []];
 
-~scenetypes["sub_intersimple2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
+~scenetypes["sub_intersimple2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
@@ -33,7 +33,7 @@
 	[sons, sub]
 }, []];
 
-~scenetypes["sub_intersimple_golo"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
+~scenetypes["sub_intersimple_golo"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
@@ -44,7 +44,7 @@
 	[sons, sub]
 }, []];
 
-~scenetypes["sub_interpulse"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
+~scenetypes["sub_interpulse"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
@@ -59,7 +59,7 @@
 	[sons, sub]
 }, []];
 
-~scenetypes["sub_subriffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, gate=1|
+~scenetypes["sub_subriffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
