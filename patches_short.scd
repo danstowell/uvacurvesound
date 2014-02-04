@@ -1,4 +1,4 @@
-~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["tracer"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var pos, trig, rawson, scaler, panenv, thruspeed, env;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
@@ -34,11 +34,13 @@
 	*/
 	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, [["zappiness", 0], ["thruspeed", 1]]];
-~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var pos, trig, rawson, scaler, env, panenv;
 	var reltempo = ~normalperiod * In.kr(~tempobus);
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
+	// TEMPORARY
+	bangs = ~npendulums.collect{|index| Dust.kr(0.1) };
 	/*
 	trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * reltempo);
 
@@ -66,7 +68,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
 
-~scenetypes["scanbip"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["scanbip"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var pos, trig, rawson, scaler, panenv, thruspeed, env;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
@@ -83,7 +85,7 @@
 	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
 }, []];
 
-~scenetypes["blipff"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+~scenetypes["blipff"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var pos, trig, rawson, scaler, panenv, thruspeed, env;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
