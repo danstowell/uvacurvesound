@@ -44,7 +44,7 @@
 }, []];
 ~scenetypes["bal_riffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var freq = \freq.kr(51.midicps);
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, but not far and they settle back quickly
 	sons = ~npendulums.collect{|val|
@@ -70,7 +70,7 @@
 }, []];
 ~scenetypes["bal_riffle_note2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var freq = \freq.kr(54.midicps);
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, but not far and they settle back quickly
 	sons = ~npendulums.collect{|val|
@@ -100,7 +100,7 @@
 
 	var freq = \freq.kr(51.midicps);
 	var son, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	son = ~npendulums.collect{|val|
 		var son, mod;
 		mod = LFSaw.kr(reltempo * ExpRand(0.05, 0.2), Rand(pi)).range(0,1);
@@ -118,7 +118,7 @@
 	var freq = \freq.kr(67.midicps);
 	var sub;
 	var sons, son2;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	son2 = Formant.ar(freq, 715, 400) * 0.015; // 715
 	sons = ~npendulums.collect{|val|
 		var son;
