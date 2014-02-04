@@ -106,14 +106,14 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 								\width, {
 									if(v != ~widthcache[targetslot]){
 										~widthcache[targetslot] = v;
-										"Received /d3/sound/params/% with width %".format(targetslot, v).postln;
+										//"Received /d3/sound/params/% with width %".format(targetslot, v).postln;
 									};
 									pushparams = pushparams ++ [\width, v.asFloat / (~npendulums-1)];
 								},
 								\position, {
 									if(v != ~sceneposcache[targetslot]){
 										~sceneposcache[targetslot] = v;
-										"Received /d3/sound/params/% with new position %".format(targetslot, v).postln;
+										//"Received /d3/sound/params/% with new position %".format(targetslot, v).postln;
 										~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
 									};
 									pushparams = pushparams ++ [k, v];
@@ -122,7 +122,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 								{
 									if(k==\amp and:{v != ~ampcache[targetslot]}){
 										~ampcache[targetslot] = v;
-										"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
+										//"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
 									};
 									pushparams = pushparams ++ [k, v];
 								}
