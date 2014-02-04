@@ -21,7 +21,7 @@ OSCFunc.trace(false)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 9.809, 1,1,1, 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/state", 1, 1, 0.809, 1,1,1, 0)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracer")
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", 9)
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", val); 0.05.wait }}.play
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val); 0.05.wait }}.play
 12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val)}
@@ -30,6 +30,7 @@ NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01s
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", 1, "freqscale", 1.2)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", 12, "freqscale", 1.2)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01sin", 0, "freqscale", 1)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/changepatch", "dut_ter", 1)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 0.5)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 2)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 1)
@@ -47,6 +48,10 @@ s.dumpOSC(0);
 (
 // this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
 ~perPendulumKeys = #[\normAlpha, \normBeta];
+// locally remembering scenepos so we don't send too many messages
+~sceneposcache = ~nscenes.collect{-1};
+~widthcache = ~nscenes.collect{-1};
+~ampcache = ~nscenes.collect{-1};
 
 if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 ~d3func = { arg msg, time, addr, recvPort;
@@ -74,12 +79,8 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 				~perPendulumKeys.collectAs({|key, whichkey| key -> msg[offset + whichkey].asFloat}, IdentityDictionary);
 			};
 
-			// TODO UPDATE GLOBAL TEMPO IF CHANGED (use gravityMag? timeIncrement? mean of \approxPeriod?)
-			// ~settempo.(newtempo)
 			//"Received /d3/sound/state - timeIncrement %".format(timeIncrement).postln;
 			~settempo.value((1/~normalperiod) * timeIncrement);
-
-			// TODO DO STUFF WITH THIS DATA ***********************
 
 			// Here we simply send the xy data to the bus
 			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta]] }.flat;
@@ -97,13 +98,38 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 					},
 					"params",    { // args are just key-value pairs
 						//"(set)params: args %".format(msg[0], msg.size - 1).postln;
-						~sceneplayers[targetslot].set(*msg[1..]);
+						var pushparams = [];
+						//~sceneplayers[targetslot].set(*msg[1..]);
 						// We have to handle "position" separately
 						msg[1..].asArray.pairsDo{|k,v|
-							if(k==\position){
-								~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
-							};
+							k.switch(
+								\width, {
+									if(v != ~widthcache[targetslot]){
+										~widthcache[targetslot] = v;
+										"Received /d3/sound/params/% with width %".format(targetslot, v).postln;
+									};
+									pushparams = pushparams ++ [\width, v.asFloat / (~npendulums-1)];
+								},
+								\position, {
+									if(v != ~sceneposcache[targetslot]){
+										~sceneposcache[targetslot] = v;
+										"Received /d3/sound/params/% with new position %".format(targetslot, v).postln;
+										~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
+									};
+									pushparams = pushparams ++ [k, v];
+								},
+								// default
+								{
+									if(k==\amp and:{v != ~ampcache[targetslot]}){
+										~ampcache[targetslot] = v;
+										"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
+										~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
+									};
+									pushparams = pushparams ++ [k, v];
+								}
+							);
 						};
+						~sceneplayers[targetslot].set(pushparams);
 					},
 					"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
 						// NB msg[2] is NEXTPATCH, currently unused
