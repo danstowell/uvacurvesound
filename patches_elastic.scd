@@ -2,7 +2,7 @@
 ~scenetypes["elastic_boinger2d"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -25,7 +25,7 @@
 ~scenetypes["elastic_boinger2d2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub, noise=WhiteNoise.ar.range(0.9, 1);
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -50,7 +50,7 @@
 ~scenetypes["elastic_stickslip01"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 
 	var stickslip = { |force|
 		var inMotion, slipEvents, forceBuildup, evtAmp, evtDecayTime, evts;
@@ -101,7 +101,7 @@
 ~scenetypes["elastic_boinger"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -123,7 +123,7 @@
 ~scenetypes["elastic_harder"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var sons, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	sons = 12.collect{|chan|
 		var son;
 		[48, 55, 60].collect{|val|
@@ -146,7 +146,7 @@
 
 	var son, sub;
 
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	var stage, stagelag, evt, res;
 	stage = LFSaw.kr(0.03, 0.7).range(-5, 1).max(0);
 	stagelag = stage.lag(0.2, 0.2);
@@ -258,7 +258,7 @@
 	var son, sub;
 
 	var trigs, envlens, envs, reso, num=4, genrate;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 
 	genrate = LFPar.kr(0.1).exprange(0.5, 2) * Line.kr(0.001, 1, 1) * reltempo;
 	trigs   = num.collect{ Impulse.ar(genrate * LFNoise1.kr(1).exprange(4, 50))};

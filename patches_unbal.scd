@@ -2,7 +2,7 @@
 
 	var sub;
 	var clusts, sons;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 
 	clusts = 4.collect{
 		4.collect{
@@ -26,7 +26,7 @@
 
 	var sub;
 	var clusts, sons;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 
 	clusts = 4.collect{
 		4.collect{
@@ -47,7 +47,7 @@
 ~scenetypes["unbal_singrain_mover"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sub;
 
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	var sons, freqs = ([55, 56, 57] ++ ((48,51..52)+12).dup(7).flatten).scramble.midicps;
 	var range = 6;
 	var bigpos = LFPar.kr(0.05 * reltempo, pi.rand).range(freqs.size-1-range);
@@ -67,7 +67,7 @@
 ~scenetypes["unbal_diffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr(65.midicps);
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 
 	var sons, sub;
 	// 3 sines per speaker, all are harmonically related, and all have these occasional impulses pushing them a tiny bit away from their perfect freq, and they settle back slowly

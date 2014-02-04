@@ -11,7 +11,7 @@
 
 ~scenetypes["sub_intersimple"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
 		var son;
@@ -23,7 +23,7 @@
 
 ~scenetypes["sub_intersimple2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1, gate=1|
 	var sons, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	sons = ~npendulums.collect{|which|   DC.ar(0) };
 	sub = ~nsubs.collect{|which|
 		var son;

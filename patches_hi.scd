@@ -1,6 +1,6 @@
 ~scenetypes["hi_ring_ding"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	son = ~npendulums.collect{|which|
 		var son, env;
 		env = HPF.ar(EnvGen.ar(Env.perc(0.001, 0.1), Dust.ar(100 * reltempo)), 10000);
@@ -19,7 +19,7 @@
 ~scenetypes["hi_slippytick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var sons, rate, ourdevrate;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	rate = LFDNoise1.kr(0.1).range(10, 20) * XLine.kr(0.1, 1, 1) * reltempo;
 	ourdevrate = LFDNoise1.kr(0.05).range(0.05, 0.1);
 	sons = ~npendulums.collect{|which|
@@ -41,7 +41,7 @@
 
 ~scenetypes["hi_fabrickle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	sons = ~npendulums.collect{|which|
 		var son, env, trig;
 		trig = Dust.ar(reltempo * LFPulse.kr(ExpRand(0.05, 0.1), Rand(0, 2)).range(30, 100));
@@ -61,7 +61,7 @@
 	var son, sub;
 
 	var trig;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 
 	trig = Impulse.ar(reltempo * Duty.kr(0.5 / reltempo, 0, Dxrand([5, 10, 15].stutter(3) ++ [20, 40], inf))  );
 	trig = trig * LFPulse.ar(1/16);
@@ -77,7 +77,7 @@
 ~scenetypes["hi_tring"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sub;
 	var sons, trig1, trig2;
-	var tempo = In.kr(~tempobus);
+	var tempo = In.kr(~tempobus) * patchtempo;
 
 	trig1 = Impulse.kr(tempo);
 	trig1 = Trig1.kr(CombN.kr(trig1, 0.05, 0.05, 1) - 0.05, 0);
@@ -112,7 +112,7 @@
 
 	var son, env, trig, dly, rate;
 
-	rate = In.kr(~tempobus);
+	rate = In.kr(~tempobus) * patchtempo;
 	dly = 1 / (rate * 8);
 	trig = Impulse.kr(rate);
 

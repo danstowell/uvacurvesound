@@ -147,7 +147,7 @@ s.waitForBoot{
 	*/
 	~scenetypes["frag_pwm"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var phases, son, onewidth, amps, sub, freq, reltempo;
-		reltempo = ~normalperiod * In.kr(~tempobus);
+		reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 		width = width.linlin(0,1,1,~npendulums); // nb we handle width ourselves, to get the pwm right
 		phases = (0..~npendulums-1) * 0.5 / ~npendulums;
 		onewidth = (0.5 / ~npendulums) / reltempo;
@@ -185,7 +185,7 @@ s.waitForBoot{
 	*/
 	~scenetypes["puresine03"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub, basefreq = In.kr(~basefreqbus);
-		var reltempo = ~normalperiod * In.kr(~tempobus);
+		var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 		//"threevals is: %".format(threevals).postln;
 		son = ~npendulums.collect{|which|
 			var amp, modrate;
@@ -242,7 +242,7 @@ s.waitForBoot{
 		var son, sub, basefreqs, harmstack, harmamps, freqs, fmdepth, fm, freqsel, amps, fmlfo;
 
 		var freq = \freq.kr(120);
-		var reltempo = ~normalperiod * In.kr(~tempobus);
+		var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 		var moverspeed = reltempo * 0.125;
 
 		basefreqs = freq * [0.5, 0.75, 1, 2, 4].scramble * 0.5 * freqscale;
@@ -281,7 +281,7 @@ s.waitForBoot{
 	}, [["fmdepth 0--1", 0], ["freqscale", 1]]];
 	~scenetypes["drift_sine"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
-		var reltempo = ~normalperiod * In.kr(~tempobus);
+		var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 		var moverspeed = reltempo * 0.125;
 
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
@@ -317,7 +317,7 @@ s.waitForBoot{
 
 	~scenetypes["tonestack01tri02"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub, basefreqs, harmstack, harmamps, freqs, freqsel, amps;
-		var reltempo = ~normalperiod * In.kr(~tempobus);
+		var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 		var moverspeed = reltempo * 0.125;
 		var freq = \freq.kr(120);
 		basefreqs = freq * [1, 1.5, 2, 3, 4].scramble * freqscale;

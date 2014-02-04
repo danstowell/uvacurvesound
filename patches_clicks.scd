@@ -1,6 +1,6 @@
 ~scenetypes["click_wood"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
-	var tempo = In.kr(~tempobus);
+	var tempo = In.kr(~tempobus) * patchtempo;
 	sons = ~npendulums.collect{|which|
 		var son, trig;
 		trig = Impulse.ar(tempo, 0.99);
@@ -17,7 +17,7 @@
 
 ~scenetypes["click_metallic"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
-	var tempo = In.kr(~tempobus);
+	var tempo = In.kr(~tempobus) * patchtempo;
 	sons = ~npendulums.collect{|which|
 		var son, trig;
 		trig = Impulse.ar(tempo * ([1, 2, 0.5, 2] * 0.25).wrapAt(which),  [0, 0.125, 0, 0.375].wrapAt(which));
@@ -32,7 +32,7 @@
 
 ~scenetypes["click_flint"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
-	var tempo = In.kr(~tempobus);
+	var tempo = In.kr(~tempobus) * patchtempo;
 	sons = ~npendulums.collect{|which|
 		var son, trig;
 		trig = Dust.ar(tempo);
@@ -47,7 +47,7 @@
 
 ~scenetypes["click_lighter"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
-	var tempo = In.kr(~tempobus);
+	var tempo = In.kr(~tempobus) * patchtempo;
 	sons = ~npendulums.collect{|which|
 		var son, trig, env, noise, ress;
 		noise = WhiteNoise.ar * LFPar.ar(100);

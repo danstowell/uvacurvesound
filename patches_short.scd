@@ -6,7 +6,7 @@
 	scaler    = ~pendvalto3val_exp.value(pendspos[0][1], threevals[0]).linexp(0,1, 0.5, 5); // NOTE READING FROM ZEROTH PEND ONLY
 	thruspeed = ~pendvalto3val_exp.value(pendspos[0][0], threevals[1]); // NOTE READING FROM ZEROTH PEND ONLY
 	/*
-	trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * (~normalperiod * In.kr(~tempobus)));
+	trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * (~normalperiod * In.kr(~tempobus) * patchtempo));
 	rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(0.05, "mousey topfreq")), phase: 0.5pi);
 	env = EnvGen.ar(Env.perc(0, 0.1), trig, timeScale: scaler);
 	rawson = rawson * env;
@@ -37,7 +37,7 @@
 ~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var pos, trig, rawson, scaler, env, panenv;
-	var reltempo = ~normalperiod * In.kr(~tempobus);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
 	// TEMPORARY
 	bangs = ~npendulums.collect{|index| Dust.kr(0.1) };
