@@ -57,7 +57,7 @@ s.waitForBoot{
 	~automoving = {|bool|
 		~scenepossynths.do{|n| n.run(bool)};
 	};
-	~automoving.value(true);
+	~automoving.value(false);
 
 	// ~sceneposbus.scope
 

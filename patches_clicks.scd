@@ -10,6 +10,8 @@
 	sub = ~nsubs.collect{|which| DC.ar(0)};
 	sons = sons.clip2(1) * 0.1;
 	sons = sons + HPF.ar(sons, 1000);
+	//width.poll(1, "width");
+	//onescenepos.poll(1, "onescenepos");
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
