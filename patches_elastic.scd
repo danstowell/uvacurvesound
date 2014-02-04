@@ -236,6 +236,8 @@
 
 	sons = PanAz.ar(12, son, pos: panenv);
 
+	sons = sons * 0.1;
+
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
