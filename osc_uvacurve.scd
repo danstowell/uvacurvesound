@@ -123,13 +123,12 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 									if(k==\amp and:{v != ~ampcache[targetslot]}){
 										~ampcache[targetslot] = v;
 										"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
-										~sceneposbus.setAt(targetslot, v.asFloat / (~npendulums-1));
 									};
 									pushparams = pushparams ++ [k, v];
 								}
 							);
 						};
-						~sceneplayers[targetslot].set(pushparams);
+						~sceneplayers[targetslot].set(*pushparams);
 					},
 					"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
 						// NB msg[2] is NEXTPATCH, currently unused
