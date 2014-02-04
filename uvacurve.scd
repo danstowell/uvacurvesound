@@ -396,7 +396,6 @@ s.waitForBoot{
 	};
 
 	// TODO - here I want to implement double-buffering to swap NPs around each time
-	// TODO - once double-buffering is in place, make proper use of the xfade arg
 	~pushascene = {|scenename, whichnp, xfade=4, arglist=nil|
 		var arglistdict = arglist.asArray.as(Dictionary);
 		scenename = scenename.asString;
@@ -440,6 +439,7 @@ s.waitForBoot{
 					var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
 					var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
 					var mids, subs;
+					//if(whichnp==0){amp.poll(0.2, "amp")};
 					# mids, subs = ~scenetypes[scenename][0].value(pendspos, onescenepos, width, freqscale, threevals, circlesize);
 					Out.ar(~finalaudiobus, mids * amp * fadein * fadeenv);
 					Out.ar(~subbus, subs * amp * fadein * fadeenv);
