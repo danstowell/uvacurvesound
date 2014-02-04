@@ -264,6 +264,7 @@ s.waitForBoot{
 
 		son = HPF.ar(son, 100); // from review, saw unwanted low component
 		son = HPF.ar(son, 100); // from review, saw unwanted low component
+		son = BRF.ar(son, 500); // in room, too much hi mid
 
 		son = ~npendulums.collect{|which|
 			son[which] * SinOsc.ar(moverspeed, (4-which) * -2pi / 4).linexp(-1, 1, 1e-6, 1).pow(0.25)
