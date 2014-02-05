@@ -91,10 +91,11 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 				var targetslot = subaddr[0].asInt;
 				//"Will address slot #%".format(targetslot).postln;
 				subaddr[1].switch(
-					"bang",        { // args [pendulumid]
+					"bang",        { // args [pendulumid, ...]
+						var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
 						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 						// NB setting the trig to the group not the np, for low-latency
-						~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
+						~sceneplayers[targetslot].group.set(*setterlist);
 					},
 					"params",    { // args are just key-value pairs
 						//"(set)params: args %".format(msg[0], msg.size - 1).postln;
