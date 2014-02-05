@@ -4,14 +4,14 @@
 ~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
-~hw_subbus = 4;
+~hw_subbus = 12;
 ~athome = false;
 ~hardmul = if(~athome){10}{2};
 "localsettings.scd".loadRelative;
 ////////////////////////
 s.latency = 0.75;
 s.options.numAudioBusChannels_(256);
-s.options.numOutputBusChannels_(12);
+s.options.numOutputBusChannels_(14);
 s.options.numWireBufs = 150;
 s.options.memSize = 8192 * 4;
 s.waitForBoot{
@@ -484,7 +484,7 @@ s.waitForBoot{
 	~dopplerfaker.free
 	*/
 
-	~outputter = {|out=0, amp=0.7, midamp=0.7, subamp=0.7, midon=1, subon=0, reverbon=0|
+	~outputter = {|out=0, amp=0.7, midamp=0.7, subamp=0.7, midon=1, subon=1, reverbon=0|
 		if(~stereoonly){
 			// - SYNTH: stereo mixdown - takes gallery listening position from the mouse, adds distance-based attenuation and reverb, pans using the pendulumpos data. takes mainamp and subamp as simple controls.
 			var listenpos = MouseX.kr(0, ~npendulums-1);
