@@ -510,9 +510,9 @@ s.waitForBoot{
 			// - SYNTH: multichannel outputter. takes mainamp and subamp as simple controls.
 			var rawsound = In.ar(~finalaudiobus, ~npendulums_true);
 			var rawsub   = In.ar(~subbus, ~nsubs);
-			rawsound = FreeVerb.ar(rawsound, mix:0.3 * reverbon, room:0.5, damp:0.5, mul:1);
+			//rawsound = FreeVerb.ar(rawsound, mix:0.3 * reverbon, room:0.5, damp:0.5, mul:1);
 			Out.ar(~hw_midbus, rawsound * amp * midamp * midon * ~hardmul);
-			Out.ar(~hw_subbus, rawsub   * amp * subamp * subon * ~hardmul);
+			Out.ar(~hw_subbus, rawsub   * amp * subamp * subon * 0.1); // ~hardmul);
 		}
 	}.play(~outputtersgroup);
 }
