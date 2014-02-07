@@ -31,15 +31,17 @@ NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01t
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", 12, "freqscale", 1.2)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01sin", 0, "freqscale", 1)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/changepatch", "dut_ter", 1)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 0.5)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 2)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 1)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0.7)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 4)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "freqscale", 0.5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "freqscale", 2)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "width", 1)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "width", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "amp", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "amp", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "amp", 0.5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/2/params", "amp", 0.5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "position", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "position", 4)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "position", 5)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "silent")
 s.dumpOSC(1);
 s.dumpOSC(0);
@@ -107,7 +109,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 						//~sceneplayers[targetslot].set(*msg[1..]);
 						// We have to handle "position" separately
 						msg[1..].asArray.pairsDo{|k,v|
-							k.switch(
+							k.asSymbol.switch(
 								\width, {
 									if(v != ~widthcache[targetslot]){
 										~widthcache[targetslot] = v;
@@ -125,9 +127,9 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 								},
 								// default
 								{
-									if(k==\amp and:{v != ~ampcache[targetslot]}){
+									if(k.asSymbol==\amp and:{v != ~ampcache[targetslot]}){
 										~ampcache[targetslot] = v;
-										//"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
+										"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
 									};
 									pushparams = pushparams ++ [k, v];
 								}
