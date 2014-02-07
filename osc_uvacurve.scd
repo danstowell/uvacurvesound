@@ -24,7 +24,8 @@ NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracer")
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", 9)
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", val); 0.05.wait }}.play
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val); 0.05.wait }}.play
-12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val)}
+12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", val)}
+Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/bang", val); 0.05.wait }}.play
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracerbeep")
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01sin", 1, "freqscale", 1)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", 1, "freqscale", 1.2)
@@ -92,7 +93,21 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta]] }.flat;
 			~pendbus.setn(pendspos);
 
-			}, { // This is the default of the switch - we use this to drop into per-slot commands
+			},
+			// This one is for banging ALL at once
+			"bang",        { // args [pendulumid, ...]
+				var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
+				"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+				// NB setting the trig to the group not the np, for low-latency
+				//*
+				s.bind{
+					~nscenes.do{|targetslot|
+						~sceneplayers[targetslot].group.set(*setterlist);
+					};
+				};
+				//*/
+			},
+			{ // This is the default of the switch - we use this to drop into per-slot commands
 				// not a "state" message
 				var targetslot = subaddr[0].asInt;
 				//"Will address slot #%".format(targetslot).postln;
