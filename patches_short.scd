@@ -5,23 +5,12 @@
 	//scaler = MouseX.kr(0.5, 5, 1); //.poll(1, "mousex");
 	scaler    = ~pendvalto3val_exp.value(pendspos[0][1], threevals[0]).linexp(0,1, 0.5, 5); // NOTE READING FROM ZEROTH PEND ONLY
 	thruspeed = ~pendvalto3val_exp.value(pendspos[0][0], threevals[1]); // NOTE READING FROM ZEROTH PEND ONLY
-	/*
-	trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * (~normalperiod * In.kr(~tempobus) * patchtempo));
-	rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), trig, timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000).poll(0.05, "mousey topfreq")), phase: 0.5pi);
-	env = EnvGen.ar(Env.perc(0, 0.1), trig, timeScale: scaler);
-	rawson = rawson * env;
-	rawson = HPF.ar(rawson, 5000) * 0.25;
-	*/
 	// Now we delay-and-splay it so as to zap across speakers
 	son = ~npendulums.collect{|which|
 		rawson = SinOsc.ar(EnvGen.ar(Env.perc(0.0, 0.01 * 0.75), bangs[which], timeScale: scaler).exprange(0.15, MouseY.kr(100, 10000)), phase: 0.5pi);
 		env = EnvGen.ar(Env.perc(0, 0.1), bangs[which], timeScale: scaler);
 		rawson = rawson * env;
 		rawson = HPF.ar(rawson, 5000) * 0.25;
-		/*
-		var del = (~npendulums - which) * 0.06;
-		DelayC.ar(rawson, del * 4, del * thruspeed.reciprocal);
-		*/
 	};
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
