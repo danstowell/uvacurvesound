@@ -50,7 +50,7 @@ s.dumpOSC(0);
 
 (
 // this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
-~perPendulumKeys = #[\normAlpha, \normBeta];
+~perPendulumKeys = #[\pendIndex, \normAlpha, \normBeta];
 // locally remembering scenepos so we don't send too many messages
 ~sceneposcache = ~nscenes.collect{-1};
 ~widthcache = ~nscenes.collect{-1};
@@ -78,6 +78,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 			maxAngle      = msg[2].asFloat;
 			timeIncrement = msg[3].asFloat;
 			naturalness   = msg[4].asFloat;
+			//if(maxAngle==0){msg.postln};
 			// "per-pendulum" params
 			penddata = ~npendulums.collect{|whichpend|
 				offset = pendulumParamOffset + (~perPendulumKeys.size * whichpend);
@@ -91,13 +92,17 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 
 			// Here we simply send the xy data to the bus
 			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta]] }.flat;
-			~pendbus.setn(pendspos);
+			if(pendspos.any{|val| val.abs==inf}){
+				"infinity warning in the alpha/beta received from d3".postln;
+			}{
+				~pendbus.setn(pendspos);
+			};
 
 			},
 			// This one is for banging ALL at once
 			"bang",        { // args [pendulumid, ...]
 				var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
-				"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+				//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 				// NB setting the trig to the group not the np, for low-latency
 				//*
 				s.bind{
@@ -114,7 +119,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 				subaddr[1].switch(
 					"bang",        { // args [pendulumid, ...]
 						var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
-						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+						//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 						// NB setting the trig to the group not the np, for low-latency
 						~sceneplayers[targetslot].group.set(*setterlist);
 					},
