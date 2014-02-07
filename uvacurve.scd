@@ -506,6 +506,7 @@ s.waitForBoot{
 			}.sum * subamp * subon;
 			var son = mid + sub;
 			son = son * amp * ~hardmul;
+			son = son * (CheckBadValues.ar(son)<0.5);
 			Out.ar(out, son);
 		}{
 			// - SYNTH: multichannel outputter. takes mainamp and subamp as simple controls.
