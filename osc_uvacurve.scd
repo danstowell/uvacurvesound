@@ -52,10 +52,14 @@ s.dumpOSC(0);
 ~sceneposcache = ~nscenes.collect{-1};
 ~widthcache = ~nscenes.collect{-1};
 ~ampcache = ~nscenes.collect{-1};
+~osc_count = 0;
+~osc_counter = Task{loop{10.wait;"OSC messages / sec: %".format(~osc_count / 10.0).postln; ~osc_count=0}}.play(AppClock);
+// ~osc_counter.stop
 
 if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 ~d3func = { arg msg, time, addr, recvPort;
 	// "Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+	~osc_count = ~osc_count + 1;
 	if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
 		var subaddr = msg[0].asString.split[3..];
 		//msg.postln;
