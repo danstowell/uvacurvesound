@@ -1,7 +1,8 @@
 // s.boot
 (
 // Settings:
-~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
+//~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
+~defaultscenes = ["bal_riffle", "silent", "hi_fabrickle", "sub_intersimple_golo"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 12;
