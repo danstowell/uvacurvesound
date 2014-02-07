@@ -52,10 +52,14 @@ s.dumpOSC(0);
 ~sceneposcache = ~nscenes.collect{-1};
 ~widthcache = ~nscenes.collect{-1};
 ~ampcache = ~nscenes.collect{-1};
+~osc_count = 0;
+~osc_counter = Task{loop{10.wait;"OSC messages / sec: %".format(~osc_count / 10.0).postln; ~osc_count=0}}.play(AppClock);
+// ~osc_counter.stop
 
 if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 ~d3func = { arg msg, time, addr, recvPort;
 	// "Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+	~osc_count = ~osc_count + 1;
 	if(recvPort==~fromport and: {msg[0].asString[0..8]=="/d3/sound"}){
 		var subaddr = msg[0].asString.split[3..];
 		//msg.postln;
@@ -91,10 +95,11 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 				var targetslot = subaddr[0].asInt;
 				//"Will address slot #%".format(targetslot).postln;
 				subaddr[1].switch(
-					"bang",        { // args [pendulumid]
+					"bang",        { // args [pendulumid, ...]
+						var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
 						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 						// NB setting the trig to the group not the np, for low-latency
-						~sceneplayers[targetslot].group.set(("bang%".format(msg[1].asInt)).asSymbol, 1);
+						~sceneplayers[targetslot].group.set(*setterlist);
 					},
 					"params",    { // args are just key-value pairs
 						//"(set)params: args %".format(msg[0], msg.size - 1).postln;
