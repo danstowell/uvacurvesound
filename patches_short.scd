@@ -87,7 +87,7 @@
 
 	sons = bangs.collect{|bang|
 		var son;
-		freq = 1300 * 5.midiratio * EnvGen.kr(Env([0.5, 0.5, 2, 2, 0.5], [0.02, 0.001, 2, 0]), bang);
+		freq = 1300 * 5.midiratio * EnvGen.kr(Env([0.5, 0.5, 0.5, 2, 2, 0.5], [0, 0.02, 0.001, 2, 0]), bang);
 		son = SinOsc.ar(freq);
 		env = EnvGen.ar(Env.perc(0.0, 0.25), bang);
 		verb = (LPF.ar(son * BrownNoise.ar, 150) * 8) + (son * 0.005);
