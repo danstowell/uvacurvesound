@@ -7,7 +7,7 @@ HOW TO RUN A SEQUENCE
 
 HOW TO RUN SC BUT WAIT FOR d3 TO CONTROL
 
-* Run the bash script "runme_d3controlled.scd" using Terminal
+* Run the bash script ./runme_d3controlled.bash
 
 
 

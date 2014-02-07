@@ -5,7 +5,8 @@ Task{
 	"uvacurve.scd".loadRelative;
 	3.wait;
 	s.sync;
-	~scope = ~finalaudiobus.scope;
+	~scope = s.scope(14);
+	//~scope = ~finalaudiobus.scope;
 	~scope.yZoom_(100);
 	~scope.window.bounds_(Rect(10, 10, 200, 700));
 	//~levmeter = ServerMeter(s, 0, 8);

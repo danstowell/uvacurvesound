@@ -24,22 +24,25 @@ NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracer")
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", 9)
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", val); 0.05.wait }}.play
 Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val); 0.05.wait }}.play
-12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/bang", val)}
+12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/bang", val)}
+Task{12.do{|val| NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/bang", val); 0.05.wait }}.play
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tracerbeep")
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01sin", 1, "freqscale", 1)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", 1, "freqscale", 1.2)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01tri02", 12, "freqscale", 1.2)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "tonestack01sin", 0, "freqscale", 1)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/1/changepatch", "dut_ter", 1)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 0.5)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "freqscale", 2)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 1)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "width", 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "amp", 0.7)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 0)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 4)
-NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/setparam", "position", 5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "freqscale", 0.5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "freqscale", 2)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "width", 1)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "width", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "amp", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "amp", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "amp", 0.5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/2/params", "amp", 0.5)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "position", 0)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "position", 4)
+NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/params", "position", 5)
 NetAddr("127.0.0.1", ~fromport).sendMsg("/d3/sound/0/changepatch", "silent")
 s.dumpOSC(1);
 s.dumpOSC(0);
@@ -47,7 +50,7 @@ s.dumpOSC(0);
 
 (
 // this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
-~perPendulumKeys = #[\normAlpha, \normBeta];
+~perPendulumKeys = #[\pendIndex, \normAlpha, \normBeta];
 // locally remembering scenepos so we don't send too many messages
 ~sceneposcache = ~nscenes.collect{-1};
 ~widthcache = ~nscenes.collect{-1};
@@ -75,6 +78,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 			maxAngle      = msg[2].asFloat;
 			timeIncrement = msg[3].asFloat;
 			naturalness   = msg[4].asFloat;
+			//if(maxAngle==0){msg.postln};
 			// "per-pendulum" params
 			penddata = ~npendulums.collect{|whichpend|
 				offset = pendulumParamOffset + (~perPendulumKeys.size * whichpend);
@@ -88,18 +92,38 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 
 			// Here we simply send the xy data to the bus
 			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta]] }.flat;
-			~pendbus.setn(pendspos);
+			if(pendspos.any{|val| val.abs==inf}){
+				"infinity warning in the alpha/beta received from d3".postln;
+			}{
+				~pendbus.setn(pendspos);
+			};
 
-			}, { // This is the default of the switch - we use this to drop into per-slot commands
+			},
+			// This one is for banging ALL at once
+			"bang",        { // args [pendulumid, ...]
+				var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
+				//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+				// NB setting the trig to the group not the np, for low-latency
+				//*
+				s.makeBundle(nil, {
+					~nscenes.do{|targetslot|
+						~sceneplayers[targetslot].group.set(*setterlist);
+					};
+				});
+				//*/
+			},
+			{ // This is the default of the switch - we use this to drop into per-slot commands
 				// not a "state" message
 				var targetslot = subaddr[0].asInt;
 				//"Will address slot #%".format(targetslot).postln;
 				subaddr[1].switch(
 					"bang",        { // args [pendulumid, ...]
 						var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
-						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+						//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 						// NB setting the trig to the group not the np, for low-latency
-						~sceneplayers[targetslot].group.set(*setterlist);
+						s.makeBundle(nil, {
+							~sceneplayers[targetslot].group.set(*setterlist);
+						});
 					},
 					"params",    { // args are just key-value pairs
 						//"(set)params: args %".format(msg[0], msg.size - 1).postln;
@@ -107,7 +131,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 						//~sceneplayers[targetslot].set(*msg[1..]);
 						// We have to handle "position" separately
 						msg[1..].asArray.pairsDo{|k,v|
-							k.switch(
+							k.asSymbol.switch(
 								\width, {
 									if(v != ~widthcache[targetslot]){
 										~widthcache[targetslot] = v;
@@ -125,9 +149,9 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 								},
 								// default
 								{
-									if(k==\amp and:{v != ~ampcache[targetslot]}){
+									if(k.asSymbol==\amp and:{v != ~ampcache[targetslot]}){
 										~ampcache[targetslot] = v;
-										//"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
+										"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
 									};
 									pushparams = pushparams ++ [k, v];
 								}
