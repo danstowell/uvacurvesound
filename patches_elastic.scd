@@ -146,7 +146,7 @@
 
 	var son, sub;
 
-	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
+	var reltempo = 1; //~normalperiod * In.kr(~tempobus) * patchtempo;
 	var stage, stagelag, evt, res;
 	stage = LFSaw.kr(0.03, 0.7).range(-5, 1).max(0);
 	stagelag = stage.lag(0.2, 0.2);
