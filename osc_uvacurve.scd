@@ -105,11 +105,11 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 				//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 				// NB setting the trig to the group not the np, for low-latency
 				//*
-				s.bind{
+				s.makeBundle(nil, {
 					~nscenes.do{|targetslot|
 						~sceneplayers[targetslot].group.set(*setterlist);
 					};
-				};
+				});
 				//*/
 			},
 			{ // This is the default of the switch - we use this to drop into per-slot commands
@@ -121,7 +121,9 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 						var setterlist = msg[1..].collect{|onebob| [("bang%".format(onebob.asInt)).asSymbol, 1]}.flat;
 						//"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 						// NB setting the trig to the group not the np, for low-latency
-						~sceneplayers[targetslot].group.set(*setterlist);
+						s.makeBundle(nil, {
+							~sceneplayers[targetslot].group.set(*setterlist);
+						});
 					},
 					"params",    { // args are just key-value pairs
 						//"(set)params: args %".format(msg[0], msg.size - 1).postln;
