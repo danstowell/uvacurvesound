@@ -27,24 +27,47 @@
 ~scenetypes["tracerbeep"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var son, sub;
 	var pos, trig, rawson, scaler, env, panenv;
+	var freq = \freq.kr(1300);
 	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
-	// TEMPORARY
-//	bangs = ~npendulums.collect{|index| Dust.kr(0.1) };
-	/*
-	trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * reltempo);
+	// Now we delay-and-splay it so as to zap across speakers
+	son = ~npendulums.collect{|which|
+		var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
+		var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
+		var swingout = (pendspos[which][0] + pendspos[which][1]).abs.poll;
+		bangs[which] = Impulse.kr(swingout.linexp(0, 2, 10, 0.01)); // lock triggering to pendpos
 
-	//rawson = (SinOsc.ar(1300 * [1,3,5,7]).mean * MouseY.kr(2,4)).clip2;
-	rawson = SinOsc.ar(1300 * [1,12,13,14], 0.5pi).mean.clip2;
-	env = EnvGen.ar(Env.adsr(0, 0.01, 0.25, 0.01), Trig1.kr(trig, dur: 0.1));
-	rawson = rawson * 0.4 * env;
-	*/
+		rawson = (SinOsc.ar(1300 * [1,12,13,14], 0.5pi).mean + WhiteNoise.ar(0.1)).clip2;
+		env = EnvGen.ar(Env.adsr(0, 0.01, 0.25, 0.01), Trig1.kr(bangs[which], dur: 0.1));
+		rawson = rawson * 0.4 * env * amp;
+	};
+	sub = ~nsubs.collect{|which|
+		DC.ar(0);
+	};
+	son.do{|oneson, which|
+		var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
+		sub[reindex] = sub[reindex] + LPF.ar(FreeVerb.ar(LPF.ar(oneson, 100) * BrownNoise.ar * 50, 0.5, 0.5, 0.999), 100);
+	};
+	~sceneenveloper.value(son, sub, onescenepos, 1, false, circlesize:circlesize, pendspos:pendspos) // no width
+}, [["amp", 1], ["distort 0--1", [0, 0.4, 0]]]];
+
+
+// back to the old school
+~scenetypes["tracerbeep_selfzap"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
+	var son, sub;
+	var pos, trig, rawson, scaler, env, panenv;
+	var freq = \freq.kr(1300);
+	var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
+	var bangs = ~npendulums.collect{|index| ("bang%".format(index)).asSymbol.tr(0) };
+	var speedzoozer = (2/(reltempo * patchtempo)).min(4);
+	trig = Dust.kr(LFPar.kr(0.1).range(0, 1).squared * 2 * reltempo);
+	bangs = ~npendulums.collect{|index| DelayN.kr(trig, index * 0.05 * 4, index * 0.05 * speedzoozer); };
 	// Now we delay-and-splay it so as to zap across speakers
 	son = ~npendulums.collect{|which|
 		var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 		var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
 
-		rawson = SinOsc.ar(1300 * [1,12,13,14], 0.5pi).mean.clip2;
+		rawson = (SinOsc.ar(freq * [1,12,13,14], 0.5pi).mean + WhiteNoise.ar(0.1)).clip2;
 		env = EnvGen.ar(Env.adsr(0, 0.01, 0.25, 0.01), Trig1.kr(bangs[which], dur: 0.1));
 		rawson = rawson * 0.4 * env * amp;
 	};
