@@ -2,7 +2,7 @@
 (
 // Settings:
 //~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
-~defaultscenes = ["bal_riffle", "silent", "hi_fabrickle", "sub_intersimple_golo"]; // these are the ones that run on first invoke
+~defaultscenes = ["bal_riffle", "hi_fabrickle", "sub_intersimple_golo"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 12;
@@ -18,10 +18,10 @@ s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
 	~npendulums_true = 12; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
-	~nscenes    = 4;
+	~nscenes    = 3;
 	~nsubs      = 2;
 	// busses
-	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
+	~pendbus = Bus.control(s, ~npendulums * 3); // later we may want fixed indexing
 	~sceneposbus = Bus.control(s, ~nscenes);
 	~finalaudiobus = Bus.audio(s, ~npendulums);
 	~subbus = Bus.audio(s, ~nsubs);
@@ -63,12 +63,15 @@ s.waitForBoot{
 	// ~sceneposbus.scope
 
 	// - SYNTH: fakependulums - let's send SinOsc.kr(exprand(), 2pi.rand) to the busses for test.
+	/* DEAC
 	~fakependulums = {
 		// NB ~normalperiod is the standard period of the pendulums
 		var tempo = In.kr(~tempobus).max(1e-12);
-		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) * tempo, 2pi.rand)}.dup(~npendulums * 2);
+		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) * tempo, 2pi.rand)}.dup(~npendulums * 3);
+		pendpos = pendpos * 0; // DEACTIVATE
 		Out.kr(~pendbus, pendpos);
 	}.play(~ksettersgroup);
+*/
 
 	/*
 	- NODEPROXY * N - each scene. it must do the following:
@@ -79,7 +82,7 @@ s.waitForBoot{
 	The nodeproxy has a fairly long fadetime, so that when different scenes are sent it crosses sensibly.
 	*/
 	// standard enveloper reused by each scene type
-	~sceneenveloper = {|audio, sub, position, width=0, movewith=true, circlesize=1, pendspos=nil|
+	~sceneenveloper = {|audio, sub, position, width=0, movewith=true, circlesize=2, pendspos=nil|
 		var distances, subdistances;
 		circlesize = max(1, circlesize); // circlesize is like adding virtual silent speakers to the end of the list
 		distances    = ((position * ~npendulums * circlesize) - (0..~npendulums-1)).abs;   // so, +1 is 1 speaker away
@@ -211,9 +214,24 @@ s.waitForBoot{
 	~scenetypes["passingzero_frompend"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			var tester = (pendspos[which][1]).sign;
+			var tester = LPF.kr(pendspos[which][0], 10).sign;
 			var env = EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester));
 			SinOsc.ar((83 + which).midicps, 0, env) * 0.2;
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+		[son, sub]
+	}, []];
+	~scenetypes["passingzero_chick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			var tester = HPZ1.kr(LPF.kr(pendspos[which][0], 10).sign);
+			var env = EnvGen.ar(Env.perc(0.01, 0.05), tester);
+			var ason = HPF.ar(ClipNoise.ar(0.3), 3000) * env;
+			ason = ason + DelayN.ar(ason * BrownNoise.ar, 0.1, 0.1);
+			ason = ason + BPF.ar(BrownNoise.ar(EnvGen.ar(Env.perc(0.2, 5, 0.3), tester)), 100);
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -226,7 +244,7 @@ s.waitForBoot{
 		son = ~npendulums.collect{|which|
 			var radialpos = (pendspos[which][1].squared + pendspos[which][0].squared).sqrt;
 			var envs = [0, 0.1, 0.2, 0.3, 0.4].collect{|radius, whichrad|
-				var tester = (radius - radialpos).sign;
+				var tester = LPF.kr(radius - radialpos, 10).sign;
 				EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester))
 			};
 			envs.collect{|env, whichrad|
@@ -286,8 +304,10 @@ s.waitForBoot{
 		var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 		var moverspeed = reltempo * 0.125;
 
+		var freq = \freq.kr(360);
+
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
-		basefreqs = [120, 130] * 3 * freqscale;
+		basefreqs = freq * [1, 130/120] * freqscale;
 		basefreqs = basefreqs * -8.midiratio; // from review, preferred this
 		harmstack = [1, 1.5, 2];
 		harmamps = [1.5, 0.4, 0.1];
@@ -406,7 +426,7 @@ s.waitForBoot{
 		}{
 			var swoppo;
 			"~pushascene.('%', %)".format(scenename, whichnp).postln;
-			"Will initialise with width %".format(arglistdict[\width]).postln;
+			//"Will initialise with width %".format(arglistdict[\width]).postln;
 			// First we swap the double-buffering round, so that no-one else can address the old one
 			swoppo = ~sceneplayers[whichnp];
 			~sceneplayers[whichnp] = ~sceneplayers_offstage[whichnp];
@@ -439,7 +459,7 @@ s.waitForBoot{
 					var fadein = 1; // XLine.ar(0.0001, 1, xfade);
 					var fadeenv = EnvGen.ar(Env.asr(1, 1, 1), gate, timeScale:\xfade.kr(xfade, 0, true), doneAction: 2);
 					var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
-					var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
+					var pendspos = In.kr(~pendbus, ~npendulums * 3).clump(3);
 					var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
 					var mids, subs;
 					//if(whichnp==0){amp.poll(0.2, "amp")};
@@ -466,7 +486,7 @@ s.waitForBoot{
 	~maxdoppler = 2 * ~radiusm / 330;
 	~dopplerfaker = { |active=0|
 		// For each pendulum, take in its y position, lag it, translate it into delay, take in its audio, replaceout
-		var swingposses = In.kr(~pendbus, ~npendulums * 2)[1,3..];
+		var swingposses = In.kr(~pendbus, ~npendulums * 3)[1,4..];
 		var audios = In.ar(~finalaudiobus, ~npendulums);
 		audios = audios.collect{|anaudio, whichaudio|
 			var delay = swingposses[whichaudio].lag(0.05).linlin(-1,1, 0, ~maxdoppler) * active;
@@ -493,7 +513,7 @@ s.waitForBoot{
 			var rawsub   = In.ar(~subbus, ~nsubs).asArray;
 			var distances = ((0..~npendulums-1) - listenpos).abs;
 			var distances_sub = ((0..~nsubs-1) - (listenpos * (~nsubs/~npendulums))).abs;
-			var swingposses = In.kr(~pendbus, ~npendulums * 2)[0,2..];
+			var swingposses = In.kr(~pendbus, ~npendulums * 3)[0,3..];
 
 			var mid = rawsound.collect{|asound, which|
 				var mixamt = (distances[which]+1).reciprocal;
