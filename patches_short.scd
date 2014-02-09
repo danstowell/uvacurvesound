@@ -34,8 +34,10 @@
 	son = ~npendulums.collect{|which|
 		var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 		var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-		var swingout = (pendspos[which][0] + pendspos[which][1]).abs.poll;
-		bangs[which] = Impulse.kr(swingout.linexp(0, 2, 10, 0.01)); // lock triggering to pendpos
+		var speed = pendspos[which][2].poll(label:"speed");
+		bangs[which] = Trig1.kr(speed < 0.01, 0); // trigger when we slow
+		//var swingout = (pendspos[which][0] + pendspos[which][1]).abs.poll;
+		//bangs[which] = Impulse.kr(swingout.linexp(0, 2, 10, 0.01)); // lock triggering to pendpos
 
 		rawson = (SinOsc.ar(1300 * [1,12,13,14], 0.5pi).mean + WhiteNoise.ar(0.1)).clip2;
 		env = EnvGen.ar(Env.adsr(0, 0.01, 0.25, 0.01), Trig1.kr(bangs[which], dur: 0.1));

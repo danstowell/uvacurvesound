@@ -90,7 +90,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 			~settempo.value((1/~normalperiod) * timeIncrement);
 
 			// Here we simply send the xy data to the bus
-			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta]] }.flat;
+			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta], pend[\speed]] }.flat;
 			if(pendspos.any{|val| val.abs==inf}){
 				"infinity warning in the alpha/beta received from d3".postln;
 			}{
