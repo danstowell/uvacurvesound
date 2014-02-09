@@ -50,7 +50,7 @@ s.dumpOSC(0);
 
 (
 // this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
-~perPendulumKeys = #[\pendIndex, \normAlpha, \normBeta];
+~perPendulumKeys = #[\pendIndex, \normAlpha, \normBeta, \speed];
 // locally remembering scenepos so we don't send too many messages
 ~sceneposcache = ~nscenes.collect{-1};
 ~widthcache = ~nscenes.collect{-1};
@@ -58,8 +58,7 @@ s.dumpOSC(0);
 ~osc_count = 0;
 ~osc_counter = Task{loop{10.wait;"OSC messages / sec: %".format(~osc_count / 10.0).postln; ~osc_count=0}}.play(AppClock);
 // ~osc_counter.stop
-
-if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
+if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 ~d3func = { arg msg, time, addr, recvPort;
 	// "Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 	~osc_count = ~osc_count + 1;
@@ -151,7 +150,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 								{
 									if(k.asSymbol==\amp and:{v != ~ampcache[targetslot]}){
 										~ampcache[targetslot] = v;
-										"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
+										//"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
 									};
 									pushparams = pushparams ++ [k, v];
 								}
