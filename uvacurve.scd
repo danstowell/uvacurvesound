@@ -63,6 +63,7 @@ s.waitForBoot{
 	// ~sceneposbus.scope
 
 	// - SYNTH: fakependulums - let's send SinOsc.kr(exprand(), 2pi.rand) to the busses for test.
+	/* DEAC
 	~fakependulums = {
 		// NB ~normalperiod is the standard period of the pendulums
 		var tempo = In.kr(~tempobus).max(1e-12);
@@ -70,6 +71,7 @@ s.waitForBoot{
 		pendpos = pendpos * 0; // DEACTIVATE
 		Out.kr(~pendbus, pendpos);
 	}.play(~ksettersgroup);
+*/
 
 	/*
 	- NODEPROXY * N - each scene. it must do the following:
