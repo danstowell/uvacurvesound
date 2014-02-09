@@ -215,7 +215,7 @@ s.waitForBoot{
 		var son, sub;
 		son = ~npendulums.collect{|which|
 			var tester = LPF.kr(pendspos[which][0], 10).sign;
-			var env = EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester));
+			var env = EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester).abs);
 			SinOsc.ar((83 + which).midicps, 0, env) * 0.2;
 		};
 		sub = ~nsubs.collect{|which|
@@ -227,12 +227,28 @@ s.waitForBoot{
 	~scenetypes["passingzero_chick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			var tester = HPZ1.kr(LPF.kr(pendspos[which][0], 10).sign);
+			var tester = HPZ1.kr(LPF.kr(pendspos[which][0], 10).sign).abs;
 			var env = EnvGen.ar(Env.perc(0.01, 0.05), tester);
 			var ason = HPF.ar(ClipNoise.ar(0.3), 3000) * env;
 			ason = ason + DelayN.ar(ason * BrownNoise.ar, 0.1, 0.1);
 			ason = ason + BPF.ar(BrownNoise.ar(EnvGen.ar(Env.perc(0.2, 5, 0.3), tester)), 100);
 		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+		[son, sub]
+	}, []];
+	~scenetypes["passingzero_wood"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			var tester = HPZ1.kr(LPF.kr(pendspos[which][0], 10).sign).abs;
+			var ason = DynKlank.ar(`[[ 898.57360436391, 872.5298557576, 782.59036890516, 522.91466105288, 607.05406376995, 506.90960173234, 886.07016472432, 961.1559397461, 553.33696697469, 767.22393448859 ]
+				, nil, {0.1}.dup(10)], K2A.ar(tester));
+			ason;
+		};
+		son = son.clip2(1) * 0.1;
+		son = son + HPF.ar(son, 1000);
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
 		};
