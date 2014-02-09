@@ -2,7 +2,7 @@
 (
 // Settings:
 //~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
-~defaultscenes = ["bal_riffle", "silent", "hi_fabrickle", "sub_intersimple_golo"]; // these are the ones that run on first invoke
+~defaultscenes = ["bal_riffle", "hi_fabrickle", "sub_intersimple_golo"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 12;
@@ -18,7 +18,7 @@ s.options.memSize = 8192 * 4;
 s.waitForBoot{
 	~npendulums = 12;
 	~npendulums_true = 12; // only this many ACTUAL outputs sent, and the subs are sent to the next lot
-	~nscenes    = 4;
+	~nscenes    = 3;
 	~nsubs      = 2;
 	// busses
 	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
@@ -79,7 +79,7 @@ s.waitForBoot{
 	The nodeproxy has a fairly long fadetime, so that when different scenes are sent it crosses sensibly.
 	*/
 	// standard enveloper reused by each scene type
-	~sceneenveloper = {|audio, sub, position, width=0, movewith=true, circlesize=1, pendspos=nil|
+	~sceneenveloper = {|audio, sub, position, width=0, movewith=true, circlesize=2, pendspos=nil|
 		var distances, subdistances;
 		circlesize = max(1, circlesize); // circlesize is like adding virtual silent speakers to the end of the list
 		distances    = ((position * ~npendulums * circlesize) - (0..~npendulums-1)).abs;   // so, +1 is 1 speaker away
@@ -406,7 +406,7 @@ s.waitForBoot{
 		}{
 			var swoppo;
 			"~pushascene.('%', %)".format(scenename, whichnp).postln;
-			"Will initialise with width %".format(arglistdict[\width]).postln;
+			//"Will initialise with width %".format(arglistdict[\width]).postln;
 			// First we swap the double-buffering round, so that no-one else can address the old one
 			swoppo = ~sceneplayers[whichnp];
 			~sceneplayers[whichnp] = ~sceneplayers_offstage[whichnp];
