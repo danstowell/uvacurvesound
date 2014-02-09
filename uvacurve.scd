@@ -224,10 +224,11 @@ s.waitForBoot{
 	~scenetypes["passingzero_chick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			var tester = LPF.kr(pendspos[which][0], 10).sign;
-			var env = EnvGen.ar(Env.perc(0.01, 0.15), HPZ1.kr(tester));
+			var tester = HPZ1.kr(LPF.kr(pendspos[which][0], 10).sign);
+			var env = EnvGen.ar(Env.perc(0.01, 0.05), tester);
 			var ason = HPF.ar(ClipNoise.ar(0.3), 3000) * env;
-			ason + DelayN.ar(ason * BrownNoise.ar, 0.1, 0.1);
+			ason = ason + DelayN.ar(ason * BrownNoise.ar, 0.1, 0.1);
+			ason = ason + BPF.ar(BrownNoise.ar(EnvGen.ar(Env.perc(0.2, 5, 0.3), tester)), 100);
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
