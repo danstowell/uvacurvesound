@@ -162,13 +162,13 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 					"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
 						// NB msg[2] is NEXTPATCH, currently unused
 						var timenow = Main.elapsedTime;
-						if((timenow - ~changepatchtimecache[targetslot]) < 0.5){
+						if((timenow - ~changepatchtimecache[targetslot]) < 1){
 							"    [changepatch too quickly, ignoring]".postln;
 						}{
 							"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 							~pushascene.value(msg[1] ? "silent", targetslot, (msg[3] ? 1).asFloat, msg[4..]);
-							~changepatchtimecache[targetslot] = timenow;
 						};
+						~changepatchtimecache[targetslot] = timenow;
 					},
 				); // end of switch
 		});
