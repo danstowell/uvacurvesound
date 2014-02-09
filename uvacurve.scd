@@ -21,7 +21,7 @@ s.waitForBoot{
 	~nscenes    = 3;
 	~nsubs      = 2;
 	// busses
-	~pendbus = Bus.control(s, ~npendulums * 2); // later we may want fixed indexing
+	~pendbus = Bus.control(s, ~npendulums * 3); // later we may want fixed indexing
 	~sceneposbus = Bus.control(s, ~nscenes);
 	~finalaudiobus = Bus.audio(s, ~npendulums);
 	~subbus = Bus.audio(s, ~nsubs);
@@ -66,7 +66,8 @@ s.waitForBoot{
 	~fakependulums = {
 		// NB ~normalperiod is the standard period of the pendulums
 		var tempo = In.kr(~tempobus).max(1e-12);
-		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) * tempo, 2pi.rand)}.dup(~npendulums * 2);
+		var pendpos = {SinOsc.kr(exprand(0.9, 1.1) * tempo, 2pi.rand)}.dup(~npendulums * 3);
+		pendpos = pendpos * 0; // DEACTIVATE
 		Out.kr(~pendbus, pendpos);
 	}.play(~ksettersgroup);
 
@@ -456,7 +457,7 @@ s.waitForBoot{
 					var fadein = 1; // XLine.ar(0.0001, 1, xfade);
 					var fadeenv = EnvGen.ar(Env.asr(1, 1, 1), gate, timeScale:\xfade.kr(xfade, 0, true), doneAction: 2);
 					var onescenepos = In.kr(~sceneposbus.index + whichnp, 1);
-					var pendspos = In.kr(~pendbus, ~npendulums * 2).clump(2);
+					var pendspos = In.kr(~pendbus, ~npendulums * 3).clump(3);
 					var threevals = In.kr(~scenevalpointsbus[whichnp], 6).clump(3);
 					var mids, subs;
 					//if(whichnp==0){amp.poll(0.2, "amp")};
@@ -483,7 +484,7 @@ s.waitForBoot{
 	~maxdoppler = 2 * ~radiusm / 330;
 	~dopplerfaker = { |active=0|
 		// For each pendulum, take in its y position, lag it, translate it into delay, take in its audio, replaceout
-		var swingposses = In.kr(~pendbus, ~npendulums * 2)[1,3..];
+		var swingposses = In.kr(~pendbus, ~npendulums * 3)[1,4..];
 		var audios = In.ar(~finalaudiobus, ~npendulums);
 		audios = audios.collect{|anaudio, whichaudio|
 			var delay = swingposses[whichaudio].lag(0.05).linlin(-1,1, 0, ~maxdoppler) * active;
@@ -510,7 +511,7 @@ s.waitForBoot{
 			var rawsub   = In.ar(~subbus, ~nsubs).asArray;
 			var distances = ((0..~npendulums-1) - listenpos).abs;
 			var distances_sub = ((0..~nsubs-1) - (listenpos * (~nsubs/~npendulums))).abs;
-			var swingposses = In.kr(~pendbus, ~npendulums * 2)[0,2..];
+			var swingposses = In.kr(~pendbus, ~npendulums * 3)[0,3..];
 
 			var mid = rawsound.collect{|asound, which|
 				var mixamt = (distances[which]+1).reciprocal;
