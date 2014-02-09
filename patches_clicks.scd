@@ -30,6 +30,23 @@
 	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 
+~scenetypes["click_chick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
+	var sons, sub;
+	var tempo = In.kr(~tempobus) * patchtempo;
+	sons = ~npendulums.collect{|which|
+		var ason, trig, env;
+		trig = Impulse.ar(tempo * ([1, 2, 0.5, 2] * 0.25).wrapAt(which),  [0, 0.125, 0, 0.375].wrapAt(which));
+		env = EnvGen.ar(Env.perc(0.01, 0.05), trig);
+		ason = HPF.ar(ClipNoise.ar(0.3), 3000) * env;
+		ason = ason + DelayN.ar(ason * BrownNoise.ar, 0.1, 0.1);
+		ason = ason + BPF.ar(BrownNoise.ar(EnvGen.ar(Env.perc(0.2, 5, 0.3), trig)), 100);
+	};
+	sub = ~nsubs.collect{|which| DC.ar(0)};
+	sons = sons.clip2(1) * 0.2;
+	sons = sons + HPF.ar(sons, 1000);
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+}, []];
+
 ~scenetypes["click_flint"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var sons, sub;
 	var tempo = In.kr(~tempobus) * patchtempo;

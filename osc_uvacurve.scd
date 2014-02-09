@@ -50,16 +50,16 @@ s.dumpOSC(0);
 
 (
 // this ordering must match the ordering in the OSC messages from d3, and must list ALL the per-pendulum data
-~perPendulumKeys = #[\pendIndex, \normAlpha, \normBeta];
+~perPendulumKeys = #[\pendIndex, \normAlpha, \normBeta, \speed];
 // locally remembering scenepos so we don't send too many messages
 ~sceneposcache = ~nscenes.collect{-1};
 ~widthcache = ~nscenes.collect{-1};
 ~ampcache = ~nscenes.collect{-1};
+~changepatchtimecache = ~nscenes.collect{-1}; // last time the patch change was requested - refuse to do too many
 ~osc_count = 0;
 ~osc_counter = Task{loop{10.wait;"OSC messages / sec: %".format(~osc_count / 10.0).postln; ~osc_count=0}}.play(AppClock);
 // ~osc_counter.stop
-
-if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
+if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 ~d3func = { arg msg, time, addr, recvPort;
 	// "Received OSC % with % args".format(msg[0], msg.size - 1).postln;
 	~osc_count = ~osc_count + 1;
@@ -91,7 +91,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 			~settempo.value((1/~normalperiod) * timeIncrement);
 
 			// Here we simply send the xy data to the bus
-			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta]] }.flat;
+			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta], pend[\speed]] }.flat;
 			if(pendspos.any{|val| val.abs==inf}){
 				"infinity warning in the alpha/beta received from d3".postln;
 			}{
@@ -151,7 +151,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 								{
 									if(k.asSymbol==\amp and:{v != ~ampcache[targetslot]}){
 										~ampcache[targetslot] = v;
-										"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
+										//"Received /d3/sound/params/% with new amp %".format(targetslot, v).postln;
 									};
 									pushparams = pushparams ++ [k, v];
 								}
@@ -161,8 +161,14 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func)};
 					},
 					"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
 						// NB msg[2] is NEXTPATCH, currently unused
-						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
-						~pushascene.value(msg[1] ? "silent", targetslot, (msg[3] ? 1).asFloat, msg[4..]);
+						var timenow = Main.elapsedTime;
+						if((timenow - ~changepatchtimecache[targetslot]) < 0.5){
+							"    [changepatch too quickly, ignoring]".postln;
+						}{
+							"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+							~pushascene.value(msg[1] ? "silent", targetslot, (msg[3] ? 1).asFloat, msg[4..]);
+							~changepatchtimecache[targetslot] = timenow;
+						};
 					},
 				); // end of switch
 		});
