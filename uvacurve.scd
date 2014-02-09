@@ -211,9 +211,23 @@ s.waitForBoot{
 	~scenetypes["passingzero_frompend"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var son, sub;
 		son = ~npendulums.collect{|which|
-			var tester = (pendspos[which][1]).sign;
+			var tester = LPF.kr(pendspos[which][0], 10).sign;
 			var env = EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester));
 			SinOsc.ar((83 + which).midicps, 0, env) * 0.2;
+		};
+		sub = ~nsubs.collect{|which|
+			DC.ar(0);
+		};
+		//~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+		[son, sub]
+	}, []];
+	~scenetypes["passingzero_chick"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
+		var son, sub;
+		son = ~npendulums.collect{|which|
+			var tester = LPF.kr(pendspos[which][0], 10).sign;
+			var env = EnvGen.ar(Env.perc(0.01, 0.15), HPZ1.kr(tester));
+			var ason = HPF.ar(ClipNoise.ar(0.3), 3000) * env;
+			ason + DelayN.ar(ason * BrownNoise.ar, 0.1, 0.1);
 		};
 		sub = ~nsubs.collect{|which|
 			DC.ar(0);
@@ -226,7 +240,7 @@ s.waitForBoot{
 		son = ~npendulums.collect{|which|
 			var radialpos = (pendspos[which][1].squared + pendspos[which][0].squared).sqrt;
 			var envs = [0, 0.1, 0.2, 0.3, 0.4].collect{|radius, whichrad|
-				var tester = (radius - radialpos).sign;
+				var tester = LPF.kr(radius - radialpos, 10).sign;
 				EnvGen.ar(Env.perc(0.01, 0.1), HPZ1.kr(tester))
 			};
 			envs.collect{|env, whichrad|
@@ -286,8 +300,10 @@ s.waitForBoot{
 		var reltempo = ~normalperiod * In.kr(~tempobus) * patchtempo;
 		var moverspeed = reltempo * 0.125;
 
+		var freq = \freq.kr(360);
+
 		//basefreqs = [120, 180, 240, 360, 480].scramble;
-		basefreqs = [120, 130] * 3 * freqscale;
+		basefreqs = freq * [1, 130/120] * freqscale;
 		basefreqs = basefreqs * -8.midiratio; // from review, preferred this
 		harmstack = [1, 1.5, 2];
 		harmamps = [1.5, 0.4, 0.1];
