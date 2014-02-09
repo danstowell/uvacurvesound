@@ -34,8 +34,8 @@
 	son = ~npendulums.collect{|which|
 		var amp     = ~pendvalto3val_exp.value(pendspos[which][1], threevals[0]);
 		var distort = ~pendvalto3val_exp.value(pendspos[which][0], threevals[1]);
-		var speed = pendspos[which][2].poll(label:"speed");
-		bangs[which] = Trig1.kr(speed < 0.01, 0); // trigger when we slow
+		var speed = LPF.kr(pendspos[which][2], 10);
+		bangs[which] = Trig1.kr(speed < 0.15, 0); // trigger when we slow
 		//var swingout = (pendspos[which][0] + pendspos[which][1]).abs.poll;
 		//bangs[which] = Impulse.kr(swingout.linexp(0, 2, 10, 0.01)); // lock triggering to pendpos
 
