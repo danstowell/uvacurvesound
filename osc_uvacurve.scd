@@ -55,6 +55,7 @@ s.dumpOSC(0);
 ~sceneposcache = ~nscenes.collect{-1};
 ~widthcache = ~nscenes.collect{-1};
 ~ampcache = ~nscenes.collect{-1};
+~changepatchtimecache = ~nscenes.collect{-1}; // last time the patch change was requested - refuse to do too many
 ~osc_count = 0;
 ~osc_counter = Task{loop{10.wait;"OSC messages / sec: %".format(~osc_count / 10.0).postln; ~osc_count=0}}.play(AppClock);
 // ~osc_counter.stop
@@ -160,8 +161,14 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 					},
 					"changepatch", { // args [patchname, xfade] plus any number of key-value pairs
 						// NB msg[2] is NEXTPATCH, currently unused
-						"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
-						~pushascene.value(msg[1] ? "silent", targetslot, (msg[3] ? 1).asFloat, msg[4..]);
+						var timenow = Main.elapsedTime;
+						if((timenow - ~changepatchtimecache[targetslot]) < 0.5){
+							"    [changepatch too quickly, ignoring]".postln;
+						}{
+							"Received OSC % with % args".format(msg[0], msg.size - 1).postln;
+							~pushascene.value(msg[1] ? "silent", targetslot, (msg[3] ? 1).asFloat, msg[4..]);
+							~changepatchtimecache[targetslot] = timenow;
+						};
 					},
 				); // end of switch
 		});
