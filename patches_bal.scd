@@ -4,10 +4,10 @@
 	var son, sub;
 	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
 	son = ~npendulums.collect{|which|
-		var son, swingpos;
-		swingpos = (pendspos[which][0] + pendspos[which][1]);
+		var son, speed;
+		speed = pendspos[which][2];
 		son = SinOsc.ar(Array.series(4, 1, 1) * freq * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
-		son = son * (swingpos * moddepth).linexp(0, 1, 1, 1e-4);
+		son = son * speed.linlin((1-moddepth), 1, 0, 1);
 	};
 
 	sub = ~nsubs.collect{|which|
@@ -22,10 +22,10 @@
 	var son, sub;
 	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
 	son = ~npendulums.collect{|which|
-		var son, swingpos;
-		swingpos = (pendspos[which][0] + pendspos[which][1]);
+		var son, speed;
+		speed = pendspos[which][2];
 		son = SinOsc.ar(Array.series(4, 1, 1) * freq * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
-		son = son * (swingpos * moddepth).linexp(0, 1, 1, 1e-4);
+		son = son * speed.linlin((1-moddepth), 1, 0, 1);
 	};
 
 	sub = ~nsubs.collect{|which|
@@ -40,12 +40,12 @@
 	var son, sub;
 	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
 	son = ~npendulums.collect{|which|
-		var ason, swingpos;
-		swingpos = (pendspos[which][0] + pendspos[which][1]);
+		var ason, speed;
+		speed = pendspos[which][2];
 		ason = ([1,16].collect{|val|
 			SinOsc.ar(val * Array.series(8, 1, 1) * freq * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
 		} * [1, 0.002]).sum * 3;
-		ason = ason * (swingpos * moddepth).linexp(0, 1, 1, 1e-4);
+		ason = ason * speed.linlin((1-moddepth), 1, 0, 1);
 	};
 	son = [son, BRF.ar(son, 160, 0.5, mul: 1)].mean; // notch out a buzz on the cone
 	sub = ~nsubs.collect{|which|
