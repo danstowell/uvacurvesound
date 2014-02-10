@@ -38,9 +38,14 @@
 
 	var freq = \freq.kr(51.midicps);
 	var son, sub;
+	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
 	son = ~npendulums.collect{|which|
-		([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * freq * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
+		var ason, swingpos;
+		swingpos = (pendspos[which][0] + pendspos[which][1]);
+		ason = ([1,16].collect{|val|
+			SinOsc.ar(val * Array.series(8, 1, 1) * freq * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
 		} * [1, 0.002]).sum * 3;
+		ason = ason * (swingpos * moddepth).linexp(0, 1, 1, 1e-4);
 	};
 	son = [son, BRF.ar(son, 160, 0.5, mul: 1)].mean; // notch out a buzz on the cone
 	sub = ~nsubs.collect{|which|
