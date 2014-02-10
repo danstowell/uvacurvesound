@@ -7,7 +7,7 @@
 ~hw_midbus = 0;
 ~hw_subbus = 12;
 ~athome = false;
-~hardmul = if(~athome){10}{2};
+~hardmul = if(~athome){10}{2.4};
 "localsettings.scd".loadRelative;
 ////////////////////////
 s.latency = 0.75;

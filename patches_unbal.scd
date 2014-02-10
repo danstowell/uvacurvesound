@@ -14,7 +14,7 @@
 	sons = sons * 1.5;
 	sons = MidEQ.ar(sons, 250, 1,   -12); // notch out a buzz on the cone
 	sons = MidEQ.ar(sons, 120, 1,   -6); // notch out a buzz on the cone
-	sons = sons.stutter(3) * 0.03;
+	sons = sons.stutter(3) * 0.06;
 
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
@@ -36,7 +36,7 @@
 	};
 	sons = clusts.collect{|clust| DynKlank.ar(`[10.collect{exprand(1000, 10000)}, nil, 10.collect{exprand(0.1, 1)}], clust)};
 	sons = MidEQ.ar(sons, 1250, 1,   -6, mul: 1.4); // notch out a slightly piercing bit
-	sons = sons.stutter(3) * 0.0003;
+	sons = sons.stutter(3) * 0.0006;
 
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
