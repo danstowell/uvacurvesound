@@ -82,7 +82,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 			maxAngle      = msg[2].asFloat;
 			timeIncrement = msg[3].asFloat;
 			naturalness   = msg[4].asFloat;
-			speedMul      = msg[5].asFloat.min(2).max(0);
+			speedMul      = msg[5].asFloat.min(5).max(0);
 			//if(maxAngle==0){msg.postln};
 			// "per-pendulum" params
 			penddata = ~npendulums.collect{|whichpend|

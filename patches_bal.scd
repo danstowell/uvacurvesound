@@ -4,10 +4,15 @@
 	var son, sub;
 	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
 	son = ~npendulums.collect{|which|
-		var son, speed;
+		var son, speed, ampmod;
 		speed = pendspos[which][2];
+		if(which==7){speed.poll(0.5, "speed (bob 8)")};
 		son = SinOsc.ar(Array.series(4, 1, 1) * freq * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
-		son = son * speed.linlin((1-moddepth), 1, 0, 1);
+		ampmod = speed.linlin(0, 1, (1-moddepth.max(0.00001)), 1);
+		if(which==7){ampmod.poll(0.5, "ampmod (bob 8)")};
+		son = son * ampmod;
+		son.poll(CheckBadValues.ar(son));
+		son = son * (CheckBadValues.ar(son)<0.5);
 	};
 
 	sub = ~nsubs.collect{|which|
@@ -22,10 +27,14 @@
 	var son, sub;
 	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
 	son = ~npendulums.collect{|which|
-		var son, speed;
+		var son, speed, ampmod;
 		speed = pendspos[which][2];
+		if(which==7){speed.poll(0.5, "speed (bob 8)")};
 		son = SinOsc.ar(Array.series(4, 1, 1) * freq * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
-		son = son * speed.linlin((1-moddepth), 1, 0, 1);
+		ampmod = speed.linlin(0, 1, (1-moddepth.max(0.00001)), 1);
+		if(which==7){ampmod.poll(0.5, "ampmod (bob 8)")};
+		son = son * ampmod;
+		son = son * (CheckBadValues.ar(son)<0.5);
 	};
 
 	sub = ~nsubs.collect{|which|
@@ -37,21 +46,25 @@
 ~scenetypes["bal_purity2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var freq = \freq.kr(51.midicps);
-	var son, sub;
+	var sons, sub;
 	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
-	son = ~npendulums.collect{|which|
-		var ason, speed;
+	sons = ~npendulums.collect{|which|
+		var son, speed, ampmod;
 		speed = pendspos[which][2];
-		ason = ([1,16].collect{|val|
+		if(which==7){speed.poll(0.5, "speed (bob 8)")};
+		son = ([1,16].collect{|val|
 			SinOsc.ar(val * Array.series(8, 1, 1) * freq * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
 		} * [1, 0.002]).sum * 3;
-		ason = ason * speed.linlin((1-moddepth), 1, 0, 1);
+		ampmod = speed.linlin(0, 1, (1-moddepth.max(0.00001)), 1);
+		if(which==7){ampmod.poll(0.5, "ampmod (bob 8)")};
+		son = son * ampmod;
+		son = son * (CheckBadValues.ar(son)<0.5);
 	};
-	son = [son, BRF.ar(son, 160, 0.5, mul: 1)].mean; // notch out a buzz on the cone
+	sons = [sons, BRF.ar(sons, 160, 0.5, mul: 1)].mean; // notch out a buzz on the cone
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
 	};
-	~sceneenveloper.value(son, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
+	~sceneenveloper.value(sons, sub, onescenepos, width, circlesize:circlesize, pendspos:pendspos)
 }, []];
 ~scenetypes["bal_riffle"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 	var freq = \freq.kr(51.midicps);
