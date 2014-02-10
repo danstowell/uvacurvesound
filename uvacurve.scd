@@ -3,6 +3,7 @@
 // Settings:
 //~defaultscenes = ["tonestack01sin", "silent", "silent", "silent"]; // these are the ones that run on first invoke
 ~defaultscenes = ["bal_riffle", "hi_fabrickle", "sub_intersimple_golo"]; // these are the ones that run on first invoke
+~defaultscenes = ["silent", "silent", "silent"]; // these are the ones that run on first invoke
 ~stereoonly = false;
 ~hw_midbus = 0;
 ~hw_subbus = 12;

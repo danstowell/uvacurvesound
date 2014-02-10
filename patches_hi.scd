@@ -116,11 +116,16 @@
 	dly = 1 / (rate * 8);
 	trig = Impulse.kr(rate);
 
-	env = EnvGen.ar(Env.perc(0.01, 0.01, 0.3), trig) - EnvGen.ar(Env.perc(0.01, 0.01), DelayN.kr(trig, dly, dly));
+	env = EnvGen.ar(Env.perc(0.01, 0.01, 0.3), trig) + EnvGen.ar(Env.perc(0.01, 0.01), DelayN.kr(trig, dly, dly));
 
 	son = Klank.ar(`[[347, 753, 1500, 3523, 7710, 1610], nil, [0.1, 0.05, 0.05, 0.05, 0.05, 0.05]], env);
 
-	son = (son * 0.1).dup(~npendulums);
+	son = HPF.ar(son, 100);
+
+	son = Limiter.ar(son);
+	son = 0 - son;
+	son = (son * 0.1);
+	son = son.dup(~npendulums);
 
 	sub = ~nsubs.collect{|which|
 		DC.ar(0);
