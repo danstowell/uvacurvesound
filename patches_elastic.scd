@@ -145,9 +145,10 @@
 ~scenetypes["elastic_rip1plus1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 
 	var son, sub;
-
 	var reltempo = 1; //~normalperiod * In.kr(~tempobus) * patchtempo;
 	var stage, stagelag, evt, res;
+	var modrate = \modrate.kr(1);
+	onescenepos = (onescenepos + (LFSaw.kr(modrate).range(0, 1) * (modrate>0))).wrap(0, 1); // This patch is able to move itself around
 	stage = LFSaw.kr(0.03, 0.7).range(-5, 1).max(0);
 	stagelag = stage.lag(0.2, 0.2);
 	evt = Dust2.ar(stagelag.pow(3) * 400);

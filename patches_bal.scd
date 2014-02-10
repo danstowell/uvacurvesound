@@ -2,9 +2,12 @@
 
 	var freq = \freq.kr(60.midicps);
 	var son, sub;
-	son = ~npendulums.collect{|val|
-		var son;
+	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
+	son = ~npendulums.collect{|which|
+		var son, swingpos;
+		swingpos = (pendspos[which][0] + pendspos[which][1]);
 		son = SinOsc.ar(Array.series(4, 1, 1) * freq * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
+		son = son * (swingpos * moddepth).linexp(0, 1, 1, 1e-4);
 	};
 
 	sub = ~nsubs.collect{|which|
@@ -17,9 +20,12 @@
 
 	var freq = \freq.kr((60-12).midicps);
 	var son, sub;
-	son = ~npendulums.collect{|val|
-		var son;
+	var moddepth = \modrate.kr(0).max(0); // these patches abuse "modrate" to indicate the depth of the swing ampmod
+	son = ~npendulums.collect{|which|
+		var son, swingpos;
+		swingpos = (pendspos[which][0] + pendspos[which][1]);
 		son = SinOsc.ar(Array.series(4, 1, 1) * freq * LFDNoise0.ar(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(4, 0.5, 0.5)).sum * 0.2;
+		son = son * (swingpos * moddepth).linexp(0, 1, 1, 1e-4);
 	};
 
 	sub = ~nsubs.collect{|which|
@@ -32,7 +38,7 @@
 
 	var freq = \freq.kr(51.midicps);
 	var son, sub;
-	son = ~npendulums.collect{|val|
+	son = ~npendulums.collect{|which|
 		([1,16].collect{|val| SinOsc.ar(val * Array.series(8, 1, 1) * freq * LFDNoise0.kr(20).exprange(0.99, 1.01), phase: Rand(0,2pi), mul: Array.geom(8, 0.5, 0.125)).sum * 0.1;
 		} * [1, 0.002]).sum * 3;
 	};
