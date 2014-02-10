@@ -16,7 +16,7 @@ Task{
 	//"gui_uvacurve.scd".loadRelative;
 	1.wait;
 	s.sync;
-	MasterEQ(12);
+	//MasterEQ(12);
 	~automoving.value(false);
 	"osc_uvacurve.scd".loadRelative;
 }.play(AppClock);

@@ -70,14 +70,19 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 		//msg[1..].postln;
 
 		subaddr[0].switch("state", {
-			var volume, maxAngle, timeIncrement, naturalness, penddata, offset, pendspos;
+			var volume, maxAngle, timeIncrement, naturalness, speedMul, penddata, offset, pendspos;
 
-			var pendulumParamOffset = 5;
+			var pendulumParamOffset = 6;
+
+			var expectedmsgparts = pendulumParamOffset + (~npendulums * ~perPendulumKeys.size);
+			if(msg.size != expectedmsgparts){ "OSC /state: Expected len %, got %".format(expectedmsgparts, msg.size).postln };
+
 			// "global" params
 			volume        = msg[1].asFloat;
 			maxAngle      = msg[2].asFloat;
 			timeIncrement = msg[3].asFloat;
 			naturalness   = msg[4].asFloat;
+			speedMul      = msg[5].asFloat.min(5).max(0);
 			//if(maxAngle==0){msg.postln};
 			// "per-pendulum" params
 			penddata = ~npendulums.collect{|whichpend|
@@ -91,7 +96,7 @@ if(~d3func.notNil){thisProcess.removeOSCRecvFunc(~d3func); ~osc_counter.stop; };
 			~settempo.value((1/~normalperiod) * timeIncrement);
 
 			// Here we simply send the xy data to the bus
-			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta], pend[\speed]] }.flat;
+			pendspos = penddata.collect{|pend| [pend[\normAlpha], pend[\normBeta], pend[\speed] * speedMul] }.flat;
 			if(pendspos.any{|val| val.abs==inf}){
 				"infinity warning in the alpha/beta received from d3".postln;
 			}{
