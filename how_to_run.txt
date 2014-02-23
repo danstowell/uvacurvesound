@@ -1,8 +1,10 @@
 
+These instructions are specifically for the mac in the exhibit.
+
 
 HOW TO RUN A SEQUENCE
 
-* Run the bash script "runme_selfcontrolled.scd" using Terminal
+* Run the bash script "runme_selfcontrolled.bash" using Terminal
 
 
 HOW TO RUN SC BUT WAIT FOR d3 TO CONTROL
