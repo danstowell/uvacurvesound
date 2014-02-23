@@ -541,7 +541,9 @@ s.waitForBoot{
 				var mixamt = (distances_sub[which]+1).reciprocal;
 				Pan2.ar(asound, 0, mixamt)
 			}.sum * subamp * subon;
-			var son = mid + sub;
+			var son;
+			//2.do{ mid = XFade2.ar(mid, BHiPass4.ar(mid, 100), MouseX.kr(-1, 1)) }; // cut out lf content as far as possible
+			son = mid + sub;
 			son = son * amp * ~hardmul;
 			son = son * (CheckBadValues.ar(son)<0.5);
 			Out.ar(out, son);
@@ -550,6 +552,7 @@ s.waitForBoot{
 			var rawsound = In.ar(~finalaudiobus, ~npendulums_true);
 			var rawsub   = In.ar(~subbus, ~nsubs);
 			//rawsound = FreeVerb.ar(rawsound, mix:0.3 * reverbon, room:0.5, damp:0.5, mul:1);
+			//2.do{ rawsound = BHiPass4.ar(rawsound, 100) }; // cut out lf content as far as possible
 			Out.ar(~hw_midbus, rawsound * amp * midamp * midon * ~hardmul);
 			Out.ar(~hw_subbus, rawsub   * amp * subamp * subon * 0.1); // ~hardmul);
 		}
