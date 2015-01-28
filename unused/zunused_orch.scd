@@ -1,4 +1,4 @@
-	~scenetypes["oneper_to_orch_thrum"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["oneper_to_orch_thrum"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var thrummul = 0.8 * ~normalperiod * In.kr(~tempobus); //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
@@ -14,10 +14,9 @@
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["oneper_to_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["oneper_to_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var thrummul = 0.8 * ~normalperiod * In.kr(~tempobus); //MouseY.kr(0.5, 2, 1);
 		var son = ~npendulums.collect{|which|
@@ -33,14 +32,13 @@
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {SinOsc.ar(basefreq) * LFTri.ar(ExpRand(5, 10)).range(0.25, 0.05)}.dup(~nsubs);
-		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100));
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["oneper_to_orch_thrum_varsaw_fizzin"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["oneper_to_orch_thrum_varsaw_fizzin"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var inxfade = XLine.kr(1e-12, 1, 30);
 		var indensity = XLine.kr(0.1, 1000, 30);
@@ -62,14 +60,13 @@
 			XFade2.ar(asig * envs[which], asig, inxfade * 2 - 1);
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = ~npendulums.collect{|which| DC.kr([0, 0.95]) * A2K.kr(envs[which])}.flat;
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["oneper_to_orch_thrum_both"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var thrummul = 0.5 * ~normalperiod * In.kr(~tempobus); //MouseY.kr(0.1, 1, 1).poll;
 		var son = ~npendulums.collect{|which|
@@ -97,10 +94,9 @@
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["oneper_to_orch_g"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["oneper_to_orch_g"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
 			var mybasefreq = basefreq * (which+1) * freqscale;
@@ -116,10 +112,9 @@
 				, (MouseY.kr(1, 100, 1) * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["low_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["low_orch_thrum_varsaw"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var thrummul = 0.8; // MouseY.kr(0.5, 2, 1).poll;
 		var son = ~npendulums.collect{|which|
@@ -135,14 +130,13 @@
 				, (/* MouseY.kr(1, 100, 1) */ 10 * mybasefreq).min(18000));
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr([0, 0.3])}.dup(~npendulums).flat;
 		son.do{|oneson, which|
 			var reindex = (which * ((~nsubs-1)/(~npendulums-1))).floor;
 			sub[reindex] = sub[reindex] + (LPF.ar(oneson, 100) * LFTri.ar(ExpRand(5, 10)).range(0.5, 0.1));
 		};
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["orch_saw1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["orch_saw1"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
 			5.collect{
@@ -154,10 +148,9 @@
 			}.mean;
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
-	~scenetypes["orch_saw2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1|
+	~scenetypes["orch_saw2"] = [{|pendspos, onescenepos, width, freqscale, threevals, circlesize=1, patchtempo=1|
 		var basefreq = In.kr(~basefreqbus) * 0.5;
 		var son = ~npendulums.collect{|which|
 			5.collect{
@@ -169,6 +162,5 @@
 			}.mean;
 		} * 0.2;
 		var sub = {DC.ar(0)}.dup(~nsubs);
-		var leds = {DC.kr([0, 0.95])}.dup(~npendulums).flat;
-		~sceneenveloper.value(son, sub, leds, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
+		~sceneenveloper.value(son, sub, onescenepos, width, false, circlesize:circlesize, pendspos:pendspos)
 	}, []];
